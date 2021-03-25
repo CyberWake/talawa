@@ -1,7 +1,8 @@
 //flutter packages are  imported here
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
-
 //pages are imported here
 import 'package:talawa/controllers/auth_controller.dart';
 import 'package:talawa/controllers/org_controller.dart';
@@ -10,19 +11,17 @@ import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
 import 'package:talawa/utils/globals.dart';
 import 'package:talawa/utils/uidata.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:talawa/views/pages/organization/join_organization.dart';
-import 'package:talawa/views/widgets/about_tile.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:talawa/views/pages/organization/organization_settings.dart';
+import 'package:talawa/views/widgets/about_tile.dart';
 import 'package:talawa/views/widgets/alert_dialog_box.dart';
-import 'package:talawa/views/widgets/snackbar.dart';
+
 import 'switch_org_page.dart';
 
 class ProfilePage extends StatefulWidget {
   final bool isCreator;
   final List test;
-  ProfilePage({this.isCreator,this.test});
+  ProfilePage({this.isCreator, this.test});
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -55,7 +54,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    if(widget.isCreator != null && widget.test != null){
+    if (widget.isCreator != null && widget.test != null) {
       userDetails = widget.test;
       isCreator = widget.isCreator;
       org = userDetails[0]['joinedOrganizations'];
@@ -81,14 +80,14 @@ class _ProfilePageState extends State<ProfilePage> {
       });
       print(userDetails);
       int notFound = 0;
-      for(int i = 0;i<org.length;i++){
-        if(org[i]['_id']==orgId){
+      for (int i = 0; i < org.length; i++) {
+        if (org[i]['_id'] == orgId) {
           break;
-        }else{
+        } else {
           notFound++;
         }
       }
-      if(notFound==org.length && org.length>0){
+      if (notFound == org.length && org.length > 0) {
         _orgController.setNewOrg(context, org[0]['_id'], org[0]['name']);
         Provider.of<Preferences>(context, listen: false)
             .saveCurrentOrgName(org[0]['name']);
@@ -102,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   //used to fetch Organization Admin details
   Future fetchOrgAdmin() async {
-    orgName =await _preferences.getCurrentOrgName();
+    orgName = await _preferences.getCurrentOrgName();
     orgId = await _preferences.getCurrentOrgId();
     if (orgId != null) {
       GraphQLClient _client = graphQLConfiguration.authClient();
@@ -190,9 +189,12 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
         backgroundColor: Colors.white,
         body: userDetails.isEmpty || isCreator == null
-            ? Center(child: CircularProgressIndicator(key: Key('loading'),))
+            ? Center(
+                child: CircularProgressIndicator(
+                key: Key('loading'),
+              ))
             : Column(
-          key: Key('body'),
+                key: Key('body'),
                 children: <Widget>[
                   Container(
                     padding: const EdgeInsets.fromLTRB(0, 50.0, 0, 32.0),
@@ -250,7 +252,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         Padding(
                           padding: const EdgeInsets.only(left: 16.0),
                           child: Text(
-                              "Current Organization: " + (orgName??'No Organization Joined'),
+                              "Current Organization: " +
+                                  (orgName ?? 'No Organization Joined'),
                               style: TextStyle(
                                   fontSize: 16.0, color: Colors.white)),
                         ),
@@ -278,7 +281,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           org.length == 0
                               ? SizedBox()
                               : ListTile(
-                              key: Key('Switch Organization'),
+                                  key: Key('Switch Organization'),
                                   title: Text(
                                     'Switch Organization',
                                     style: TextStyle(fontSize: 18.0),
@@ -306,15 +309,17 @@ class _ProfilePageState extends State<ProfilePage> {
                               onTap: () {
                                 pushNewScreen(
                                   context,
-                                  screen: JoinOrganization(fromProfile: true,),
+                                  screen: JoinOrganization(
+                                    fromProfile: true,
+                                  ),
                                 );
                               }),
                           isCreator == null
                               ? SizedBox()
                               : isCreator == true
                                   ? ListTile(
-                              key: Key('Organization Settings'),
-                              title: Text(
+                                      key: Key('Organization Settings'),
+                                      title: Text(
                                         'Organization Settings',
                                         style: TextStyle(fontSize: 18.0),
                                       ),
@@ -331,26 +336,35 @@ class _ProfilePageState extends State<ProfilePage> {
                                               organization: curOrganization),
                                         );
                                       })
-                                  : org.length==0?SizedBox():ListTile(
-                              key: Key('Leave This Organization'),
-                              title: Text(
-                                        'Leave This Organization',
-                                        style: TextStyle(fontSize: 18.0),
-                                      ),
-                                      leading: Icon(
-                                        Icons.exit_to_app,
-                                        color: UIData.secondaryColor,
-                                      ),
-                                      onTap: () async {
-                                        showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertBox(
-                                                  message:
-                                                      "Are you sure you want to leave this organization?",
-                                                  function: leaveOrg);
-                                            });
-                                      }),
+                                  : org.length == 0
+                                      ? SizedBox()
+                                      : ListTile(
+                                          shape: RoundedRectangleBorder(
+                                              side: BorderSide(
+                                                  color: Colors.black,
+                                                  width: 0.5),
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          key: Key('Leave This Organization'),
+                                          title: Text(
+                                            'Leave This Organization',
+                                            style: TextStyle(fontSize: 18.0),
+                                          ),
+                                          leading: Icon(
+                                            Icons.exit_to_app,
+                                            color: UIData.secondaryColor,
+                                          ),
+                                          onTap: () async {
+                                            showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertBox(
+                                                      message:
+                                                          "Are you sure you want to leave this organization?",
+                                                      function: leaveOrg);
+                                                });
+                                          }),
                           ListTile(
                             key: Key('Logout'),
                             title: Text(

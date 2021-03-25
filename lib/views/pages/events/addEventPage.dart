@@ -1,11 +1,10 @@
 //flutter packages
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:intl/intl.dart';
 //pages are called here
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/uidata.dart';
-import 'package:intl/intl.dart';
 
 class AddEvent extends StatefulWidget {
   AddEvent({Key key}) : super(key: key);
@@ -185,24 +184,28 @@ class _AddEventState extends State<AddEvent> {
           color: Colors.white,
         ),
         onPressed: () {
-          if(titleController.text.isEmpty || descriptionController.text.isEmpty || locationController.text.isEmpty){
-            if (titleController.text.isEmpty){
+          if (titleController.text.isEmpty ||
+              descriptionController.text.isEmpty ||
+              locationController.text.isEmpty) {
+            if (titleController.text.isEmpty) {
               setState(() {
                 _validateTitle = true;
               });
             }
-            if(descriptionController.text.isEmpty){
+            if (descriptionController.text.isEmpty) {
               setState(() {
                 _validateDescription = true;
               });
             }
-            if(locationController.text.isEmpty){
+            if (locationController.text.isEmpty) {
               setState(() {
                 _validateLocation = true;
               });
             }
-            Fluttertoast.showToast(msg: 'Fill in the empty fields', backgroundColor: Colors.grey[500]);
-          }else {
+            Fluttertoast.showToast(
+                msg: 'Fill in the empty fields',
+                backgroundColor: Colors.grey[500]);
+          } else {
             createEvent();
             Navigator.of(context).pop();
           }

@@ -1,7 +1,5 @@
-
 //flutter imported packages
 import 'package:flutter/material.dart';
-
 //pages are called here
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
@@ -52,7 +50,7 @@ class _AddPostState extends State<AddPost> {
   }
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  
+
   //main build starts from here
   @override
   Widget build(BuildContext context) {

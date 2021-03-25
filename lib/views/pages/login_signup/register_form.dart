@@ -1,27 +1,23 @@
 //flutter packages are called here
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:flutter_pw_validator/flutter_pw_validator.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:graphql/utilities.dart' show multipartFileFrom;
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 // pages are called here
 import 'package:provider/provider.dart';
+import 'package:talawa/model/token.dart';
 import 'package:talawa/services/Queries.dart';
+import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/utils/validator.dart';
 import 'package:talawa/view_models/vm_register.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:talawa/services/preferences.dart';
-import 'package:talawa/model/token.dart';
 import 'package:talawa/views/pages/organization/join_organization.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:graphql/utilities.dart' show multipartFileFrom;
-
-//pubspec packages are called here
-import 'package:file_picker/file_picker.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:flutter_password_strength/flutter_password_strength.dart';
 
 class RegisterForm extends StatefulWidget {
   @override
@@ -76,7 +72,7 @@ class RegisterFormState extends State<RegisterForm> {
       setState(() {
         _progressBarState = false;
       });
-      _exceptionToast(result.hasException.toString().substring(16,35));
+      _exceptionToast(result.hasException.toString().substring(16, 35));
     } else if (!result.hasException && !result.loading) {
       setState(() {
         _progressBarState = true;
@@ -95,6 +91,7 @@ class RegisterFormState extends State<RegisterForm> {
       await _pref.saveRefreshToken(refreshToken);
       final String currentUserId = result.data['signUp']['user']['_id'];
       await _pref.saveUserId(currentUserId);
+      Navigator.pop(context);
       //Navigate user to join organization screen
       Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => new JoinOrganization(
@@ -115,7 +112,7 @@ class RegisterFormState extends State<RegisterForm> {
       setState(() {
         _progressBarState = false;
       });
-      _exceptionToast(result.exception.toString().substring(16,35));
+      _exceptionToast(result.exception.toString().substring(16, 35));
     } else if (!result.hasException && !result.loading) {
       setState(() {
         _progressBarState = true;
@@ -133,7 +130,7 @@ class RegisterFormState extends State<RegisterForm> {
       await _pref.saveRefreshToken(refreshToken);
       final String currentUserId = result.data['signUp']['user']['_id'];
       await _pref.saveUserId(currentUserId);
-
+      Navigator.pop(context);
       Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => new JoinOrganization(
                 fromProfile: false,
@@ -327,7 +324,6 @@ class RegisterFormState extends State<RegisterForm> {
                             setState(() {});
                           },
                           controller: originalPassword),
-
                       SizedBox(
                         height: 20,
                       ),

@@ -1,26 +1,24 @@
-
 //flutter packages are called here
+import 'package:animations/animations.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
-
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:talawa/services/Queries.dart';
 //pages are imported here
 import 'package:talawa/services/preferences.dart';
+import 'package:talawa/utils/apiFuctions.dart';
 import 'package:talawa/utils/timer.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/views/pages/events/EventDetailPage.dart';
 import 'package:talawa/views/pages/events/addEventPage.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
-import 'package:talawa/services/Queries.dart';
-import 'package:talawa/utils/apiFuctions.dart';
 import 'package:talawa/views/pages/events/addTaskDialog.dart';
 import 'package:talawa/views/pages/events/editEventDialog.dart';
-
-
 //pubspec packages are called here
 import 'package:timeline_list/timeline.dart';
 import 'package:timeline_list/timeline_model.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+
 class Events extends StatefulWidget {
   Events({Key key}) : super(key: key);
 
@@ -128,14 +126,12 @@ class _EventsState extends State<Events> {
     return eventDates;
   }
 
-
   //function called to delete the event
   Future<void> _deleteEvent(context, eventId) async {
     String mutation = Queries().deleteEvent(eventId);
     Map result = await apiFunctions.gqlquery(mutation);
     getEvents();
   }
-
 
   //function to called be called for register
   Future<void> _register(context, eventId) async {
@@ -144,39 +140,37 @@ class _EventsState extends State<Events> {
     print(result);
   }
 
-
   //function to get the events
   Future<void> getEvents() async {
     final String currentOrgID = await preferences.getCurrentOrgId();
-      Map result =
-      await apiFunctions.gqlquery(Queries().fetchOrgEvents(currentOrgID));
-      eventList = result == null ? [] : result['events'].reversed.toList();
-      eventList.removeWhere((element) =>
-          element['title'] == 'Talawa Congress' ||
-          element['title'] == 'test' || element['title'] == 'Talawa Conference Test'); //dont know who keeps adding these
-      eventList.sort((a, b) {
-        return DateTime.fromMicrosecondsSinceEpoch(
-          int.parse(a['startTime']))
+    Map result =
+        await apiFunctions.gqlquery(Queries().fetchOrgEvents(currentOrgID));
+    eventList = result == null ? [] : result['events'].reversed.toList();
+    eventList.removeWhere((element) =>
+        element['title'] == 'Talawa Congress' ||
+        element['title'] == 'test' ||
+        element['title'] ==
+            'Talawa Conference Test'); //dont know who keeps adding these
+    eventList.sort((a, b) {
+      return DateTime.fromMicrosecondsSinceEpoch(int.parse(a['startTime']))
           .compareTo(
-          DateTime.fromMicrosecondsSinceEpoch(int.parse(b['startTime'])));
-      });
-      eventsToDates(eventList, DateTime.now());
-      setState(() {
-        displayedEvents = eventList;
-      });
-      // print(displayedEvents);
-
+              DateTime.fromMicrosecondsSinceEpoch(int.parse(b['startTime'])));
+    });
+    eventsToDates(eventList, DateTime.now());
+    setState(() {
+      displayedEvents = eventList;
+    });
+    // print(displayedEvents);
 
     eventList.sort((a, b) => DateTime.fromMicrosecondsSinceEpoch(
-        int.parse(a['startTime']))
+            int.parse(a['startTime']))
         .compareTo(
-        DateTime.fromMicrosecondsSinceEpoch(int.parse(b['startTime']))));
+            DateTime.fromMicrosecondsSinceEpoch(int.parse(b['startTime']))));
     eventsToDates(eventList, DateTime.now());
     setState(() {
       displayedEvents = eventList;
     });
   }
-
 
   //functions to edit the event
   Future<void> _editEvent(context, event) async {
@@ -487,18 +481,23 @@ class _EventsState extends State<Events> {
   }
 
   Widget eventFab() {
-    return FloatingActionButton(
-        backgroundColor: UIData.secondaryColor,
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
+    return OpenContainer(
+      transitionDuration: Duration(milliseconds: 1000),
+      closedElevation: 6.0,
+      closedShape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(28),
         ),
-        onPressed: () {
-          pushNewScreen(
-            context,
-            withNavBar: true,
-            screen: AddEvent(),
-          );
-        });
+      ),
+      closedBuilder: (BuildContext c, VoidCallback action) =>
+          FloatingActionButton(
+        child: Icon(Icons.add),
+        backgroundColor: UIData.secondaryColor,
+        foregroundColor: Colors.white,
+        elevation: 5.0,
+        onPressed: () => action(),
+      ),
+      openBuilder: (BuildContext c, VoidCallback action) => AddEvent(),
+    );
   }
 }

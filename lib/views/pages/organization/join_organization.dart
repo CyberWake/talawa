@@ -1,21 +1,20 @@
 //flutter packages are imported here
+import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
 //PAges are imported here
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 import 'package:talawa/controllers/auth_controller.dart';
-import 'package:talawa/controllers/org_controller.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
 import 'package:talawa/utils/globals.dart';
 import 'package:talawa/utils/uidata.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:talawa/views/pages/home_page.dart';
-import 'package:talawa/views/pages/organization/profile_page.dart';
+import 'package:talawa/views/widgets/alert_dialog_box.dart';
+import 'package:talawa/views/widgets/toast_tile.dart';
 
 import 'create_organization.dart';
 
@@ -113,8 +112,9 @@ class _JoinOrganizationState extends State<JoinOrganization> {
       if (widget.fromProfile) {
         Navigator.pop(context);
       } else {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => HomePage(
+        Navigator.of(context).pushReplacement(PageRouteBuilder(
+          opaque: false,
+          pageBuilder: (context, animation, _) => HomePage(
             openPageIndex: 4,
           ),
         ));
@@ -160,8 +160,9 @@ class _JoinOrganizationState extends State<JoinOrganization> {
       if (widget.fromProfile) {
         Navigator.pop(context);
       } else {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => HomePage(
+        Navigator.of(context).pushReplacement(PageRouteBuilder(
+          opaque: false,
+          pageBuilder: (context, animation, _) => HomePage(
             openPageIndex: 4,
           ),
         ));
@@ -438,52 +439,48 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                                   })))
                 ],
               )),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        backgroundColor: UIData.secondaryColor,
-        foregroundColor: Colors.white,
-        elevation: 5.0,
-        onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => new CreateOrganization(
-                    isFromProfile: widget.fromProfile,
-                  )));
-        },
+      floatingActionButton: OpenContainer(
+        transitionDuration: Duration(milliseconds: 1000),
+        closedElevation: 6.0,
+        closedShape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(28),
+          ),
+        ),
+        closedBuilder: (BuildContext c, VoidCallback action) =>
+            FloatingActionButton(
+          child: Icon(Icons.add),
+          backgroundColor: UIData.secondaryColor,
+          foregroundColor: Colors.white,
+          elevation: 5.0,
+          onPressed: () => action(),
+        ),
+        openBuilder: (BuildContext c, VoidCallback action) =>
+            CreateOrganization(
+          isFromProfile: widget.fromProfile,
+        ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
   void confirmOrgDialog() {
     //this is the pop up shown when the confirmation is required
-    showDialog(
+    showModal(
         context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Confirmation"),
-            content: Text("Are you sure you want to join this organization?"),
-            actions: [
-              FlatButton(
-                child: Text("Close"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              FlatButton(
-                child: Text("Yes"),
-                onPressed: () async {
-                  if (isPublic == 'true') {
-                    joinPublicOrg();
-                    Navigator.of(context).pop();
-                  } else if (isPublic == 'false') {
-                    joinPrivateOrg();
-                    Navigator.of(context).pop();
-                  }
-                },
-              )
-            ],
-          );
-        });
+        configuration: FadeScaleTransitionConfiguration(
+          transitionDuration: Duration(milliseconds: 800),
+          reverseTransitionDuration: Duration(milliseconds: 500),
+        ),
+        builder: (BuildContext context) => AlertBox(
+              message: "Are you sure you want to join this organization?",
+              function: () async {
+                if (isPublic == 'true') {
+                  joinPublicOrg();
+                } else if (isPublic == 'false') {
+                  joinPrivateOrg();
+                }
+              },
+            ));
   }
 
   Widget showError(String msg) {
@@ -497,46 +494,22 @@ class _JoinOrganizationState extends State<JoinOrganization> {
   }
 
   _successToast(String msg) {
-    Widget toast = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25.0),
-        color: Colors.green,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(msg),
-        ],
-      ),
-    );
-
     fToast.showToast(
-      child: toast,
+      child: ToastTile(
+        msg: msg,
+        success: true,
+      ),
       gravity: ToastGravity.BOTTOM,
       toastDuration: Duration(seconds: 3),
     );
   }
 
   _exceptionToast(String msg) {
-    Widget toast = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 14.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25.0),
-        color: Colors.red,
-      ),
-      child: Expanded(
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Text(msg),
-          ],
-        ),
-      ),
-    );
-
     fToast.showToast(
-      child: toast,
+      child: ToastTile(
+        msg: msg,
+        success: false,
+      ),
       gravity: ToastGravity.BOTTOM,
       toastDuration: Duration(seconds: 3),
     );

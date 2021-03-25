@@ -2,19 +2,17 @@
 import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 //pages are called here
 import 'package:provider/provider.dart';
+import 'package:talawa/model/token.dart';
 import 'package:talawa/services/Queries.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
 import 'package:talawa/utils/uidata.dart';
-import 'package:talawa/utils/validator.dart';
 import 'package:talawa/view_models/vm_login.dart';
-import 'package:talawa/model/token.dart';
 import 'package:talawa/views/pages/home_page.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginForm extends StatefulWidget {
   @override
@@ -63,15 +61,15 @@ class LoginFormState extends State<LoginForm> {
       setState(() {
         _progressBarState = false;
       });
-      _exceptionToast('Connection Error. Make sure your Internet connection is stable');
-    }
-    else if (result.hasException) {
+      _exceptionToast(
+          'Connection Error. Make sure your Internet connection is stable');
+    } else if (result.hasException) {
       print(result.exception);
       setState(() {
         _progressBarState = false;
       });
 
-      _exceptionToast(result.exception.toString().substring(16,35));
+      _exceptionToast(result.exception.toString().substring(16, 35));
     } else if (!result.hasException && !result.loading) {
       setState(() {
         _progressBarState = true;
@@ -107,9 +105,11 @@ class LoginFormState extends State<LoginForm> {
             result.data['login']['user']['joinedOrganizations'][0]['name'];
         await _pref.saveCurrentOrgName(currentOrgName);
       }
-
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => new HomePage(openPageIndex: 0,)));
+      Navigator.pop(context);
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => new HomePage(
+                openPageIndex: 0,
+              )));
     }
   }
 
@@ -263,7 +263,11 @@ class LoginFormState extends State<LoginForm> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(child: Text(msg, textAlign: TextAlign.center,)),
+          Expanded(
+              child: Text(
+            msg,
+            textAlign: TextAlign.center,
+          )),
         ],
       ),
     );
@@ -271,9 +275,7 @@ class LoginFormState extends State<LoginForm> {
     fToast.showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
-
       toastDuration: Duration(seconds: 5),
-
     );
   }
 
