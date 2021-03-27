@@ -89,7 +89,7 @@ class _NewsFeedState extends State<NewsFeed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: CustomAppBar('NewsFeed'),
+        appBar: CustomAppBar('NewsFeed',key: Key('NEWSFEED_APP_BAR')),
         floatingActionButton: addPostFab(),
         body: postList.isEmpty
             ? Center(child: CircularProgressIndicator())
