@@ -146,13 +146,19 @@ class _JoinOrganizationState extends State<JoinOrganization> {
       if (joinedOrg.length == 1) {
         final String currentOrgId = result.data['joinPublicOrganization']
             ['joinedOrganizations'][0]['_id'];
-        await _pref.saveCurrentOrgId(currentOrgId);
+        Provider.of<Preferences>(context, listen: false)
+            .saveCurrentOrgId(currentOrgId);
+        //await _pref.saveCurrentOrgId(currentOrgId);
         final String currentOrgImgSrc = result.data['joinPublicOrganization']
             ['joinedOrganizations'][0]['image'];
-        await _pref.saveCurrentOrgImgSrc(currentOrgImgSrc);
+        Provider.of<Preferences>(context, listen: false)
+            .saveCurrentOrgImgSrc(currentOrgImgSrc);
+        //await _pref.saveCurrentOrgImgSrc(currentOrgImgSrc);
         final String currentOrgName = result.data['joinPublicOrganization']
             ['joinedOrganizations'][0]['name'];
-        await _pref.saveCurrentOrgName(currentOrgName);
+        Provider.of<Preferences>(context, listen: false)
+            .saveCurrentOrgName(currentOrgName);
+        //await _pref.saveCurrentOrgName(currentOrgName);
       }
       _successToast("Sucess!");
 

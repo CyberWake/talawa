@@ -153,8 +153,11 @@ class _OrganizationSettingsState extends State<OrganizationSettings> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Organization Settings',
-              style: TextStyle(color: Colors.white)),
+          title: Hero(
+            tag:'title',
+            child: const Text('Organization Settings',
+                style: TextStyle(color: Colors.white)),
+          ),
         ),
         body: Stack(
           children: [

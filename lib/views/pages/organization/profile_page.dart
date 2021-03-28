@@ -1,4 +1,5 @@
 //flutter packages are  imported here
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
@@ -289,64 +290,34 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             onTap: () {},
                           ),
-                          org.length == 0
-                              ? SizedBox()
-                              : ListTile(
-                                  key: Key('Switch Organization'),
-                                  title: Text(
-                                    'Switch Organization',
-                                    style: TextStyle(fontSize: 18.0),
-                                  ),
-                                  leading: Icon(
-                                    Icons.compare_arrows,
-                                    color: UIData.secondaryColor,
-                                  ),
-                                  onTap: () {
-                                    pushNewScreen(
-                                      context,
-                                      screen: SwitchOrganization(),
-                                    );
-                                  }),
-                          ListTile(
-                              key: Key('Join or Create New Organization'),
-                              title: Text(
-                                'Join or Create New Organization',
-                                style: TextStyle(fontSize: 18.0),
-                              ),
-                              leading: Icon(
-                                Icons.business,
-                                color: UIData.secondaryColor,
-                              ),
-                              onTap: () {
-                                pushNewScreen(
-                                  context,
-                                  screen: JoinOrganization(
-                                    fromProfile: true,
-                                  ),
-                                );
-                              }),
                           isCreator == null
                               ? SizedBox()
                               : isCreator == true
-                                  ? ListTile(
-                                      key: Key('Organization Settings'),
-                                      title: Text(
-                                        'Organization Settings',
-                                        style: TextStyle(fontSize: 18.0),
-                                      ),
-                                      leading: Icon(
-                                        Icons.settings,
-                                        color: UIData.secondaryColor,
-                                      ),
-                                      onTap: () {
-                                        pushNewScreen(
-                                          context,
-                                          screen: OrganizationSettings(
-                                              creator: creator == userID,
-                                              public: isPublic,
-                                              organization: curOrganization),
-                                        );
-                                      })
+                                  ? OpenContainer(
+                            closedElevation: 0.0,openElevation: 0.0,
+                              closedBuilder:
+                                      (BuildContext c, VoidCallback action) {
+                                      return ListTile(
+                                          key: Key('Organization Settings'),
+                                          title: Hero(
+                                            tag: 'title',
+                                            child: Text(
+                                              'Organization Settings',
+                                              style: TextStyle(fontSize: 18.0),
+                                            ),
+                                          ),
+                                          leading: Icon(
+                                            Icons.settings,
+                                            color: UIData.secondaryColor,
+                                          ),
+                                          onTap: () => action());
+                                    }, openBuilder:
+                                      (BuildContext c, VoidCallback action) {
+                                      return OrganizationSettings(
+                                          creator: creator == userID,
+                                          public: isPublic,
+                                          organization: curOrganization);
+                                    })
                                   : org.length == 0
                                       ? SizedBox()
                                       : ListTile(

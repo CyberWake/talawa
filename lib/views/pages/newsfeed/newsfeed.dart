@@ -4,16 +4,20 @@ import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 //pages are imported here
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
+import 'package:talawa/commons/collapsing_list_tile_widget.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
+import 'package:talawa/utils/GQLClient.dart';
 import 'package:talawa/utils/apiFuctions.dart';
 import 'package:talawa/utils/timer.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/views/pages/newsfeed/addPost.dart';
 import 'package:talawa/views/pages/newsfeed/newsArticle.dart';
+import 'package:talawa/views/pages/organization/join_organization.dart';
 import 'package:talawa/views/widgets/custom_appbar.dart';
 
 class NewsFeed extends StatefulWidget {
@@ -23,17 +27,46 @@ class NewsFeed extends StatefulWidget {
   _NewsFeedState createState() => _NewsFeedState();
 }
 
-class _NewsFeedState extends State<NewsFeed> {
+class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin {
+  AnimationController _animationController;
+  Queries _query = Queries();
+  GraphQLConfiguration graphQLConfiguration = GraphQLConfiguration();
   ScrollController scrollController = new ScrollController();
   bool isVisible = true;
   Preferences preferences = Preferences();
   ApiFunctions apiFunctions = ApiFunctions();
   List postList = [];
+  List userOrg = [];
   Timer timer = Timer();
+  int isSelected = -1;
+  String orgId;
   String _currentOrgID;
+  Preferences _pref = Preferences();
+  bool _progressBarState = false;
+  double maxWidth = 210;
+  double minWidth = 70;
+  bool isCollapsed = true;
+  Animation<double> widthAnimation;
+  int currentSelectedIndex = 0;
+
+  void toggleProgressBarState() {
+    _progressBarState = !_progressBarState;
+  }
+
+  @override
+  void didChangeDependencies() {
+    orgId = Provider.of<Preferences>(context,listen: true).orgId;
+    fetchUserDetails();
+    super.didChangeDependencies();
+  }
 
   //setting initial state to the variables
   initState() {
+    fetchUserDetails();
+    _animationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 300));
+    widthAnimation = Tween<double>(begin: minWidth, end: maxWidth)
+        .animate(_animationController);
     super.initState();
     getPosts();
     Provider.of<Preferences>(context, listen: false).getCurrentOrgId();
@@ -53,6 +86,37 @@ class _NewsFeedState extends State<NewsFeed> {
           });
       }
     });
+  }
+
+  Future fetchUserDetails() async {
+    final String userID = await _pref.getUserId();
+
+    GraphQLClient _client = graphQLConfiguration.clientToQuery();
+
+    QueryResult result = await _client.query(QueryOptions(
+        documentNode: gql(_query.fetchUserInfo), variables: {'id': userID}));
+    if (result.loading) {
+      setState(() {
+        _progressBarState = true;
+      });
+    } else if (result.hasException) {
+      print(result.exception);
+      setState(() {
+        _progressBarState = false;
+        showError(result.exception.toString());
+      });
+    } else if (!result.hasException && !result.loading) {
+      setState(() {
+        _progressBarState = false;
+        userOrg = result.data['users'][0]['joinedOrganizations'];
+        isSelected = 0;
+        orgId = userOrg[0]['_id'];
+        print(userOrg);
+        if (userOrg.isEmpty) {
+          showError("You are not registered to any organization");
+        }
+      });
+    }
   }
 
   //function to get the current posts
@@ -85,12 +149,47 @@ class _NewsFeedState extends State<NewsFeed> {
     getPosts();
   }
 
+  Future switchOrg(String index,int selected) async {
+    if (index.compareTo(orgId) == 0) {
+      print('${userOrg[0]['_id']} | $orgId ');
+      Navigator.pop(context);
+    } else {
+      GraphQLClient _client = graphQLConfiguration.clientToQuery();
+      QueryResult result = await _client.mutate(
+          MutationOptions(documentNode: gql(_query.fetchOrgById(index))));
+      if (result.hasException) {
+        print(result.exception);
+        //_exceptionToast(result.exception.toString());
+      } else if (!result.hasException) {
+        print('here');
+        /*_successToast("Switched to " +
+            result.data['organizations'][0]['name'].toString());
+        */
+        setState(() {
+          isSelected = selected;
+        });
+        //save new current org in preference
+        final String currentOrgId = result.data['organizations'][0]['_id'];
+        Provider.of<Preferences>(context, listen: false)
+            .saveCurrentOrgId(currentOrgId);
+        final String currentOrgName = result.data['organizations'][0]['name'];
+        Provider.of<Preferences>(context, listen: false)
+            .saveCurrentOrgName(currentOrgName);
+        final String currentOrgImgSrc =
+        result.data['organizations'][0]['image'];
+        await _pref.saveCurrentOrgImgSrc(currentOrgImgSrc);
+        Navigator.pop(context);
+      }
+    }
+  }
+
   //the main build starts from here
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: CustomAppBar('NewsFeed',key: Key('NEWSFEED_APP_BAR')),
+        appBar: CustomAppBar('NewsFeed', key: Key('NEWSFEED_APP_BAR')),
         floatingActionButton: addPostFab(),
+        drawer: drawer(),
         body: postList.isEmpty
             ? Center(child: CircularProgressIndicator())
             : RefreshIndicator(
@@ -281,6 +380,125 @@ class _NewsFeedState extends State<NewsFeed> {
           },
         ),
       ],
+    );
+  }
+
+  Widget drawer(){
+    return SafeArea(
+      child: AnimatedBuilder(
+        animation: _animationController,
+        builder: (context, widget) => Stack(
+          children: [
+            isCollapsed?Container(
+              color:Colors.transparent,
+              height: double.infinity,
+              width: double.infinity,
+            ):SizedBox(),
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(20),
+              ),
+              child: Material(
+                elevation: 80.0,
+                child: Container(
+                  width: widthAnimation.value,
+                  color: UIData.primaryColor,
+                  padding: EdgeInsets.only(top:10),
+                  child: Column(
+                    children: <Widget>[
+                      Expanded(
+                        child: ListView.separated(
+                          separatorBuilder: (context, counter) {
+                            return Divider(height: 12.0);
+                          },
+                          itemBuilder: (context, counter) {
+                            return CollapsingListTile(
+                              onTap: () {
+                                switchOrg(userOrg[counter]['_id'].toString(),counter);
+                              },
+                              isSelected: isSelected == counter,
+                              title: userOrg[counter]['name'],
+                              image: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: SizedBox(
+                                  width: 50,
+                                  height: 50,
+                                  child: userOrg[counter]['image'] ==
+                                      null
+                                      ? Image.asset(
+                                    "assets/images/team.png",
+                                    fit: BoxFit.fill,
+                                  )
+                                      : Image.network(
+                                    Provider.of<GraphQLConfiguration>(
+                                        context)
+                                        .displayImgRoute +
+                                        userOrg[counter]
+                                        ['image'],
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                              animationController: _animationController,
+                            );
+                          },
+                          itemCount: userOrg.length,
+                        ),
+                      ),
+                      CollapsingListTile(
+                        onTap: () {
+                          Navigator.pop(context);
+                          pushNewScreen(
+                              context,
+                              screen: JoinOrganization(
+                                fromProfile: true,
+                              ),
+                              withNavBar: false);
+                        },
+                        title: 'Join/Create\nOrganization',
+                        image: SizedBox(
+                          width: 35,
+                          child: Icon(Icons.add,size: 45,color: Colors.white,)
+                        ),
+                        animationController: _animationController,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            isCollapsed = !isCollapsed;
+                            isCollapsed
+                                ? _animationController.forward()
+                                : _animationController.reverse();
+                          });
+                        },
+                        child: AnimatedIcon(
+                          icon: AnimatedIcons.view_list,
+                          progress: _animationController,
+                          color: Colors.white,
+                          size: 50.0,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 50.0,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget showError(String msg) {
+    return Center(
+      child: Text(
+        msg,
+        style: TextStyle(fontSize: 16),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 }
