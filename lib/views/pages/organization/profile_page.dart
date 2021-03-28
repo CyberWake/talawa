@@ -50,6 +50,16 @@ class _ProfilePageState extends State<ProfilePage> {
   String orgId;
   GraphQLConfiguration graphQLConfiguration = GraphQLConfiguration();
 
+  @override
+  void didChangeDependencies() {
+    // When parent widget `updateShouldNotify: true`,
+    // child widget can obtain new value when setting `listen: true`.
+    orgId = Provider.of<Preferences>(context, listen: true).orgId;
+    admins = [];
+    fetchUserDetails();
+    super.didChangeDependencies();
+  }
+
   //providing initial states to the variables
   @override
   void initState() {
@@ -78,7 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
         userDetails = result.data['users'];
         org = userDetails[0]['joinedOrganizations'];
       });
-      print(userDetails);
+      //print(userDetails);
       int notFound = 0;
       for (int i = 0; i < org.length; i++) {
         if (org[i]['_id'] == orgId) {
@@ -176,10 +186,10 @@ class _ProfilePageState extends State<ProfilePage> {
       Provider.of<Preferences>(context, listen: false)
           .saveCurrentOrgId(newOrgId);
       //  _successToast('You are no longer apart of this organization');
-      pushNewScreen(
+      /*pushNewScreen(
         context,
         screen: ProfilePage(),
-      );
+      );*/
     }
   }
 
@@ -187,7 +197,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: Key('PROFILE_PAGE_SCAFFOLD'),
+        key: Key('PROFILE_PAGE_SCAFFOLD'),
         backgroundColor: Colors.white,
         body: userDetails.isEmpty || isCreator == null
             ? Center(
@@ -340,12 +350,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                   : org.length == 0
                                       ? SizedBox()
                                       : ListTile(
-                                          shape: RoundedRectangleBorder(
-                                              side: BorderSide(
-                                                  color: Colors.black,
-                                                  width: 0.5),
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
                                           key: Key('Leave This Organization'),
                                           title: Text(
                                             'Leave This Organization',
