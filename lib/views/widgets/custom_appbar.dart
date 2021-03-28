@@ -1,4 +1,5 @@
 //flutter package imported here
+import 'package:clippy_flutter/arc.dart';
 import 'package:flutter/material.dart';
 
 //imported the pages here
@@ -31,11 +32,22 @@ class _CustomAppBarState extends State<CustomAppBar> {
   GraphQLConfiguration graphQLConfiguration = GraphQLConfiguration();
   Preferences preferences = Preferences();
   String _imgSrc;
+  String _orgId;
+  String _orgName;
 
   @override
   void initState() {
     super.initState();
     getImg();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // When parent widget `updateShouldNotify: true`,
+    // child widget can obtain new value when setting `listen: true`.
+    _orgId = Provider.of<Preferences>(context, listen: true).orgId;
+    getImg();
+    super.didChangeDependencies();
   }
 
   Future getImg() async { //this function gets the image from the graphql query
@@ -57,25 +69,74 @@ class _CustomAppBarState extends State<CustomAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(
-        widget.title,
-        style: TextStyle(color: Colors.white),
+      title: GestureDetector(
+        onTap: (){
+          Scaffold.of(context).openDrawer();
+        },
+        child: Text(
+          widget.title,
+          style: TextStyle(color: Colors.white),
+        ),
       ),
-      leading: _imgSrc != null
-          ? Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: CircleAvatar(
-                radius: 40,
-                backgroundImage: NetworkImage(
-                    Provider.of<GraphQLConfiguration>(context).displayImgRoute +
-                        _imgSrc),
-              ))
-          : Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: CircleAvatar(
-                  radius: 40,
-                  backgroundImage: AssetImage("assets/images/team.png")),
+      leading: GestureDetector(
+        onTap: (){
+          Scaffold.of(context).openDrawer();
+        },
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Arc(
+                arcType: ArcType.CONVEX,
+                edge: Edge.RIGHT,
+                height: 14.0,
+                clipShadows: [ClipShadow(color: Colors.white)],
+                child: new Container(
+                  height: 28,
+                  width: 6,
+                  color: Colors.white,
+                ),
+              ),),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: SizedBox(
+                  width: 45,
+                  height: 45,
+                  child: _imgSrc == null
+                      ? Image.asset(
+                    "assets/images/team.png",
+                    fit: BoxFit.fill,
+                  )
+                      : Image.network(
+                    Provider.of<GraphQLConfiguration>(
+                        context)
+                        .displayImgRoute +
+                        _imgSrc,
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
             ),
+            /*_imgSrc != null
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(15.0,5,5,5),
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundImage: NetworkImage(
+                          Provider.of<GraphQLConfiguration>(context).displayImgRoute +
+                              _imgSrc),
+                    ))
+                : Padding(
+                    padding: const EdgeInsets.fromLTRB(15.0,5,5,5),
+                    child: CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage("assets/images/team.png")),
+                  ),*/
+          ],
+        ),
+      ),
     );
   }
 }

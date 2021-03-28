@@ -49,6 +49,7 @@ dependencies:
   flutter_pw_validator: ^1.0.1+1
   data_connection_checker: ^0.3.4
   animations: ^2.0.0
+  clippy_flutter: ^1.1.1
 
 
 

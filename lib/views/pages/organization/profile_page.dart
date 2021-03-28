@@ -289,7 +289,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             onTap: () {},
                           ),
-                          org.length == 0
+                          /*org.length == 0
                               ? SizedBox()
                               : ListTile(
                                   key: Key('Switch Organization'),
@@ -306,8 +306,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                       context,
                                       screen: SwitchOrganization(),
                                     );
-                                  }),
-                          ListTile(
+                                  }),*/
+                          /*ListTile(
                               key: Key('Join or Create New Organization'),
                               title: Text(
                                 'Join or Create New Organization',
@@ -324,7 +324,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     fromProfile: true,
                                   ),
                                 );
-                              }),
+                              }),*/
                           isCreator == null
                               ? SizedBox()
                               : isCreator == true
