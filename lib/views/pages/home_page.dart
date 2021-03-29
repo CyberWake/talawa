@@ -11,6 +11,7 @@ import 'package:talawa/utils/apiFuctions.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/views/pages/chat/groups.dart';
 import 'package:talawa/views/pages/events/events.dart';
+import 'package:talawa/views/pages/manage/manage.dart';
 import 'package:talawa/views/pages/members/members.dart';
 import 'package:talawa/views/pages/newsfeed/newsfeed.dart';
 
@@ -59,6 +60,7 @@ class _HomePageState extends State<HomePage> {
   List<Widget> _buildScreens() {
     //here we are building the screens that are mention in the app bar
     return [
+      Manage(),
       NewsFeed(), //first page of the news feed
       Groups(), //second page of the Group chatting event
       Events(), //Third page of creating the events and viewing it
@@ -69,6 +71,13 @@ class _HomePageState extends State<HomePage> {
 
   List<PersistentBottomNavBarItem> _navBarsItems() {
     return [
+      PersistentBottomNavBarItem(
+        //mentioning the screen home in the bottom bar
+        icon: Icon(Icons.people),
+        title: ("Manage"),
+        activeColorPrimary: Colors.white,
+        inactiveColorPrimary: Colors.white,
+      ),
       PersistentBottomNavBarItem(
         //mentioning the screen home in the bottom bar
         icon: Icon(Icons.home),

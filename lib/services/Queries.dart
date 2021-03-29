@@ -184,6 +184,8 @@ class Queries {
         name
         admins{
           _id
+          firstName
+          lastName
         }
         description
         isPublic

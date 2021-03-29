@@ -394,95 +394,90 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
               height: double.infinity,
               width: double.infinity,
             ):SizedBox(),
-            ClipRRect(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(20),
-              ),
-              child: Material(
-                elevation: 80.0,
-                child: Container(
-                  width: widthAnimation.value,
-                  color: UIData.primaryColor,
-                  padding: EdgeInsets.only(top:10),
-                  child: Column(
-                    children: <Widget>[
-                      Expanded(
-                        child: ListView.separated(
-                          separatorBuilder: (context, counter) {
-                            return Divider(height: 12.0);
-                          },
-                          itemBuilder: (context, counter) {
-                            return CollapsingListTile(
-                              onTap: () {
-                                switchOrg(userOrg[counter]['_id'].toString(),counter);
-                              },
-                              isSelected: isSelected == counter,
-                              title: userOrg[counter]['name'],
-                              image: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: SizedBox(
-                                  width: 50,
-                                  height: 50,
-                                  child: userOrg[counter]['image'] ==
-                                      null
-                                      ? Image.asset(
-                                    "assets/images/team.png",
-                                    fit: BoxFit.fill,
-                                  )
-                                      : Image.network(
-                                    Provider.of<GraphQLConfiguration>(
-                                        context)
-                                        .displayImgRoute +
-                                        userOrg[counter]
-                                        ['image'],
-                                    fit: BoxFit.fill,
-                                  ),
+            Material(
+              elevation: 80.0,
+              child: Container(
+                width: widthAnimation.value,
+                color: UIData.primaryColor,
+                padding: EdgeInsets.only(top:10),
+                child: Column(
+                  children: <Widget>[
+                    Expanded(
+                      child: ListView.separated(
+                        separatorBuilder: (context, counter) {
+                          return Divider(height: 12.0);
+                        },
+                        itemBuilder: (context, counter) {
+                          return CollapsingListTile(
+                            onTap: () {
+                              switchOrg(userOrg[counter]['_id'].toString(),counter);
+                            },
+                            isSelected: isSelected == counter,
+                            title: userOrg[counter]['name'],
+                            image: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: SizedBox(
+                                width: 50,
+                                height: 50,
+                                child: userOrg[counter]['image'] ==
+                                    null
+                                    ? Image.asset(
+                                  "assets/images/team.png",
+                                  fit: BoxFit.fill,
+                                )
+                                    : Image.network(
+                                  Provider.of<GraphQLConfiguration>(
+                                      context)
+                                      .displayImgRoute +
+                                      userOrg[counter]
+                                      ['image'],
+                                  fit: BoxFit.fill,
                                 ),
                               ),
-                              animationController: _animationController,
-                            );
-                          },
-                          itemCount: userOrg.length,
-                        ),
-                      ),
-                      CollapsingListTile(
-                        onTap: () {
-                          Navigator.pop(context);
-                          pushNewScreen(
-                              context,
-                              screen: JoinOrganization(
-                                fromProfile: true,
-                              ),
-                              withNavBar: false);
+                            ),
+                            animationController: _animationController,
+                          );
                         },
-                        title: 'Join/Create\nOrganization',
-                        image: SizedBox(
-                          width: 35,
-                          child: Icon(Icons.add,size: 45,color: Colors.white,)
-                        ),
-                        animationController: _animationController,
+                        itemCount: userOrg.length,
                       ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            isCollapsed = !isCollapsed;
-                            isCollapsed
-                                ? _animationController.forward()
-                                : _animationController.reverse();
-                          });
-                        },
-                        child: AnimatedIcon(
-                          icon: AnimatedIcons.view_list,
-                          progress: _animationController,
-                          color: Colors.white,
-                          size: 50.0,
-                        ),
+                    ),
+                    CollapsingListTile(
+                      onTap: () {
+                        Navigator.pop(context);
+                        pushNewScreen(
+                            context,
+                            screen: JoinOrganization(
+                              fromProfile: true,
+                            ),
+                            withNavBar: false);
+                      },
+                      title: 'Join/Create\nOrganization',
+                      image: SizedBox(
+                        width: 35,
+                        child: Icon(Icons.add,size: 48,color: Colors.white,),
                       ),
-                      SizedBox(
-                        height: 50.0,
+                      animationController: _animationController,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          isCollapsed = !isCollapsed;
+                          isCollapsed
+                              ? _animationController.forward()
+                              : _animationController.reverse();
+                        });
+                      },
+                      child: AnimatedIcon(
+                        icon: AnimatedIcons.list_view,
+                        progress: _animationController,
+                        color: Colors.white,
+                        size: 50.0,
                       ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(
+                      height: 50.0,
+                    ),
+                  ],
                 ),
               ),
             ),
