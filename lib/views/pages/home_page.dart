@@ -62,9 +62,7 @@ class _HomePageState extends State<HomePage> {
     return [
       Manage(),
       NewsFeed(), //first page of the news feed
-      Groups(), //second page of the Group chatting event
       Events(), //Third page of creating the events and viewing it
-      Organizations(), //fourth page of seeing the organization
       ProfilePage(), //last page of the profile
     ];
   }
@@ -86,13 +84,6 @@ class _HomePageState extends State<HomePage> {
         inactiveColorPrimary: Colors.white,
       ),
       PersistentBottomNavBarItem(
-        //mentioning the screen chats in the bottom bar
-        icon: Icon(Icons.chat),
-        title: ("Chats"),
-        activeColorPrimary: Colors.white,
-        inactiveColorPrimary: Colors.white,
-      ),
-      PersistentBottomNavBarItem(
         //mentioning the Events home in the bottom bar
         icon: Icon(Icons.calendar_today),
         title: ("Events"),
@@ -100,15 +91,8 @@ class _HomePageState extends State<HomePage> {
         inactiveColorPrimary: Colors.white,
       ),
       PersistentBottomNavBarItem(
-        //mentioning the screen home in the bottom bar
-        icon: Icon(Icons.group),
-        title: ("Members"),
-        activeColorPrimary: Colors.white,
-        inactiveColorPrimary: Colors.white,
-      ),
-      PersistentBottomNavBarItem(
         //mentioning the screen Profile in the bottom bar
-        icon: Icon(Icons.folder),
+        icon: Icon(Icons.account_circle_outlined),
         title: ("Profile"),
         activeColorPrimary: Colors.white,
         inactiveColorPrimary: Colors.white,
@@ -125,38 +109,60 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<GraphQLConfiguration>(
-          create: (_) => GraphQLConfiguration(),
-        ),
-        ChangeNotifierProvider<Preferences>(
-          create: (_) => Preferences(),
-        )
-      ],
-      child: Builder(builder: (BuildContext context) {
-        BuildContext rootContext = context;
-        Provider.of<GraphQLConfiguration>(rootContext, listen: false)
-            .getOrgUrl();
-        Provider.of<Preferences>(rootContext, listen: false).getCurrentOrgId();
-        return PersistentTabView(rootContext,
-            backgroundColor: UIData.primaryColor,
-            controller: _controller,
-            items: _navBarsItems(),
-            screens: _buildScreens(),
-            confineInSafeArea: true,
-            handleAndroidBackButtonPress: true,
-            navBarStyle: NavBarStyle.style4,
-            itemAnimationProperties: ItemAnimationProperties(
-              duration: Duration(milliseconds: 200),
-              curve: Curves.ease,
+    return TweenAnimationBuilder(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: Duration(milliseconds: 1500),
+        builder: (context, value, child) {
+          return ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return RadialGradient(
+                      radius: value * 5,
+                      colors: [
+                        Colors.white,
+                        Colors.white,
+                        Colors.transparent,
+                        Colors.transparent
+                      ],
+                      stops: [0.0, 0.55, 0.6, 1.0],
+                      center: FractionalOffset(0.5, 0.5))
+                  .createShader(bounds);
+            },
+            child: MultiProvider(
+              providers: [
+                ChangeNotifierProvider<GraphQLConfiguration>(
+                  create: (_) => GraphQLConfiguration(),
+                ),
+                ChangeNotifierProvider<Preferences>(
+                  create: (_) => Preferences(),
+                )
+              ],
+              child: Builder(builder: (BuildContext context) {
+                BuildContext rootContext = context;
+                Provider.of<GraphQLConfiguration>(rootContext, listen: false)
+                    .getOrgUrl();
+                Provider.of<Preferences>(rootContext, listen: false)
+                    .getCurrentOrgId();
+                return PersistentTabView(rootContext,
+                    backgroundColor: Colors.transparent,
+                    controller: _controller,
+                    items: _navBarsItems(),
+                    screens: _buildScreens(),
+                    confineInSafeArea: true,
+                    handleAndroidBackButtonPress: true,
+                    navBarStyle: NavBarStyle.style4,
+                    resizeToAvoidBottomInset: true,
+                    itemAnimationProperties: ItemAnimationProperties(
+                      duration: Duration(milliseconds: 200),
+                      curve: Curves.ease,
+                    ),
+                    screenTransitionAnimation: ScreenTransitionAnimation(
+                      animateTabTransition: true,
+                      curve: Curves.ease,
+                      duration: Duration(milliseconds: 200),
+                    ));
+              }),
             ),
-            screenTransitionAnimation: ScreenTransitionAnimation(
-              animateTabTransition: true,
-              curve: Curves.ease,
-              duration: Duration(milliseconds: 200),
-            ));
-      }),
-    );
+          );
+        });
   }
 }

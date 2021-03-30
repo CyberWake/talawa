@@ -1,4 +1,6 @@
 //flutter packages are  imported here
+import 'dart:developer';
+
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -84,7 +86,8 @@ class _ProfilePageState extends State<ProfilePage> {
     if (result.hasException) {
       print(result.exception);
     } else if (!result.hasException) {
-      print(result);
+      log(result.data.toString());
+      debugPrint(result.data.toString());
       setState(() {
         userDetails = result.data['users'];
         org = userDetails[0]['joinedOrganizations'];

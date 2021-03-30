@@ -54,10 +54,13 @@ class MyApp extends StatelessWidget {
       },
       child: MaterialApp(
         title: UIData.appName,
-        theme: ThemeData(
-            primaryColor: UIData.primaryColor,
-            fontFamily: UIData.quickFont,
-            primarySwatch: UIData.primaryColor),
+        darkTheme: ThemeData.dark(),
+        theme: ThemeData.light().copyWith(
+          accentColor: Colors.black,
+          textSelectionHandleColor: Colors.green,
+          backgroundColor: Colors.white,
+          primaryColor: UIData.primaryColor,
+        ),
         debugShowCheckedModeBanner: false,
         showPerformanceOverlay: false,
         onGenerateRoute: (RouteSettings settings) {

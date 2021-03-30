@@ -86,8 +86,8 @@ class Queries {
 
   //fetches the user info
   String fetchUserInfo = ''' 
-       query Users(\$id: ID!){
-          users(id:\$id){
+      query Users(\$id: ID!){
+        users(id:\$id){
           _id
           firstName
           lastName
@@ -95,33 +95,110 @@ class Queries {
           image
           joinedOrganizations{
             image
-        _id
-        name
-        admins{
-          _id
-        }
-        description
-        isPublic
-        creator{
-          _id
-          firstName
-          lastName
-        }
-        }
-         createdOrganizations {
-          _id
-          name
-        }
-        adminFor {
-          _id
-          name
+            _id
+            name
+            admins{
+              _id
+            }
+            description
+            isPublic
             creator{
-        firstName
-        lastName
-      }
+              _id
+              firstName
+              lastName
+            }
+            members{
+              _id
+              firstName
+              lastName
+              email
+              image
+              joinedOrganizations{
+                image
+                _id
+                name
+                admins{
+                  _id
+                }
+                description
+                isPublic
+                creator{
+                  _id
+                  firstName
+                  lastName
+                }
+                members{
+                  _id
+                  firstName
+                  lastName
+                  email
+                  image
+                }
+              }
+              createdOrganizations {
+                image
+                _id
+                name
+                admins{
+                  _id
+                }
+                description
+                isPublic
+                creator{
+                  _id
+                  firstName
+                  lastName
+                }
+                members{
+                  _id
+                  firstName
+                  lastName
+                  email
+                  image
+                }
+              }
+              adminFor {
+                _id
+                name
+                creator{
+                  firstName
+                  lastName
+                }
+              }
+            }
+          }
+          createdOrganizations {
+            image
+            _id
+            name
+            admins{
+              _id
+            }
+            description
+            isPublic
+            creator{
+              _id
+              firstName
+              lastName
+            }
+            members{
+              _id
+              firstName
+              lastName
+              email
+              image
+            }
+          }
+          adminFor {
+            _id
+            name
+            creator{
+              firstName
+              lastName
+            }
+          }
         }
       }
-    }
     ''';
 
   //fetches the info two

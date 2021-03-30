@@ -17,7 +17,7 @@ class MemberDetail extends StatefulWidget {
   final String creatorId;
   Map member;
   Color color;
-  MemberDetail({Key key, @required this.member, @required this.color, this.admins, this.creatorId})
+  MemberDetail({Key key, @required this.member, @required this.color, @required this.admins, @required this.creatorId})
       : super(key: key);
 
   @override

@@ -26,7 +26,7 @@ class ChatBubble extends StatelessWidget{
             Flexible(
               child: Container(
                 decoration: BoxDecoration(
-                    color: UIData.primaryColor,
+                    color: Theme.of(context).primaryColor,
                     borderRadius: BorderRadius.only(
                         topRight: Radius.circular(30),
                         bottomRight: Radius.circular(5),
@@ -60,11 +60,11 @@ class ChatBubble extends StatelessWidget{
             Flexible(
               child: Container(
                 decoration: BoxDecoration(
-                    color: Colors.orange[50],
+                    color: Theme.of(context).primaryColor.withOpacity(0.5),
                     borderRadius: BorderRadius.only(
                         topRight: Radius.circular(30),
-                        bottomRight: Radius.circular(5),
-                        topLeft: Radius.circular(30),
+                        bottomRight: Radius.circular(30),
+                        topLeft: Radius.circular(5),
                         bottomLeft: Radius.circular(30)
                     )
                 ),
@@ -72,7 +72,7 @@ class ChatBubble extends StatelessWidget{
                   padding: const EdgeInsets.all(13.0),
                   child: Text(
                     message,
-                    style: TextStyle(color: Colors.black, fontSize: 17),
+                    style: TextStyle(color: Colors.white, fontSize: 17),
                   ),
                 ),
               ),
