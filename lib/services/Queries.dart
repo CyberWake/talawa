@@ -113,58 +113,6 @@ class Queries {
               lastName
               email
               image
-              joinedOrganizations{
-                image
-                _id
-                name
-                admins{
-                  _id
-                }
-                description
-                isPublic
-                creator{
-                  _id
-                  firstName
-                  lastName
-                }
-                members{
-                  _id
-                  firstName
-                  lastName
-                  email
-                  image
-                }
-              }
-              createdOrganizations {
-                image
-                _id
-                name
-                admins{
-                  _id
-                }
-                description
-                isPublic
-                creator{
-                  _id
-                  firstName
-                  lastName
-                }
-                members{
-                  _id
-                  firstName
-                  lastName
-                  email
-                  image
-                }
-              }
-              adminFor {
-                _id
-                name
-                creator{
-                  firstName
-                  lastName
-                }
-              }
             }
           }
           createdOrganizations {

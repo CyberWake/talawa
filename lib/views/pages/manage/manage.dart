@@ -21,13 +21,14 @@ class Manage extends StatefulWidget {
   _ManageState createState() => _ManageState();
 }
 
-class _ManageState extends State<Manage> with SingleTickerProviderStateMixin {
+class _ManageState extends State<Manage> with TickerProviderStateMixin {
   final FocusNode _searchNode = FocusNode();
   final TextEditingController _filter = new TextEditingController();
   final ScrollController _controllerVertical = ScrollController();
   final ScrollController _controllerHorizontal = ScrollController();
   final ScrollController _controllerChat = ScrollController();
-  AnimationController _animationController;
+  AnimationController _drawerAnimationController;
+  AnimationController _attachmentAnimationController;
   final TextEditingController _textController = TextEditingController();
   Queries _query = Queries();
   GraphQLConfiguration graphQLConfiguration = GraphQLConfiguration();
@@ -44,22 +45,31 @@ class _ManageState extends State<Manage> with SingleTickerProviderStateMixin {
   Map selectedMap;
   double maxWidth = 185;
   double minWidth = 70;
+  double maxAttachmentWidth = 200;
+  double minAttachmentWidth = 0;
   bool isCollapsed = true;
-  Animation<double> widthAnimation;
+  Animation<double> drawerWidthAnimation;
+  Animation<double> attachmentHeightAnimation;
   int currentSelectedIndex = 0;
   bool _progressBarState = false;
   bool chatPageOpen = false;
   bool loading = true;
   bool isSearchClicked = false;
+  IconData cancelAttachmentIcon = Icons.attach_file;
 
   @override
   void initState() {
     fetchUserDetails();
     getMembers();
-    _animationController =
+    _drawerAnimationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 600));
-    widthAnimation = Tween<double>(begin: minWidth, end: maxWidth)
-        .animate(_animationController);
+    drawerWidthAnimation = Tween<double>(begin: minWidth, end: maxWidth)
+        .animate(_drawerAnimationController);
+    _attachmentAnimationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    attachmentHeightAnimation =
+        Tween<double>(begin: minAttachmentWidth, end: maxAttachmentWidth)
+            .animate(_attachmentAnimationController);
     super.initState();
   }
 
@@ -198,6 +208,15 @@ class _ManageState extends State<Manage> with SingleTickerProviderStateMixin {
     });
   }
 
+  List<IconData> icons = [
+    Icons.note,
+    Icons.camera_alt,
+    Icons.photo,
+    Icons.location_on_rounded,
+    Icons.contact_page_rounded,
+    Icons.headset_mic,
+  ];
+
   List<Map> eventsList = [
     {
       '_id': 'fgfien2rucnyciasd87dgegf',
@@ -239,7 +258,7 @@ class _ManageState extends State<Manage> with SingleTickerProviderStateMixin {
       //appBar: CustomAppBar('NewsFeed', key: Key('MANAGE_APP_BAR')),
       body: SafeArea(
         child: AnimatedBuilder(
-          animation: _animationController,
+          animation: _drawerAnimationController,
           builder: (context, widget) => Stack(
             children: [
               ListView(
@@ -250,7 +269,7 @@ class _ManageState extends State<Manage> with SingleTickerProviderStateMixin {
                   Material(
                     elevation: 80.0,
                     child: Container(
-                      width: widthAnimation.value,
+                      width: drawerWidthAnimation.value,
                       color: Theme.of(context).primaryColor,
                       padding: EdgeInsets.only(top: 10),
                       child: Column(
@@ -287,7 +306,8 @@ class _ManageState extends State<Manage> with SingleTickerProviderStateMixin {
                                             ),
                                     ),
                                   ),
-                                  animationController: _animationController,
+                                  animationController:
+                                      _drawerAnimationController,
                                 );
                               },
                               itemCount: userOrg.length,
@@ -310,20 +330,20 @@ class _ManageState extends State<Manage> with SingleTickerProviderStateMixin {
                                 color: Colors.white,
                               ),
                             ),
-                            animationController: _animationController,
+                            animationController: _drawerAnimationController,
                           ),
                           InkWell(
                             onTap: () {
                               setState(() {
                                 isCollapsed = !isCollapsed;
                                 isCollapsed
-                                    ? _animationController.forward()
-                                    : _animationController.reverse();
+                                    ? _drawerAnimationController.forward()
+                                    : _drawerAnimationController.reverse();
                               });
                             },
                             child: AnimatedIcon(
                               icon: AnimatedIcons.list_view,
-                              progress: _animationController,
+                              progress: _drawerAnimationController,
                               color: Colors.white,
                               size: 50.0,
                             ),
@@ -432,7 +452,8 @@ class _ManageState extends State<Manage> with SingleTickerProviderStateMixin {
                                           children: [
                                             subList(
                                                 listName: 'Creator',
-                                                itemLength: creator==null?0:1,
+                                                itemLength:
+                                                    creator == null ? 0 : 1,
                                                 listNumber: 1),
                                             subList(
                                                 listName: 'Admins',
@@ -643,7 +664,11 @@ class _ManageState extends State<Manage> with SingleTickerProviderStateMixin {
                                 fontWeight: FontWeight.w400),
                           ),
                         ),
-                      )
+                      ),
+                Spacer(),
+                InkWell(child: Icon(Icons.more_vert,size: 35,
+                  color: Colors.white,),onTap: (){},),
+                SizedBox(width: 10,)
               ]),
             ),
             Flexible(
@@ -659,55 +684,126 @@ class _ManageState extends State<Manage> with SingleTickerProviderStateMixin {
                     );
                   },
                 )),
-            Container(
-              padding: EdgeInsets.zero,
-              margin: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                color: Colors.white,
-              ),
-              child: Row(
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.photo),
-                    iconSize: 25,
-                    color: Theme.of(context).primaryColor,
-                    onPressed: () {},
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      style: TextStyle(
-                        color: Colors.black,
-                      ),
-                      decoration: InputDecoration.collapsed(
-                        hintText: 'Send a message..',
-                        hintStyle: TextStyle(
-                          color: Colors.grey,
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.zero,
+                    margin: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      color: Colors.white,
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(
+                            Icons.emoji_emotions,
+                            semanticLabel: 'Send emoji message',
+                            color: Theme.of(context).primaryColor,
+                            size: 25,
+                          ),
+                          onPressed: () {
+                            if (!chatPageOpen) {
+                              scrollListChat();
+                            }
+                          },
                         ),
-                      ),
-                      textCapitalization: TextCapitalization.sentences,
+                        Expanded(
+                          child: TextField(
+                            controller: _textController,
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                            decoration: InputDecoration.collapsed(
+                              hintText: 'Send a message..',
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                            textCapitalization: TextCapitalization.sentences,
+                          ),
+                        ),
+                        InkWell(
+                          child: Icon(
+                            cancelAttachmentIcon,
+                            semanticLabel: 'Attach a document',
+                            size: 25,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                          onTap: () {
+                            print('running');
+                            if (attachmentHeightAnimation.value ==
+                                maxAttachmentWidth) {
+                              setState(() {
+                                cancelAttachmentIcon = Icons.attach_file;
+                              });
+                              _attachmentAnimationController.reverse();
+                            } else {
+                              setState(() {
+                                cancelAttachmentIcon = Icons.cancel_outlined;
+                              });
+                              _attachmentAnimationController.forward();
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.mic,
+                            semanticLabel: 'Record voice message',
+                            color: Theme.of(context).primaryColor,
+                            size: 25,
+                          ),
+                          onPressed: () {},
+                        ),
+                      ],
                     ),
                   ),
-                  IconButton(
-                      icon: Icon(Icons.send),
-                      iconSize: 25,
-                      color: Theme.of(context).primaryColor,
-                      onPressed: () {
-                        if (_textController.text.length > 0) {
-                          setState(() {
-                            messages.add(_textController.text);
-                          });
-                          _controllerChat.animateTo(
-                              _controllerChat.position.maxScrollExtent,
-                              duration: Duration(milliseconds: 100),
-                              curve: Curves.linear);
-                          _textController.clear();
-                        }
-                      }),
-                ],
-              ),
-            )
+                ),
+                FloatingActionButton(
+                  onPressed: () {
+                    if (_textController.text.length > 0) {
+                      setState(() {
+                        messages.add(_textController.text);
+                      });
+                      _controllerChat.animateTo(
+                          _controllerChat.position.maxScrollExtent,
+                          duration: Duration(milliseconds: 100),
+                          curve: Curves.linear);
+                      _textController.clear();
+                    }
+                  },
+                  child: Icon(
+                    Icons.send,
+                    semanticLabel: 'Send Text Message',
+                    size: 25,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ],
+            ),
+            AnimatedBuilder(
+                animation: _attachmentAnimationController,
+                builder: (context, widget) {
+                  return Container(
+                      height: attachmentHeightAnimation.value,
+                      child: GridView.count(
+                        crossAxisCount: 3,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 35, vertical: 20),
+                        crossAxisSpacing: 40,
+                        mainAxisSpacing: 20,
+                        children: List.generate(
+                            6,
+                            (index) => SizedBox(
+                                height: 30,
+                                width: 30,
+                                child: FloatingActionButton(
+                                  onPressed: () {},
+                                  child: Icon(icons[index],size: 30,),
+                                ))),
+                      ));
+                })
           ],
         ),
       ),

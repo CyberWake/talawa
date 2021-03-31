@@ -115,7 +115,7 @@ class _JoinOrganizationState extends State<JoinOrganization> {
         Navigator.of(context).pushReplacement(PageRouteBuilder(
           opaque: false,
           pageBuilder: (context, animation, _) => HomePage(
-            openPageIndex: 4,
+            openPageIndex: 3,
           ),
         ));
       }
@@ -169,7 +169,7 @@ class _JoinOrganizationState extends State<JoinOrganization> {
         Navigator.of(context).pushReplacement(PageRouteBuilder(
           opaque: false,
           pageBuilder: (context, animation, _) => HomePage(
-            openPageIndex: 4,
+            openPageIndex: 3,
           ),
         ));
       }

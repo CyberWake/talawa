@@ -143,7 +143,7 @@ class _HomePageState extends State<HomePage> {
                 Provider.of<Preferences>(rootContext, listen: false)
                     .getCurrentOrgId();
                 return PersistentTabView(rootContext,
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: Theme.of(context).primaryColor,
                     controller: _controller,
                     items: _navBarsItems(),
                     screens: _buildScreens(),
