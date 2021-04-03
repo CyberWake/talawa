@@ -149,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                     screens: _buildScreens(),
                     confineInSafeArea: true,
                     handleAndroidBackButtonPress: true,
-                    navBarStyle: NavBarStyle.style4,
+                    navBarStyle: NavBarStyle.style1,
                     resizeToAvoidBottomInset: true,
                     itemAnimationProperties: ItemAnimationProperties(
                       duration: Duration(milliseconds: 200),

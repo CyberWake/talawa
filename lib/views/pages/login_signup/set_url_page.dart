@@ -75,9 +75,9 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
   Future setApiUrl() async {
     setState(() {
       orgUrl =
-          "${dropdownValue.toLowerCase()}://${urlController.text}/talawa/graphql/";
+      "${dropdownValue.toLowerCase()}://${urlController.text}/";
       orgImgUrl =
-          "${dropdownValue.toLowerCase()}://${urlController.text}/talawa/";
+      "${dropdownValue.toLowerCase()}://${urlController.text}/talawa/";
     });
     await _pref.saveOrgUrl(orgUrl);
     await _pref.saveOrgImgUrl(orgImgUrl);

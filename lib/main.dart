@@ -54,10 +54,13 @@ class MyApp extends StatelessWidget {
       },
       child: MaterialApp(
         title: UIData.appName,
-        darkTheme: ThemeData.dark(),
+        darkTheme: ThemeData.dark().copyWith(
+          accentColor: Color(0xFF31bd6a),
+          textSelectionHandleColor: Color(0xFF31bd6a),
+        ),
         theme: ThemeData.light().copyWith(
           accentColor: Colors.black,
-          textSelectionHandleColor: Colors.green,
+          textSelectionHandleColor: Color(0xFF31bd6a),
           backgroundColor: Colors.white,
           primaryColor: UIData.primaryColor,
         ),

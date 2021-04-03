@@ -202,7 +202,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: Key('PROFILE_PAGE_SCAFFOLD'),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).backgroundColor,
         body: userDetails.isEmpty || isCreator == null
             ? Center(
                 child: CircularProgressIndicator(
@@ -218,7 +218,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         bottomLeft: Radius.circular(20.0),
                         bottomRight: Radius.circular(20.0),
                       ),
-                      color: UIData.primaryColor,
+                      color: Theme.of(context).primaryColor,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,6 +282,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         context: context,
                         tiles: [
                           ListTile(
+                            tileColor: Theme.of(context).backgroundColor,
                             key: Key('Update Profile'),
                             title: Text(
                               'Update Profile',
@@ -289,7 +290,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             leading: Icon(
                               Icons.person,
-                              color: UIData.secondaryColor,
+                              color: Theme.of(context).primaryColor,
                             ),
                             onTap: () {},
                           ),
@@ -301,6 +302,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               closedBuilder:
                                       (BuildContext c, VoidCallback action) {
                                       return ListTile(
+                                          tileColor: Theme.of(context).backgroundColor,
                                           key: Key('Organization Settings'),
                                           title: Hero(
                                             tag: 'title',
@@ -311,7 +313,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           ),
                                           leading: Icon(
                                             Icons.settings,
-                                            color: UIData.secondaryColor,
+                                            color: Theme.of(context).primaryColor,
                                           ),
                                           onTap: () => action());
                                     }, openBuilder:
@@ -325,13 +327,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ? SizedBox()
                                       : ListTile(
                                           key: Key('Leave This Organization'),
-                                          title: Text(
+                              tileColor: Theme.of(context).backgroundColor,title: Text(
                                             'Leave This Organization',
                                             style: TextStyle(fontSize: 18.0),
                                           ),
                                           leading: Icon(
                                             Icons.exit_to_app,
-                                            color: UIData.secondaryColor,
+                                            color:Theme.of(context).primaryColor,
                                           ),
                                           onTap: () async {
                                             showDialog(
@@ -346,13 +348,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                           }),
                           ListTile(
                             key: Key('Logout'),
+                            tileColor: Theme.of(context).backgroundColor,
                             title: Text(
                               "Logout",
                               style: TextStyle(fontSize: 18.0),
                             ),
                             leading: Icon(
                               Icons.exit_to_app,
-                              color: UIData.secondaryColor,
+                              color: Theme.of(context).primaryColor,
                             ),
                             onTap: () {
                               showDialog(

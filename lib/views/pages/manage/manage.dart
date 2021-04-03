@@ -609,7 +609,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                 IconButton(
                     icon: Icon(
                       chatPageOpen ? Icons.arrow_back_ios : Icons.menu,
-                      size: 35,
+                      size: 30,
                       color: Colors.white,
                     ),
                     onPressed: scrollListChat),
@@ -621,6 +621,8 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                         backgroundImage: AssetImage('assets/images/team.png'))
                     : selectedMap['image'] == null
                         ? CircleAvatar(
+                    backgroundColor:
+                    Theme.of(context).textTheme.subtitle1.color,
                             radius: 25,
                             child: Text(
                                 selectedMap['firstName']
@@ -659,15 +661,28 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                           child: Text(
                             '${selectedMap['firstName']} ${selectedMap['lastName']}',
                             style: TextStyle(
-                                fontSize: 24,
+                                fontSize: 20,
                                 color: Colors.white,
                                 fontWeight: FontWeight.w400),
                           ),
                         ),
                       ),
                 Spacer(),
-                InkWell(child: Icon(Icons.more_vert,size: 35,
-                  color: Colors.white,),onTap: (){},),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal:8.0),
+                  child: InkWell(child: Icon(Icons.phone,size: 30,
+                    color: Colors.white,),onTap: (){},),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal:8.0),
+                  child: InkWell(child: Icon(Icons.video_call,size: 30,
+                    color: Colors.white,),onTap: (){},),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left:8.0),
+                  child: InkWell(child: Icon(Icons.more_vert,size: 30,
+                    color: Colors.white,),onTap: (){},),
+                ),
                 SizedBox(width: 10,)
               ]),
             ),
@@ -761,6 +776,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                   ),
                 ),
                 FloatingActionButton(
+                  backgroundColor: Theme.of(context).backgroundColor,
                   onPressed: () {
                     if (_textController.text.length > 0) {
                       setState(() {
@@ -777,7 +793,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                     Icons.send,
                     semanticLabel: 'Send Text Message',
                     size: 25,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).accentColor,
                   ),
                 ),
               ],
@@ -799,8 +815,9 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                 height: 30,
                                 width: 30,
                                 child: FloatingActionButton(
+                                  backgroundColor: Theme.of(context).backgroundColor,
                                   onPressed: () {},
-                                  child: Icon(icons[index],size: 30,),
+                                  child: Icon(icons[index],size: 30,color: Theme.of(context).accentColor,),
                                 ))),
                       ));
                 })
