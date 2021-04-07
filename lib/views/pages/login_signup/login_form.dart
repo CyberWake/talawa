@@ -6,13 +6,17 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 //pages are called here
 import 'package:provider/provider.dart';
+import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/model/token.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
 import 'package:talawa/utils/uidata.dart';
+import 'package:talawa/utils/validator.dart';
 import 'package:talawa/view_models/vm_login.dart';
 import 'package:talawa/views/pages/home_page.dart';
+
+import '../_pages.dart';
 
 class LoginForm extends StatefulWidget {
   @override
@@ -22,10 +26,9 @@ class LoginForm extends StatefulWidget {
 }
 
 class LoginFormState extends State<LoginForm> {
-  final email = TextEditingController();
-  final newPassword = TextEditingController();
-  final repeatNewPassword = TextEditingController();
-  final password = TextEditingController();
+  /// [TextEditingController]'s for email and password.
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
   LoginViewModel model = new LoginViewModel();
@@ -105,11 +108,7 @@ class LoginFormState extends State<LoginForm> {
             result.data['login']['user']['joinedOrganizations'][0]['name'];
         await _pref.saveCurrentOrgName(currentOrgName);
       }
-      Navigator.pop(context);
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => new HomePage(
-                openPageIndex: 0,
-              )));
+      Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=>HomePage(openPageIndex: 0,)), (route) => false);
     }
   }
 
@@ -120,7 +119,7 @@ class LoginFormState extends State<LoginForm> {
         key: _formKey,
         child: Column(
           children: <Widget>[
-            Text('Login', style: TextStyle(fontSize: 35, color: Colors.white)),
+            Text(S.of(context).login, style: TextStyle(fontSize: 35, color: Colors.white)),
             SizedBox(
               height: 50,
             ),
@@ -131,6 +130,8 @@ class LoginFormState extends State<LoginForm> {
                   autofillHints: <String>[AutofillHints.email],
                   keyboardType: TextInputType.emailAddress,
                   textAlign: TextAlign.left,
+                  controller: _emailController,
+                  validator: Validator.validateEmail,
                   style: TextStyle(color: Colors.white),
                   //Changed text input action to next
                   textInputAction: TextInputAction.next,
@@ -147,10 +148,10 @@ class LoginFormState extends State<LoginForm> {
                       Icons.email,
                       color: Colors.white,
                     ),
-                    labelText: "Email",
+                    labelText: S.of(context).labelEmail,
                     labelStyle: TextStyle(color: Colors.white),
                     alignLabelWithHint: true,
-                    hintText: 'foo@bar.com',
+                    hintText: S.of(context).hintEmail,
                     hintStyle: TextStyle(color: Colors.grey),
                   ),
                   onSaved: (value) {
@@ -164,6 +165,8 @@ class LoginFormState extends State<LoginForm> {
                   autofillHints: <String>[AutofillHints.password],
                   obscureText: _obscureText,
                   textAlign: TextAlign.left,
+                  controller: _passwordController,
+                  validator: Validator.validatePassword,
                   style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
@@ -185,11 +188,11 @@ class LoginFormState extends State<LoginForm> {
                         color: Colors.white,
                       ),
                     ),
-                    labelText: "Password",
+                    labelText: S.of(context).labelPassword,
                     labelStyle: TextStyle(color: Colors.white),
                     focusColor: UIData.primaryColor,
                     alignLabelWithHint: true,
-                    hintText: '**********',
+                    hintText: S.of(context).hintPassword,
                     hintStyle: TextStyle(color: Colors.grey),
                   ),
                   onSaved: (value) {
@@ -210,9 +213,9 @@ class LoginFormState extends State<LoginForm> {
                   child: _progressBarState
                       ? const CircularProgressIndicator()
                       : Text(
-                          "SIGN IN",
+                    S.of(context).signIn,
                         ),
-                  color: Colors.white,
+                  color: Theme.of(context).primaryColor,
                   onPressed: () async {
                     FocusScope.of(context).unfocus();
                     //checks to see if all the fields have been validated then authenticate a user

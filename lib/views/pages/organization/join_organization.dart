@@ -3,10 +3,13 @@ import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-//PAges are imported here
+
+//Pages are imported here
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:talawa/controllers/auth_controller.dart';
+import 'package:talawa/controllers/org_controller.dart';
+import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
@@ -15,6 +18,8 @@ import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/views/pages/home_page.dart';
 import 'package:talawa/views/widgets/alert_dialog_box.dart';
 import 'package:talawa/views/widgets/toast_tile.dart';
+import 'package:talawa/views/pages/organization/profile_page.dart';
+import 'package:talawa/views/widgets/loading.dart';
 
 import 'create_organization.dart';
 
@@ -39,6 +44,8 @@ class _JoinOrganizationState extends State<JoinOrganization> {
   AuthController _authController = AuthController();
   String isPublic;
   TextEditingController searchController = TextEditingController();
+  OrgController _orgController = OrgController();
+  bool _isLoaderActive = false;
   bool disposed = false;
 
   @override
@@ -180,18 +187,21 @@ class _JoinOrganizationState extends State<JoinOrganization> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Join Organization',
+        title: Text(S.of(context).titleJoinOrg,
             style: TextStyle(color: Colors.white)),
       ),
       body: organizationInfo.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? Center(
+              child: Loading(
+              key: UniqueKey(),
+            ))
           : Container(
               color: Color(0xffF3F6FF),
               padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
               child: Column(
                 children: <Widget>[
                   Text(
-                    "Welcome, \nJoin or Create your organization to get started",
+                    S.of(context).textJoinOrgGreeting,
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 18,
@@ -225,7 +235,7 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                           padding: EdgeInsets.all(0.0),
                           child: Icon(Icons.search, color: Colors.black),
                         ),
-                        hintText: "Search Organization Name"),
+                        hintText: S.of(context).hintSearchOrg),
                   ),
                   SizedBox(height: 15),
                   Expanded(
@@ -327,10 +337,16 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                                               confirmOrgDialog();
                                             },
                                             color: UIData.primaryColor,
-                                            child: new Text("JOIN"),
+                                            child: _isLoaderActive
+                                                ? CircularProgressIndicator(
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation(
+                                                            Colors.white),
+                                                    strokeWidth: 2,
+                                                  )
+                                                : Text(S.of(context).join),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  new BorderRadius.circular(
+                                              borderRadius: BorderRadius.circular(
                                                       12.0),
                                             )),
                                         isThreeLine: true,
@@ -433,7 +449,14 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                                               confirmOrgDialog();
                                             },
                                             color: UIData.primaryColor,
-                                            child: new Text("JOIN"),
+                                            child: _isLoaderActive
+                                                ? CircularProgressIndicator(
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation(
+                                                            Colors.white),
+                                                    strokeWidth: 2,
+                                                  )
+                                                : new Text(S.of(context).join),
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   new BorderRadius.circular(
@@ -478,12 +501,19 @@ class _JoinOrganizationState extends State<JoinOrganization> {
           reverseTransitionDuration: Duration(milliseconds: 500),
         ),
         builder: (BuildContext context) => AlertBox(
-              message: "Are you sure you want to join this organization?",
+              message: S.of(context).textConfirmJoinOrg,
               function: () async {
+                setState(() {
+                  _isLoaderActive = true;
+                });
                 if (isPublic == 'true') {
-                  joinPublicOrg();
+                  await joinPublicOrg().whenComplete(() => setState(() {
+                        _isLoaderActive = false;
+                      }));
                 } else if (isPublic == 'false') {
-                  joinPrivateOrg();
+                  await joinPrivateOrg().whenComplete(() => setState(() {
+                        _isLoaderActive = false;
+                      }));
                 }
               },
             ));

@@ -4,6 +4,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 import 'package:talawa/commons/collapsing_list_tile_widget.dart';
+import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
@@ -321,7 +322,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                   ),
                                   withNavBar: false);
                             },
-                            title: 'Join/Create\nOrganization',
+                            title: S.of(context).joinCreateOrg,
                             image: SizedBox(
                               width: 35,
                               child: Icon(
@@ -385,7 +386,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                           TextAlignVertical.center,
                                       keyboardType: TextInputType.text,
                                       decoration: InputDecoration.collapsed(
-                                        hintText: 'Search',
+                                        hintText: S.of(context).hintSearchMember,
                                         hintStyle: TextStyle(
                                           color: Theme.of(context).accentColor,
                                         ),
@@ -451,24 +452,24 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                           controller: _controllerVertical,
                                           children: [
                                             subList(
-                                                listName: 'Creator',
+                                                listName: S.of(context).creator,
                                                 itemLength:
                                                     creator == null ? 0 : 1,
                                                 listNumber: 1),
                                             subList(
-                                                listName: 'Admins',
+                                                listName: S.of(context).admins,
                                                 itemLength: adminsList.length,
                                                 listNumber: 2),
                                             subList(
-                                                listName: 'Event Chats',
+                                                listName: S.of(context).eventChats,
                                                 itemLength: eventsList.length,
                                                 listNumber: 3),
                                             subList(
-                                                listName: 'Groups',
+                                                listName: S.of(context).groups,
                                                 itemLength: groupLists.length,
                                                 listNumber: 4),
                                             subList(
-                                                listName: 'Members',
+                                                listName: S.of(context).members,
                                                 itemLength: membersList.length,
                                                 listNumber: 5),
                                           ],

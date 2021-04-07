@@ -1,6 +1,7 @@
 //flutter packages are called here
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:talawa/generated/l10n.dart';
 
 //pages are imported here
 import 'package:talawa/services/preferences.dart';
@@ -13,6 +14,7 @@ import 'package:talawa/services/Queries.dart';
 import 'package:talawa/utils/apiFuctions.dart';
 import 'package:talawa/views/pages/events/addTaskDialog.dart';
 import 'package:talawa/views/pages/events/editEventDialog.dart';
+import 'package:talawa/views/widgets/loading.dart';
 
 //pubspec packages are called here
 import 'package:timeline_list/timeline.dart';
@@ -201,7 +203,7 @@ class _EventsState extends State<Events> {
         appBar: AppBar(
            key: Key('EVENTS_APP_BAR'),
           title: Text(
-            'Events',
+            S.of(context).titleEvents,
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -245,25 +247,80 @@ class _EventsState extends State<Events> {
                     onRefresh: () async {
                       getEvents();
                     },
-                    child: CustomScrollView(
-                      slivers: [
-                        SliverAppBar(
-                            backgroundColor: Colors.white,
-                            automaticallyImplyLeading: false,
-                            expandedHeight: 380,
-                            flexibleSpace: FlexibleSpaceBar(
-                              background: calendar(),
-                            )),
-                        SliverStickyHeader(
-                          header: carouselSliderBar(),
-                          sliver: SliverFillRemaining(child: eventListView()),
+                    child: Container(
+                    color: Colors.white,
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: calendar(),
+                        ),
+                        DraggableScrollableSheet(
+                          initialChildSize: 0.3,
+                          minChildSize: 0.3,
+                          maxChildSize: 1.0,
+                          expand: true,
+                          builder: (BuildContext context, myscrollController) {
+                            return Container(
+                              color: Colors.white,
+                              child: Column(
+                                children: [
+                                  ListView(
+                                    controller: myscrollController,
+                                    shrinkWrap: true,
+                                    children: [carouselSliderBar()],
+                                  ),
+                                  Expanded(
+                                    child: Timeline.builder(
+                                      controller: myscrollController,
+                                      lineColor: UIData.primaryColor,
+                                      position: TimelinePosition.Left,
+                                      itemCount: displayedEvents.length,
+                                      itemBuilder: (context, index) {
+                                        if (index == 0) {
+                                          return TimelineModel(
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 5),
+                                                  child: Text(
+                                                    '${displayedEvents.length} Events',
+                                                    style: TextStyle(
+                                                        color: Colors.black45),
+                                                  ),
+                                                ),
+                                                eventCard(index)
+                                              ],
+                                            ),
+                                            iconBackground:
+                                                UIData.secondaryColor,
+                                          );
+                                        }
+                                        return TimelineModel(
+                                          eventCard(index),
+                                          iconBackground: UIData.secondaryColor,
+                                          position: TimelineItemPosition.right,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ],
-                    ));
+                    ),
+                  ));
               }
             } else if (state == ConnectionState.waiting) {
               print(snapshot.data);
-              return Center(child: CircularProgressIndicator());
+              return Center(child: Loading(key: UniqueKey(),));
             } else if (state == ConnectionState.none) {
               return Text('Could Not Fetch Data.');
             }
@@ -366,41 +423,6 @@ class _EventsState extends State<Events> {
                 )),
           ],
         ));
-  }
-
-  Widget eventListView() {
-    return displayedEvents.isEmpty
-        ? Center(child: CircularProgressIndicator())
-        : RefreshIndicator(
-            onRefresh: () async {
-              getEvents();
-            },
-            child: Timeline.builder(
-              lineColor: UIData.primaryColor,
-              position: TimelinePosition.Left,
-              itemCount: displayedEvents.length,
-              itemBuilder: (context, index) {
-                return index == 0
-                    ? TimelineModel(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(vertical: 5),
-                              child: Text(
-                                '${displayedEvents.length} Events',
-                                style: TextStyle(color: Colors.black45),
-                              ),
-                            ),
-                            eventCard(index)
-                          ],
-                        ),
-                        iconBackground: UIData.secondaryColor)
-                    : TimelineModel(eventCard(index),
-                        iconBackground: UIData.secondaryColor,
-                        position: TimelineItemPosition.right);
-              },
-            ));
   }
 
   Widget menueText(String text) {

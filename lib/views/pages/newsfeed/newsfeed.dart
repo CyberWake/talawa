@@ -1,5 +1,4 @@
 //flutter packages are imported here
-
 import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 import 'package:talawa/commons/collapsing_list_tile_widget.dart';
+import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
@@ -19,6 +19,7 @@ import 'package:talawa/views/pages/newsfeed/addPost.dart';
 import 'package:talawa/views/pages/newsfeed/newsArticle.dart';
 import 'package:talawa/views/pages/organization/join_organization.dart';
 import 'package:talawa/views/widgets/custom_appbar.dart';
+import 'package:talawa/views/widgets/loading.dart';
 
 class NewsFeed extends StatefulWidget {
   NewsFeed({Key key}) : super(key: key);
@@ -27,7 +28,8 @@ class NewsFeed extends StatefulWidget {
   _NewsFeedState createState() => _NewsFeedState();
 }
 
-class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin {
+class _NewsFeedState extends State<NewsFeed>
+    with SingleTickerProviderStateMixin {
   AnimationController _animationController;
   Queries _query = Queries();
   GraphQLConfiguration graphQLConfiguration = GraphQLConfiguration();
@@ -55,16 +57,19 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
 
   @override
   void didChangeDependencies() {
-    orgId = Provider.of<Preferences>(context,listen: true).orgId;
+    orgId = Provider.of<Preferences>(context, listen: true).orgId;
     fetchUserDetails();
     super.didChangeDependencies();
   }
 
+  Map<String, bool> likePostMap = new Map<String, bool>();
+  // key = postId and value will be true if user has liked a post.
+
   //setting initial state to the variables
   initState() {
     fetchUserDetails();
-    _animationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 300));
+    _animationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
     widthAnimation = Tween<double>(begin: minWidth, end: maxWidth)
         .animate(_animationController);
     super.initState();
@@ -119,6 +124,11 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
     }
   }
 
+  // bool : Method to get (true/false) if a user has liked a post or Not.
+  bool hasUserLiked(String postId) {
+    return likePostMap[postId];
+  }
+
   //function to get the current posts
   Future<void> getPosts() async {
     final String currentOrgID = await preferences.getCurrentOrgId();
@@ -130,7 +140,24 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
     setState(() {
       postList =
           result == null ? [] : result['postsByOrganization'].reversed.toList();
+      updateLikepostMap(currentUserID);
     });
+  }
+
+// void : function to set the map of userLikedPost
+  void updateLikepostMap(String currentUserID) {
+    // traverse through post objects.
+    for (var item in postList) {
+      likePostMap[item['_id']] = false;
+      //Get userIds who liked the post.
+      var _likedBy = item['likedBy'];
+      for (var user in _likedBy) {
+        if (user['_id'] == currentUserID) {
+          //if(userId is in the list we make value true;)
+          likePostMap[item['_id']] = true;
+        }
+      }
+    }
   }
 
   //function to addlike
@@ -149,7 +176,7 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
     getPosts();
   }
 
-  Future switchOrg(String index,int selected) async {
+  Future switchOrg(String index, int selected) async {
     if (index.compareTo(orgId) == 0) {
       print('${userOrg[0]['_id']} | $orgId ');
       Navigator.pop(context);
@@ -176,7 +203,7 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
         Provider.of<Preferences>(context, listen: false)
             .saveCurrentOrgName(currentOrgName);
         final String currentOrgImgSrc =
-        result.data['organizations'][0]['image'];
+            result.data['organizations'][0]['image'];
         await _pref.saveCurrentOrgImgSrc(currentOrgImgSrc);
         Navigator.pop(context);
       }
@@ -187,11 +214,14 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: CustomAppBar('NewsFeed', key: Key('NEWSFEED_APP_BAR')),
+        appBar: CustomAppBar(S.of(context).titleNewsFeeds, key: Key('NEWSFEED_APP_BAR')),
         floatingActionButton: addPostFab(),
         drawer: drawer(),
         body: postList.isEmpty
-            ? Center(child: CircularProgressIndicator())
+            ? Center(
+                child: Loading(
+                key: UniqueKey(),
+              ))
             : RefreshIndicator(
                 onRefresh: () async {
                   getPosts();
@@ -330,13 +360,13 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
             icon: Icon(Icons.comment),
             color: Colors.grey,
             onPressed: () async {
-              var refresh = await Navigator.push(
-                context,
-                CupertinoPageRoute(
-                    builder: (context) => NewsArticle(
-                          post: postList[index],
-                        )),
-              ).then((value) {
+              pushNewScreenWithRouteSettings(context,
+                      screen: NewsArticle(
+                        post: postList[index],
+                      ),
+                      settings: RouteSettings(),
+                      withNavBar: false)
+                  .then((value) {
                 if (value != null && value) {
                   getPosts();
                 }
@@ -348,58 +378,55 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
 
   //function to like
   Widget likeButton(index) {
-    return Row(
-      children: [
-        Text(
-          postList[index]['likeCount'].toString(),
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 16,
-          ),
+    return Row(children: [
+      Text(
+        postList[index]['likeCount'].toString(),
+        style: TextStyle(
+          color: Colors.grey,
+          fontSize: 16,
         ),
-        IconButton(
+      ),
+      IconButton(
           icon: Icon(Icons.thumb_up),
-          color: (postList[index]['likeCount'] != 0
-                  ? (postList[index]['likedBy']
-                          [postList[index]['likeCount'] - 1]['_id'] ==
-                      _currentOrgID)
-                  : false)
+          color: likePostMap[postList[index]['_id']]
               ? Color(0xff007397)
               : Color(0xff9A9A9A),
           onPressed: () {
-            if (postList[index]['likeCount'] != 0) if (postList[index]
-                    ['likedBy'][postList[index]['likeCount'] - 1]['_id'] !=
-                _currentOrgID) {
+            if (postList[index]['likeCount'] !=
+                0) if (likePostMap[postList[index]['_id']] == false) {
+              //If user has not liked the post addLike().
               addLike(postList[index]['_id']);
             } else {
+              //If user has  liked the post remove().
               removeLike(postList[index]['_id']);
             }
             else {
+              //if the likeCount is 0 addLike().
               addLike(postList[index]['_id']);
             }
-          },
-        ),
-      ],
-    );
+          })
+    ]);
   }
 
-  Widget drawer(){
+  Widget drawer() {
     return SafeArea(
       child: AnimatedBuilder(
         animation: _animationController,
         builder: (context, widget) => Stack(
           children: [
-            isCollapsed?Container(
-              color:Colors.transparent,
-              height: double.infinity,
-              width: double.infinity,
-            ):SizedBox(),
+            isCollapsed
+                ? Container(
+                    color: Colors.transparent,
+                    height: double.infinity,
+                    width: double.infinity,
+                  )
+                : SizedBox(),
             Material(
               elevation: 80.0,
               child: Container(
                 width: widthAnimation.value,
                 color: UIData.primaryColor,
-                padding: EdgeInsets.only(top:10),
+                padding: EdgeInsets.only(top: 10),
                 child: Column(
                   children: <Widget>[
                     Expanded(
@@ -410,7 +437,8 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
                         itemBuilder: (context, counter) {
                           return CollapsingListTile(
                             onTap: () {
-                              switchOrg(userOrg[counter]['_id'].toString(),counter);
+                              switchOrg(
+                                  userOrg[counter]['_id'].toString(), counter);
                             },
                             isSelected: isSelected == counter,
                             title: userOrg[counter]['name'],
@@ -419,20 +447,18 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
                               child: SizedBox(
                                 width: 50,
                                 height: 50,
-                                child: userOrg[counter]['image'] ==
-                                    null
+                                child: userOrg[counter]['image'] == null
                                     ? Image.asset(
-                                  "assets/images/team.png",
-                                  fit: BoxFit.fill,
-                                )
+                                        "assets/images/team.png",
+                                        fit: BoxFit.fill,
+                                      )
                                     : Image.network(
-                                  Provider.of<GraphQLConfiguration>(
-                                      context)
-                                      .displayImgRoute +
-                                      userOrg[counter]
-                                      ['image'],
-                                  fit: BoxFit.fill,
-                                ),
+                                        Provider.of<GraphQLConfiguration>(
+                                                    context)
+                                                .displayImgRoute +
+                                            userOrg[counter]['image'],
+                                        fit: BoxFit.fill,
+                                      ),
                               ),
                             ),
                             animationController: _animationController,
@@ -444,17 +470,20 @@ class _NewsFeedState extends State<NewsFeed> with SingleTickerProviderStateMixin
                     CollapsingListTile(
                       onTap: () {
                         Navigator.pop(context);
-                        pushNewScreen(
-                            context,
+                        pushNewScreen(context,
                             screen: JoinOrganization(
                               fromProfile: true,
                             ),
                             withNavBar: false);
                       },
-                      title: 'Join/Create\nOrganization',
+                      title: S.of(context).joinCreateOrg,
                       image: SizedBox(
                         width: 35,
-                        child: Icon(Icons.add,size: 48,color: Colors.white,),
+                        child: Icon(
+                          Icons.add,
+                          size: 48,
+                          color: Colors.white,
+                        ),
                       ),
                       animationController: _animationController,
                     ),

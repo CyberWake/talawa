@@ -1,6 +1,7 @@
 //flutter packages
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
 
 //pages are called here
@@ -133,24 +134,24 @@ class _AddEventState extends State<AddEvent> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'New Event',
+          S.of(context).titleNewEvent,
           style: TextStyle(color: Colors.white),
         ),
       ),
       body: ListView(
         padding: EdgeInsets.only(bottom: 100),
         children: <Widget>[
-          inputField('Title', titleController),
-          inputField('Description', descriptionController),
-          inputField('Location', locationController),
-          switchTile('Make Public'),
-          switchTile('Make Registerable'),
-          switchTile('Recurring'),
-          switchTile('All Day'),
+          inputField(S.of(context).labelTitle, titleController),
+          inputField(S.of(context).labelDescription, descriptionController),
+          inputField(S.of(context).labelLocation, locationController),
+          switchTile(S.of(context).labelMakePublic),
+          switchTile(S.of(context).labelMakeRegistrable),
+          switchTile(S.of(context).labelRecurring),
+          switchTile(S.of(context).labelAllDay),
           recurrencedropdown(),
           dateButton(),
-          timeButton('Start Time', startEndTimes['Start Time']),
-          timeButton('End Time', startEndTimes['End Time']),
+          timeButton(S.of(context).labelStartTime, startEndTimes['Start Time']),
+          timeButton(S.of(context).labelEndTime, startEndTimes['End Time']),
         ],
       ),
       floatingActionButton: addEventFab(),
@@ -164,7 +165,7 @@ class _AddEventState extends State<AddEvent> {
         _selectDate(context);
       },
       leading: Text(
-        'Date',
+        S.of(context).labelDate,
         style: TextStyle(fontSize: 16, color: Colors.grey[600]),
       ),
       trailing: Text(
@@ -276,7 +277,7 @@ class _AddEventState extends State<AddEvent> {
     return ListTile(
       contentPadding: EdgeInsets.symmetric(horizontal: 20),
       leading: Text(
-        'Recurrence',
+        S.of(context).labelRecurrence,
         style: TextStyle(fontSize: 16, color: Colors.grey[600]),
       ),
       trailing: AbsorbPointer(

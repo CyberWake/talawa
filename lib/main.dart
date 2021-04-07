@@ -12,9 +12,13 @@ import 'package:talawa/views/pages/login_signup/set_url_page.dart';
 import 'package:talawa/views/pages/organization/profile_page.dart';
 
 import 'controllers/auth_controller.dart';
+import 'controllers/localization_controller.dart';
 import 'controllers/org_controller.dart';
 import 'views/pages/organization/create_organization.dart';
 import 'views/pages/organization/switch_org_page.dart';
+import 'package:talawa/generated/l10n.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 Preferences preferences = Preferences();
 String userID;
@@ -28,6 +32,7 @@ Future<void> main() async {
       .then((_) {
     runApp(MultiProvider(
       providers: [
+        ChangeNotifierProvider<Localization>(create: (_)=>Localization(),),
         ChangeNotifierProvider<GraphQLConfiguration>(
             create: (_) => GraphQLConfiguration()),
         ChangeNotifierProvider<OrgController>(create: (_) => OrgController()),
@@ -40,10 +45,9 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-
   @override
   Widget build(BuildContext context) {
+    Locale locale = Provider.of<Localization>(context,listen: true).currentLocale;
     return GestureDetector(
       onTap: () {
         FocusScopeNode currentFocus = FocusScope.of(context);
@@ -54,10 +58,20 @@ class MyApp extends StatelessWidget {
       },
       child: MaterialApp(
         title: UIData.appName,
+        localizationsDelegates: [
+          // 1
+          S.delegate,
+          // 2
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.delegate.supportedLocales,
         darkTheme: ThemeData.dark().copyWith(
           accentColor: Color(0xFF31bd6a),
           textSelectionHandleColor: Color(0xFF31bd6a),
         ),
+        locale: locale,
         theme: ThemeData.light().copyWith(
           accentColor: Colors.black,
           textSelectionHandleColor: Color(0xFF31bd6a),

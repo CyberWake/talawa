@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 //importing the pages here
 import 'package:provider/provider.dart';
+import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
@@ -72,28 +73,28 @@ class _HomePageState extends State<HomePage> {
       PersistentBottomNavBarItem(
         //mentioning the screen home in the bottom bar
         icon: Icon(Icons.people),
-        title: ("Manage"),
+        title: (S.of(context).manage),
         activeColorPrimary: Colors.white,
         inactiveColorPrimary: Colors.white,
       ),
       PersistentBottomNavBarItem(
         //mentioning the screen home in the bottom bar
         icon: Icon(Icons.home),
-        title: ("Home"),
+        title: (S.of(context).home),
         activeColorPrimary: Colors.white,
         inactiveColorPrimary: Colors.white,
       ),
       PersistentBottomNavBarItem(
         //mentioning the Events home in the bottom bar
         icon: Icon(Icons.calendar_today),
-        title: ("Events"),
+        title: (S.of(context).events),
         activeColorPrimary: Colors.white,
         inactiveColorPrimary: Colors.white,
       ),
       PersistentBottomNavBarItem(
         //mentioning the screen Profile in the bottom bar
         icon: Icon(Icons.account_circle_outlined),
-        title: ("Profile"),
+        title: (S.of(context).profile),
         activeColorPrimary: Colors.white,
         inactiveColorPrimary: Colors.white,
       ),

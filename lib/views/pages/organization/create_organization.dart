@@ -11,6 +11,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:talawa/controllers/auth_controller.dart';
+import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
@@ -203,7 +204,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
             Navigator.pop(context);
           },
         ),
-        title: const Text('Create Organization'),
+        title: Text(S.of(context).titleCreateOrg),
       ),
       body: Container(
         color: Colors.white,
@@ -213,7 +214,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
           child: Column(
             children: <Widget>[
               addImage(),
-              Text('Upload Organization Image',
+              Text(S.of(context).labelAddOrganizationImage,
                   style: TextStyle(fontSize: 16, color: Colors.black)),
               Form(
                 key: _formKey,
@@ -251,10 +252,10 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                                 Icons.group,
                                 color: UIData.secondaryColor,
                               ),
-                              labelText: "Organization Name",
+                              labelText: S.of(context).labelOrgName,
                               labelStyle: TextStyle(color: Colors.black),
                               alignLabelWithHint: true,
-                              hintText: 'My Organization',
+                              hintText: S.of(context).hintOrgName,
                               hintStyle: TextStyle(color: Colors.grey),
                             ),
                             controller: orgNameController,
@@ -281,10 +282,10 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                                   borderRadius: BorderRadius.circular(20.0)),
                               prefixIcon: Icon(Icons.note,
                                   color: UIData.secondaryColor),
-                              labelText: "Organization Description",
+                              labelText: S.of(context).labelOrgDescription,
                               labelStyle: TextStyle(color: Colors.black),
                               alignLabelWithHint: true,
-                              hintText: 'My Description',
+                              hintText: S.of(context).hintOrgDescription,
                               hintStyle: TextStyle(color: Colors.grey),
                             ),
                             controller: orgDescController,
@@ -311,10 +312,10 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                                       color: UIData.secondaryColor)),
                               prefixIcon: Icon(Icons.note,
                                   color: UIData.secondaryColor),
-                              labelText: "Member Description",
+                              labelText: S.of(context).labelOrgMemDescription,
                               labelStyle: TextStyle(color: Colors.black),
                               alignLabelWithHint: true,
-                              hintText: 'Member Description',
+                              hintText: S.of(context).hintOrgMemDescription,
                               hintStyle: TextStyle(color: Colors.grey),
                             ),
                             controller: orgMemberDescController,
@@ -324,11 +325,11 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                           ),
                         ],
                       )),
-                      Text('Do you want your organization to be public?',
+                      Text(S.of(context).textOrgPublic,
                           style: TextStyle(fontSize: 16, color: Colors.black)),
                       RadioListTile(
                         groupValue: radioValue,
-                        title: Text('Yes'),
+                        title: Text(S.of(context).yes),
                         value: 0,
                         activeColor: UIData.secondaryColor,
                         onChanged: (val) {
@@ -344,7 +345,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                       RadioListTile(
                         activeColor: UIData.secondaryColor,
                         groupValue: radioValue,
-                        title: Text('No'),
+                        title: Text(S.of(context).no),
                         value: 1,
                         onChanged: (val) {
                           FocusScope.of(context).unfocus();
@@ -358,12 +359,12 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                         },
                       ),
                       Text(
-                          'Do you want others to be able to find your organization from the search page?',
+                          S.of(context).textOrgInSearch,
                           style: TextStyle(fontSize: 16, color: Colors.black)),
                       RadioListTile(
                         activeColor: UIData.secondaryColor,
                         groupValue: radioValue1,
-                        title: Text('Yes'),
+                        title: Text(S.of(context).yes),
                         value: 0,
                         onChanged: (val) {
                           FocusScope.of(context).unfocus();
@@ -378,7 +379,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                       RadioListTile(
                         activeColor: UIData.secondaryColor,
                         groupValue: radioValue1,
-                        title: Text('No'),
+                        title: Text(S.of(context).no),
                         value: 1,
                         onChanged: (val) {
                           FocusScope.of(context).unfocus();
@@ -414,10 +415,12 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                                         backgroundColor: Colors.black,
                                       )))
                               : Text(
-                                  "CREATE ORGANIZATION",
+                            S.of(context).createOrg,
                                   style: TextStyle(color: Colors.white),
                                 ),
-                          onPressed: () async {
+                          onPressed: _progressBarState?(){
+                            _exceptionToast('Request in Progress');
+                          }:() async {
                             if (_formKey.currentState.validate() &&
                                 radioValue >= 0 &&
                                 radioValue1 >= 0) {
@@ -557,7 +560,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
     fToast.showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
-      toastDuration: Duration(seconds: 3),
+      toastDuration: Duration(seconds: 1),
     );
   }
 }

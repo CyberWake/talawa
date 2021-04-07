@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:talawa/generated/l10n.dart';
 
 //pages are called here
 import 'package:talawa/services/Queries.dart';
@@ -80,7 +81,7 @@ class _AddPostState extends State<AddPost> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'New Post',
+          S.of(context).titleNewPost,
           style: TextStyle(color: Colors.white),
         ),
       ),
@@ -118,7 +119,7 @@ class _AddPostState extends State<AddPost> {
                       Radius.circular(20.0),
                     ),
                   ),
-                  labelText: 'Give your post a title....',
+                  labelText: S.of(context).labelTitleToPost,
                 ),
                 //  'Give your post a title....',
               ),
@@ -151,7 +152,7 @@ class _AddPostState extends State<AddPost> {
                       Radius.circular(20.0),
                     ),
                   ),
-                  labelText: 'Write Your post here....',
+                  labelText: S.of(context).labelPost,
                 ),
                 //  'Give your post Description here....',
               ),

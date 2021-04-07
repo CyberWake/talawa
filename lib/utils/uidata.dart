@@ -18,10 +18,6 @@ class UIData {
   static const String switchOrgPage = "/switchOrgPage";
   static const String profilePage = "/profilePage";
 
-
-
-  
-
   //strings
   static const String appName = "Talawa";
 
@@ -45,13 +41,100 @@ class UIData {
   static const String timelineImage = "$imageDir/timeline.jpeg";
   static const String verifyImage = "$imageDir/verification.jpg";
   static const String splashScreen = "$imageDir/splashscreen.jpg";
-  static const String talawaLogo = "$imageDir/talawaLogo.png";
+  static const String talawaLogo = "$imageDir/talawaLogo-noBg.png";
   static const String cloud1 = "$imageDir/cloud1.jpg";
   static const String talawaLogoDark = "$imageDir/talawaLogo-dark.png";
   static const String quitoBackground = "$imageDir/quitoBackground.jpg";
 
   //gneric
   static const String coming_soon = "Coming Soon";
+
+  //button text
+  static const String createAccount = "Create an Account";
+  static const String login = "Login";
+  static const String signUp = "SIGN UP";
+  static const String signIn = "SIGN IN";
+  static const String join = "JOIN";
+  static const String createOrg = "CREATE ORGANIZATION";
+  static const String close = "Close";
+  static const String yes = "Yes";
+  static const String no = "No";
+  static const String updateProfile = "Update Profile";
+  static const String logout = "Logout";
+  static const String leaveOrg = "Leave This Organization";
+  static const String orgSetting = "Organization Settings";
+  static const String profile = "Profile";
+  static const String manage = "Manage";
+  static const String home = "Home";
+  static const String events = "Events";
+  static const String creator = "Creator";
+  static const String admins = "Admins";
+  static const String eventChats = "Event Chats";
+  static const String groups = "Groups";
+  static const String members = "Members";
+  static const String joinCreateOrg = "Join/Create\nOrganization";
+
+  //textField label
+  static const String labelSetUrl = "Type Org URL here";
+  static const String labelFirstName = "First Name";
+  static const String labelLastName = "Last Name";
+  static const String labelEmail = "Email";
+  static const String labelPassword = "Password";
+  static const String labelConfirmPassword = "Confirm Password";
+  static const String labelAddProfileImage = "Add Profile Image";
+  static const String labelTitleToPost = "Password";
+  static const String labelPost = "Write your post here....";
+  static const String labelAddOrganizationImage = "Upload Organization Image";
+  static const String labelOrgName = "Organization Name";
+  static const String labelOrgDescription = "Organization Description";
+  static const String labelOrgMemDescription = "Member Description";
+  static const String labelTitle = "Title";
+  static const String labelDescription = "Description";
+  static const String labelLocation = "Location";
+  static const String labelMakePublic = "Make Public";
+  static const String labelMakeRegistrable = "Make Registrable";
+  static const String labelRecurring = "Recurring";
+  static const String labelAllDay = "All Day";
+  static const String labelRecurrence = "Recurrence";
+  static const String labelDate = "Date";
+  static const String labelStartTime = "Start Date";
+  static const String labelEndTime = "End Date";
+
+  //hintText
+  static const String hintSetUrl = "Type Org URL here";
+  static const String hintFirstName = "Earl";
+  static const String hintLastName = "John";
+  static const String hintEmail = "foo@bar.com";
+  static const String hintPassword = "Password";
+  static const String hintConfirmPassword = "Confirm Password";
+  static const String hintSearchMember = "Search Member";
+  static const String hintSearchOrg = "Search Organization Name";
+  static const String hintSendMessage = "Send a message..";
+  static const String hintOrgName = "My Organization";
+  static const String hintOrgDescription = "My Description";
+  static const String hintOrgMemDescription = "Member Description";
+
+  //normal text
+  static const String textAlreadyHaveAccount = "Already have an account";
+  static const String textDontHaveAccount = "Don\'t have and account";
+  static const String textJoinOrgGreeting = "Welcome, \nJoin or Create your organization to get started";
+  static const String textConfirmJoinOrg = "Are you sure you want to join this organization?";
+  static const String textConfirmLogout = "Are you sure you want to logout?";
+  static const String textConfirmLeave = "Are you sure you want to leave this organization?";
+  static const String textConfirmTitle = "Confirmation";
+  static const String textCurrentOrganization = "Current Organization:";
+  static const String textOrgPublic = "Do you want your organization to be public?";
+  static const String textOrgInSearch = "Do you want others to be able to find your organization from the search page?";
+
+
+  //page titles
+  static const String titleJoinOrg = "Join Organization";
+  static const String titleProfile = "Profile";
+  static const String titleNewsFeeds = "NewsFeed";
+  static const String titleEvents = "Events";
+  static const String titleNewPost = "New Post";
+  static const String titleCreateOrg = "Create Organization";
+  static const String titleNewEvent = "New Event";
 
   static const MaterialColor ui_kit_color = Colors.grey;
   static const LightGrey = Color.fromRGBO(242, 242, 242, 1);

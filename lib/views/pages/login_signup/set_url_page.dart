@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/utils/validator.dart';
@@ -75,7 +76,7 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
   Future setApiUrl() async {
     setState(() {
       orgUrl =
-      "${dropdownValue.toLowerCase()}://${urlController.text}/";
+          "${dropdownValue.toLowerCase()}://${urlController.text}/";
       orgImgUrl =
       "${dropdownValue.toLowerCase()}://${urlController.text}/talawa/";
     });
@@ -310,7 +311,7 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
                                         ),
                                         prefixIcon: Icon(Icons.web,
                                             color: Colors.white),
-                                        labelText: "Type Org URL Here",
+                                        labelText: S.of(context).hintSetUrl,//"Type Org URL Here",
                                         labelStyle:
                                             TextStyle(color: Colors.white),
                                         alignLabelWithHint: true,
@@ -413,7 +414,7 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
                                   children: <Widget>[
                                     new Expanded(
                                       child: Text(
-                                        "Create an Account",
+                                        S.of(context).createAccount,//"Create an Account",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           //color: UIData.quitoThemeColor,
@@ -480,7 +481,7 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
                                   children: <Widget>[
                                     new Expanded(
                                       child: Text(
-                                        "Login",
+                                        S.of(context).login,//"Login",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           //color: UIData.quitoThemeColor,

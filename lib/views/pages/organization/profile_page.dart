@@ -8,18 +8,19 @@ import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 //pages are imported here
 import 'package:talawa/controllers/auth_controller.dart';
+import 'package:talawa/controllers/localization_controller.dart';
 import 'package:talawa/controllers/org_controller.dart';
+import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
 import 'package:talawa/utils/globals.dart';
 import 'package:talawa/utils/uidata.dart';
-import 'package:talawa/views/pages/organization/join_organization.dart';
+import 'package:talawa/views/pages/Settings/settings_page.dart';
 import 'package:talawa/views/pages/organization/organization_settings.dart';
 import 'package:talawa/views/widgets/about_tile.dart';
 import 'package:talawa/views/widgets/alert_dialog_box.dart';
-
-import 'switch_org_page.dart';
+import 'package:talawa/views/pages/organization/update_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
   final bool isCreator;
@@ -78,6 +79,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   //used to fetch the users details from the server
   Future fetchUserDetails() async {
+    orgName = await _preferences.getCurrentOrgName();
     orgId = await _preferences.getCurrentOrgId();
     userID = await _preferences.getUserId();
     GraphQLClient _client = graphQLConfiguration.clientToQuery();
@@ -224,7 +226,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         ListTile(
-                            title: Text("Profile",
+                            title: Text(S.of(context).titleProfile,
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20.0,
@@ -267,7 +269,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         Padding(
                           padding: const EdgeInsets.only(left: 16.0),
                           child: Text(
-                              "Current Organization: " +
+                              "${S.of(context).textCurrentOrganization} " +
                                   (orgName ?? 'No Organization Joined'),
                               style: TextStyle(
                                   fontSize: 16.0, color: Colors.white)),
@@ -285,55 +287,67 @@ class _ProfilePageState extends State<ProfilePage> {
                             tileColor: Theme.of(context).backgroundColor,
                             key: Key('Update Profile'),
                             title: Text(
-                              'Update Profile',
+                              S.of(context).updateProfile,
                               style: TextStyle(fontSize: 18.0),
                             ),
                             leading: Icon(
-                              Icons.person,
-                              color: Theme.of(context).primaryColor,
+                              Icons.edit,
+                              color:Theme.of(context).primaryColor
                             ),
-                            onTap: () {},
+                            onTap: () {
+                              pushNewScreen(
+                                context,
+                                screen: UpdateProfilePage(
+                                  userDetails: userDetails,
+                                ),
+                              );
+                            },
                           ),
                           isCreator == null
                               ? SizedBox()
                               : isCreator == true
                                   ? OpenContainer(
-                            closedElevation: 0.0,openElevation: 0.0,
-                              closedBuilder:
-                                      (BuildContext c, VoidCallback action) {
-                                      return ListTile(
-                                          tileColor: Theme.of(context).backgroundColor,
-                                          key: Key('Organization Settings'),
-                                          title: Hero(
-                                            tag: 'title',
-                                            child: Text(
-                                              'Organization Settings',
-                                              style: TextStyle(fontSize: 18.0),
+                                      closedElevation: 0.0,
+                                      openElevation: 0.0,
+                                      closedBuilder: (BuildContext c,
+                                          VoidCallback action) {
+                                        return ListTile(
+                                            tileColor: Theme.of(context)
+                                                .backgroundColor,
+                                            key: Key('Organization Settings'),
+                                            title: Text(
+                                              S.of(context).orgSetting,
+                                              style:
+                                                  TextStyle(fontSize: 18.0),
                                             ),
-                                          ),
-                                          leading: Icon(
-                                            Icons.settings,
-                                            color: Theme.of(context).primaryColor,
-                                          ),
-                                          onTap: () => action());
-                                    }, openBuilder:
-                                      (BuildContext c, VoidCallback action) {
-                                      return OrganizationSettings(
-                                          creator: creator == userID,
-                                          public: isPublic,
-                                          organization: curOrganization);
-                                    })
+                                            leading: Icon(
+                                              Icons.settings,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                            ),
+                                            onTap: () => action());
+                                      },
+                                      openBuilder: (BuildContext c,
+                                          VoidCallback action) {
+                                        return OrganizationSettings(
+                                            creator: creator == userID,
+                                            public: isPublic,
+                                            organization: curOrganization);
+                                      })
                                   : org.length == 0
                                       ? SizedBox()
                                       : ListTile(
                                           key: Key('Leave This Organization'),
-                              tileColor: Theme.of(context).backgroundColor,title: Text(
-                                            'Leave This Organization',
+                                          tileColor:
+                                              Theme.of(context).backgroundColor,
+                                          title: Text(
+                                            S.of(context).leaveOrg,
                                             style: TextStyle(fontSize: 18.0),
                                           ),
                                           leading: Icon(
                                             Icons.exit_to_app,
-                                            color:Theme.of(context).primaryColor,
+                                            color:
+                                                Theme.of(context).primaryColor,
                                           ),
                                           onTap: () async {
                                             showDialog(
@@ -347,10 +361,21 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 });
                                           }),
                           ListTile(
+                            tileColor: Theme.of(context).backgroundColor,
+                            leading: Icon(Icons.settings,color: Theme.of(context).primaryColor,),
+                            title: Text(
+                              S.of(context).settings,
+                              style: TextStyle(fontSize: 18.0),
+                            ),
+                            onTap: () {
+                              pushNewScreen(context, screen: SettingsPage(),withNavBar: false);
+                            },
+                          ),
+                          ListTile(
                             key: Key('Logout'),
                             tileColor: Theme.of(context).backgroundColor,
                             title: Text(
-                              "Logout",
+                              S.of(context).logout,
                               style: TextStyle(fontSize: 18.0),
                             ),
                             leading: Icon(
@@ -362,8 +387,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertBox(
-                                      message:
-                                          "Are you sure you want to logout?",
+                                      message: S.of(context).textConfirmLogout,
                                       function: () {
                                         _authController.logout(context);
                                       },

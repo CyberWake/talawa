@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/utils/validator.dart';
@@ -44,8 +45,8 @@ class _LoginScreenState extends State<LoginPage> with TickerProviderStateMixin {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        const Text(
-                          "Dont have an account?",
+                        Text(
+                          S.of(context).textDontHaveAccount,
                           style: const TextStyle(
                             color: Colors.white,
                           ),
@@ -60,8 +61,8 @@ class _LoginScreenState extends State<LoginPage> with TickerProviderStateMixin {
                                   MaterialPageRoute(
                                       builder: (context) => RegisterPage()));
                             },
-                            child: const Text(
-                              "SIGN UP!",
+                            child: Text(
+                              "${S.of(context).signUp}!",
                               textAlign: TextAlign.start,
                               style:
                                   const TextStyle(color: UIData.primaryColor),
