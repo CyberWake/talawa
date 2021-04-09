@@ -50,6 +50,7 @@ class Preferences with ChangeNotifier {
   //saves the organization url
   Future saveOrgImgUrl(String url) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
+    print('image: $url');
     await preferences.setString(orgImgUrl, url);
   }
 
@@ -57,6 +58,7 @@ class Preferences with ChangeNotifier {
   Future<String> getOrgImgUrl() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String url = preferences.getString(orgImgUrl);
+    print('image: $url');
     notifyListeners();
     return url;
   }
@@ -64,6 +66,7 @@ class Preferences with ChangeNotifier {
   //saves the organization url
   Future saveOrgUrl(String url) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
+    print('org  : $url');
     await preferences.setString(orgUrl, url);
   }
 
@@ -71,6 +74,7 @@ class Preferences with ChangeNotifier {
   Future<String> getOrgUrl() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String url = preferences.getString(orgUrl);
+    print('org  : $url');
     notifyListeners();
     return url;
   }
@@ -178,7 +182,6 @@ class Preferences with ChangeNotifier {
 
   //get the current user id
   static Future<int> getCurrentUserId() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
     var storage=FlutterSecureStorage();
     try {
       Token token =

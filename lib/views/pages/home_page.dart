@@ -5,15 +5,10 @@ import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 //importing the pages here
 import 'package:provider/provider.dart';
 import 'package:talawa/generated/l10n.dart';
-import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
-import 'package:talawa/utils/apiFuctions.dart';
-import 'package:talawa/utils/uidata.dart';
-import 'package:talawa/views/pages/chat/groups.dart';
 import 'package:talawa/views/pages/events/events.dart';
 import 'package:talawa/views/pages/manage/manage.dart';
-import 'package:talawa/views/pages/members/members.dart';
 import 'package:talawa/views/pages/newsfeed/newsfeed.dart';
 
 import 'organization/profile_page.dart';
@@ -49,14 +44,14 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  Future<void> getUserInfo() async {
+  /*Future<void> getUserInfo() async {
     final String userID = await preferences
         .getUserId(); //getting the current user id from the server
     String mutation = Queries().fetchUserInfo2(
         userID); //getting some more user information with the ID
     ApiFunctions apiFunctions = ApiFunctions();
     final result = await apiFunctions.gqlmutation(mutation);
-  }
+  }*/
 
   List<Widget> _buildScreens() {
     //here we are building the screens that are mention in the app bar

@@ -23,11 +23,11 @@ class AuthController with ChangeNotifier {
     GraphQLClient _client = graphQLConfiguration.clientToQuery();
 
     QueryResult result = await _client.mutate(MutationOptions(
-        documentNode: gql(_queries.refreshToken(refreshToken))));
+        document: gql(_queries.refreshToken(refreshToken))));
 
     if (result.hasException) {
       print(result.exception);
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       final Token accessToken =
           new Token(tokenString: result.data['refreshToken']['accessToken']);
       await _pref.saveToken(accessToken);

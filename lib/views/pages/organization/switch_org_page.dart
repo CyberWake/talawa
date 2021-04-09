@@ -47,8 +47,8 @@ class _SwitchOrganizationState extends State<SwitchOrganization> {
     GraphQLClient _client = graphQLConfiguration.clientToQuery();
 
     QueryResult result = await _client.query(QueryOptions(
-        documentNode: gql(_query.fetchUserInfo), variables: {'id': userID}));
-    if (result.loading) {
+        document: gql(_query.fetchUserInfo), variables: {'id': userID}));
+    if (result.isLoading) {
       setState(() {
         _progressBarState = true;
       });
@@ -58,7 +58,7 @@ class _SwitchOrganizationState extends State<SwitchOrganization> {
         _progressBarState = false;
         showError(result.exception.toString());
       });
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       setState(() {
         _progressBarState = false;
         userOrg = result.data['users'][0]['joinedOrganizations'];
@@ -82,7 +82,7 @@ class _SwitchOrganizationState extends State<SwitchOrganization> {
       GraphQLClient _client = graphQLConfiguration.clientToQuery();
 
       QueryResult result = await _client.mutate(
-          MutationOptions(documentNode: gql(_query.fetchOrgById(itemIndex))));
+          MutationOptions(document: gql(_query.fetchOrgById(itemIndex))));
       if (result.hasException) {
         print(result.exception);
         _exceptionToast(result.exception.toString());
@@ -166,6 +166,7 @@ class _SwitchOrganizationState extends State<SwitchOrganization> {
               },
             ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'switchFab',
         icon: Icon(Icons.save),
         label: Text("SAVE"),
         backgroundColor: UIData.secondaryColor,

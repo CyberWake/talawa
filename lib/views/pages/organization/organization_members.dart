@@ -56,7 +56,7 @@ class _OrganizationMembersState extends State<OrganizationMembers>
     GraphQLClient _client = graphQLConfiguration.authClient();
 
     QueryResult result = await _client
-        .query(QueryOptions(documentNode: gql(_query.fetchOrgById(orgId))));
+        .query(QueryOptions(document: gql(_query.fetchOrgById(orgId))));
     if (result.hasException) {
       print(result.exception);
       //showError(result.exception.toString());
@@ -82,7 +82,7 @@ class _OrganizationMembersState extends State<OrganizationMembers>
     final String orgId = await _preferences.getCurrentOrgId();
 
     QueryResult result = await _client.query(QueryOptions(
-        documentNode: gql(_query.removeMember(orgId, selectedMembers))));
+        document: gql(_query.removeMember(orgId, selectedMembers))));
     if (result.hasException &&
         result.exception.toString().substring(16) == accessTokenException) {
       _authController.getNewToken();
@@ -112,7 +112,7 @@ class _OrganizationMembersState extends State<OrganizationMembers>
       GraphQLClient _client = graphQLConfiguration.authClient();
       final String orgId = await _preferences.getCurrentOrgId();
       QueryResult result = await _client.query(QueryOptions(
-          documentNode: gql(_query.addAdmin(orgId, selectedMembers[0]))));
+          document: gql(_query.addAdmin(orgId, selectedMembers[0]))));
       if (result.hasException &&
           result.exception.toString().substring(16) == accessTokenException) {
         _authController.getNewToken();
@@ -231,7 +231,7 @@ class _OrganizationMembersState extends State<OrganizationMembers>
                 curve: Interval(0.0, 1.0 - index, curve: Curves.easeOut),
               ),
               child: FloatingActionButton.extended(
-                heroTag: null,
+                heroTag: '$index',
                 backgroundColor: UIData.secondaryColor,
                 tooltip: index == 0 ? "Remove" : "Admin",
                 icon: Icon(
@@ -260,7 +260,7 @@ class _OrganizationMembersState extends State<OrganizationMembers>
         }).toList()
           ..add(
             FloatingActionButton(
-              heroTag: null,
+              heroTag:'button',
               child: AnimatedBuilder(
                 animation: _controller,
                 builder: (BuildContext context, Widget child) {

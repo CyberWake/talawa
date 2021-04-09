@@ -57,7 +57,7 @@ class LoginFormState extends State<LoginForm> {
   Future loginUser() async {
     GraphQLClient _client = graphQLConfiguration.clientToQuery();
     QueryResult result = await _client.mutate(MutationOptions(
-        documentNode: gql(_query.loginUser(model.email, model.password))));
+        document: gql(_query.loginUser(model.email, model.password))));
     bool connectionCheck = await DataConnectionChecker().hasConnection;
     if (!connectionCheck) {
       print('You are not connected to the internet');
@@ -73,7 +73,7 @@ class LoginFormState extends State<LoginForm> {
       });
 
       _exceptionToast(result.exception.toString().substring(16, 35));
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       setState(() {
         _progressBarState = true;
       });
@@ -181,7 +181,7 @@ class LoginFormState extends State<LoginForm> {
                       Icons.lock,
                       color: Colors.white,
                     ),
-                    suffixIcon: FlatButton(
+                    suffixIcon: TextButton(
                       onPressed: _toggle,
                       child: Icon(
                         _obscureText ? Icons.visibility_off : Icons.visibility,
@@ -207,15 +207,17 @@ class LoginFormState extends State<LoginForm> {
             Container(
               padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
               width: double.infinity,
-              child: RaisedButton(
-                  padding: EdgeInsets.all(12.0),
-                  shape: StadiumBorder(),
+              child: ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).primaryColor),
+                      shape: MaterialStateProperty.all<OutlinedBorder>(StadiumBorder()),
+                    padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),)
+                  ),
                   child: _progressBarState
                       ? const CircularProgressIndicator()
                       : Text(
                     S.of(context).signIn,
                         ),
-                  color: Theme.of(context).primaryColor,
                   onPressed: () async {
                     FocusScope.of(context).unfocus();
                     //checks to see if all the fields have been validated then authenticate a user

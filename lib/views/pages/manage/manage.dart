@@ -8,12 +8,11 @@ import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
-import 'package:talawa/utils/apiFuctions.dart';
+import 'package:talawa/utils/apiFunctions.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/views/pages/members/memberDetails.dart';
 import 'package:talawa/views/pages/organization/join_organization.dart';
 import 'package:talawa/views/widgets/chat_bubble.dart';
-import 'package:talawa/views/widgets/custom_appbar.dart';
 
 class Manage extends StatefulWidget {
   Manage({Key key}) : super(key: key);
@@ -61,7 +60,6 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
   @override
   void initState() {
     fetchUserDetails();
-    getMembers();
     _drawerAnimationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 600));
     drawerWidthAnimation = Tween<double>(begin: minWidth, end: maxWidth)
@@ -108,23 +106,25 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
     GraphQLClient _client = graphQLConfiguration.clientToQuery();
 
     QueryResult result = await _client.query(QueryOptions(
-        documentNode: gql(_query.fetchUserInfo), variables: {'id': userID}));
-    if (result.loading) {
+        document: gql(_query.fetchUserInfo), variables: {'id': userID}));
+    if (result.isLoading) {
       setState(() {
         _progressBarState = true;
       });
     } else if (result.hasException) {
       print(result.exception);
+      print('error');
       setState(() {
         _progressBarState = false;
         showError(result.exception.toString());
       });
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       setState(() {
         print('\n\n\n');
         _progressBarState = false;
         userOrg = result.data['users'][0]['joinedOrganizations'];
         isSelected = 0;
+        print('length: ${userOrg.length}');
         if (userOrg.isEmpty) {
           showError("You are not registered to any organization");
         } else {
@@ -140,7 +140,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
     } else {
       GraphQLClient _client = graphQLConfiguration.clientToQuery();
       QueryResult result = await _client.mutate(MutationOptions(
-          documentNode: gql(_query.fetchOrgById(selectedOrgId))));
+          document: gql(_query.fetchOrgById(selectedOrgId))));
       if (result.hasException) {
         print(result.exception);
         //_exceptionToast(result.exception.toString());
@@ -164,7 +164,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
     }
   }
 
-  Future<List> getMembers() async {
+  getMembers() async {
     setState(() {
       loading = true;
     });
@@ -277,6 +277,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                         children: <Widget>[
                           Expanded(
                             child: ListView.separated(
+                              itemCount: userOrg.length,
                               separatorBuilder: (context, index) {
                                 return Divider(height: 12.0);
                               },
@@ -311,7 +312,6 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                       _drawerAnimationController,
                                 );
                               },
-                              itemCount: userOrg.length,
                             ),
                           ),
                           CollapsingListTile(
@@ -559,7 +559,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                             padding: EdgeInsets.all(2),
                             width: 25,
                             alignment: Alignment.center,
-                            color: Theme.of(context).textSelectionHandleColor,
+                            color: Theme.of(context).textSelectionTheme.selectionColor,
                             child: Text(
                               '${member['unread']}',
                               style: TextStyle(fontSize: 12),

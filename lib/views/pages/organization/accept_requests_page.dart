@@ -43,7 +43,7 @@ class _AcceptRequestsPageState extends State<AcceptRequestsPage> {
     GraphQLClient _client = graphQLConfiguration.authClient();
 
     QueryResult result = await _client.query(QueryOptions(
-        documentNode: gql(_query.viewMembershipRequest(
+        document: gql(_query.viewMembershipRequest(
             orgId)))); //calling the graphql query to see the membership request
     if (result.hasException) {
       print(result.exception);
@@ -70,7 +70,7 @@ class _AcceptRequestsPageState extends State<AcceptRequestsPage> {
     GraphQLClient _client = graphQLConfiguration.authClient();
 
     QueryResult result = await _client.query(QueryOptions(
-        documentNode: gql(_query.acceptMembershipRequest(itemIndex))));
+        document: gql(_query.acceptMembershipRequest(itemIndex))));
     if (result.hasException &&
         result.exception.toString().substring(16) == accessTokenException) {
       _authController.getNewToken();
@@ -98,7 +98,7 @@ class _AcceptRequestsPageState extends State<AcceptRequestsPage> {
     GraphQLClient _client = graphQLConfiguration.authClient();
 
     QueryResult result = await _client.query(QueryOptions(
-        documentNode: gql(_query.rejectMembershipRequest(itemIndex))));
+        document: gql(_query.rejectMembershipRequest(itemIndex))));
     if (result.hasException &&
         result.exception.toString().substring(16) == accessTokenException) {
       _authController.getNewToken();

@@ -5,9 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:graphql/utilities.dart' show multipartFileFrom;
 //pages are imported here
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:talawa/controllers/auth_controller.dart';
@@ -65,9 +65,9 @@ class _CreateOrganizationState extends State<CreateOrganization> {
         orgDescController.text.trim().replaceAll('\n', ' ');
     orgMemberDescController.text =
         orgMemberDescController.text.trim().replaceAll('\n', ' ');
-    final img = await multipartFileFrom(_image);
+    final img = await MultipartFile.fromPath("photo",_image.path);
     QueryResult result = await _client.mutate(MutationOptions(
-      documentNode: gql(_queries.createOrg(
+      document: gql(_queries.createOrg(
         orgNameController.text,
         orgDescController.text,
         orgMemberDescController.text,
@@ -90,7 +90,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
         _progressBarState = false;
       });
       _exceptionToast(result.exception.toString());
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       setState(() {
         _progressBarState = true;
       });
@@ -126,7 +126,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
     orgMemberDescController.text =
         orgMemberDescController.text.trim().replaceAll('\n', ' ');
     QueryResult result = await _client.mutate(MutationOptions(
-      documentNode: gql(_queries.createOrgWithoutImg(
+      document: gql(_queries.createOrgWithoutImg(
         orgNameController.text,
         orgDescController.text,
         orgMemberDescController.text,
@@ -146,7 +146,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
         _progressBarState = false;
       });
       _exceptionToast(result.exception.toString());
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       setState(() {
         _progressBarState = true;
       });

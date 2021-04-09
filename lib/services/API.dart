@@ -11,16 +11,16 @@ class API {
   Preferences _pref = Preferences();
 
   Future<List<SwitchOrg>> fetchUserDetails() async {
-    var joinedOrgs = List<SwitchOrg>();
+    var joinedOrgs = [];
     final String userID = await _pref.getUserId();
     GraphQLClient _client = _graphQLConfiguration.clientToQuery();
 
     QueryResult result = await _client.query(QueryOptions(
-        documentNode: gql(_query.fetchUserInfo), variables: {'id': userID}));
+        document: gql(_query.fetchUserInfo), variables: {'id': userID}));
 
     if (result.hasException) {
       print(result.exception);
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       print(result.data);
       joinedOrgs =
           (json.decode(result.data['users'][0]['joinedOrganizations']) as List)

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 //pages are called here
 import 'package:talawa/services/Queries.dart';
-import 'package:talawa/utils/apiFuctions.dart';
+import 'package:talawa/utils/apiFunctions.dart';
 import 'package:intl/intl.dart';
 import 'package:talawa/utils/uidata.dart';
 
@@ -65,13 +65,13 @@ class _AddEventTaskState extends State<AddEventTask> {
             ],
           )),
       actions: <Widget>[
-        FlatButton(
+        TextButton(
           child: Text("Cancel"),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        FlatButton(
+        TextButton(
           child: Text("Add"),
           onPressed: () {
             addTask();

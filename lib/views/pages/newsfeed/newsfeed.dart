@@ -12,7 +12,7 @@ import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
-import 'package:talawa/utils/apiFuctions.dart';
+import 'package:talawa/utils/apiFunctions.dart';
 import 'package:talawa/utils/timer.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/views/pages/newsfeed/addPost.dart';
@@ -99,8 +99,8 @@ class _NewsFeedState extends State<NewsFeed>
     GraphQLClient _client = graphQLConfiguration.clientToQuery();
 
     QueryResult result = await _client.query(QueryOptions(
-        documentNode: gql(_query.fetchUserInfo), variables: {'id': userID}));
-    if (result.loading) {
+        document: gql(_query.fetchUserInfo), variables: {'id': userID}));
+    if (result.isLoading) {
       setState(() {
         _progressBarState = true;
       });
@@ -110,13 +110,11 @@ class _NewsFeedState extends State<NewsFeed>
         _progressBarState = false;
         showError(result.exception.toString());
       });
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       setState(() {
         _progressBarState = false;
         userOrg = result.data['users'][0]['joinedOrganizations'];
-        isSelected = 0;
         orgId = userOrg[0]['_id'];
-        print(userOrg);
         if (userOrg.isEmpty) {
           showError("You are not registered to any organization");
         }
@@ -163,7 +161,7 @@ class _NewsFeedState extends State<NewsFeed>
   //function to addlike
   Future<void> addLike(String postID) async {
     String mutation = Queries().addLike(postID);
-    Map result = await apiFunctions.gqlmutation(mutation);
+    Map result = await apiFunctions.gqlMutation(mutation);
     print(result);
     getPosts();
   }
@@ -171,31 +169,29 @@ class _NewsFeedState extends State<NewsFeed>
   //function to remove the likes
   Future<void> removeLike(String postID) async {
     String mutation = Queries().removeLike(postID);
-    Map result = await apiFunctions.gqlmutation(mutation);
+    Map result = await apiFunctions.gqlMutation(mutation);
     print(result);
     getPosts();
   }
 
-  Future switchOrg(String index, int selected) async {
-    if (index.compareTo(orgId) == 0) {
+  Future switchOrg(String selectedOrgId, int selected) async {
+    if (selectedOrgId.compareTo(orgId) == 0) {
       print('${userOrg[0]['_id']} | $orgId ');
       Navigator.pop(context);
     } else {
       GraphQLClient _client = graphQLConfiguration.clientToQuery();
-      QueryResult result = await _client.mutate(
-          MutationOptions(documentNode: gql(_query.fetchOrgById(index))));
+      QueryResult result = await _client.mutate(MutationOptions(
+          document: gql(_query.fetchOrgById(selectedOrgId))));
       if (result.hasException) {
         print(result.exception);
         //_exceptionToast(result.exception.toString());
       } else if (!result.hasException) {
-        print('here');
-        /*_successToast("Switched to " +
-            result.data['organizations'][0]['name'].toString());
-        */
+        print('here1');
+        //save new current org in preference
         setState(() {
+          orgId = result.data['organizations'][0]['_id'];
           isSelected = selected;
         });
-        //save new current org in preference
         final String currentOrgId = result.data['organizations'][0]['_id'];
         Provider.of<Preferences>(context, listen: false)
             .saveCurrentOrgId(currentOrgId);
@@ -203,9 +199,8 @@ class _NewsFeedState extends State<NewsFeed>
         Provider.of<Preferences>(context, listen: false)
             .saveCurrentOrgName(currentOrgName);
         final String currentOrgImgSrc =
-            result.data['organizations'][0]['image'];
+        result.data['organizations'][0]['image'];
         await _pref.saveCurrentOrgImgSrc(currentOrgImgSrc);
-        Navigator.pop(context);
       }
     }
   }
@@ -335,6 +330,7 @@ class _NewsFeedState extends State<NewsFeed>
       ),
       closedBuilder: (BuildContext c, VoidCallback action) =>
           FloatingActionButton(
+            heroTag: 'addPostFab',
         child: Icon(Icons.add),
         backgroundColor: UIData.secondaryColor,
         foregroundColor: Colors.white,
@@ -425,7 +421,7 @@ class _NewsFeedState extends State<NewsFeed>
               elevation: 80.0,
               child: Container(
                 width: widthAnimation.value,
-                color: UIData.primaryColor,
+                color: Theme.of(context).primaryColor,
                 padding: EdgeInsets.only(top: 10),
                 child: Column(
                   children: <Widget>[

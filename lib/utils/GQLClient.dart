@@ -18,19 +18,14 @@ class GraphQLConfiguration with ChangeNotifier {
 
   getOrgUrl() async {
     final url = await _pref.getOrgUrl();
-    orgURI = url;
-    httpLink = HttpLink(
-      uri: "${orgURI}graphql",
-    );
     final imgUrl = await _pref.getOrgImgUrl();
+    orgURI = url;
+    httpLink = HttpLink("${orgURI}graphql",);
     displayImgRoute = imgUrl;
     notifyListeners();
-    print(orgURI);
   }
 
-  static HttpLink httpLink = HttpLink(
-    uri: "${orgURI}graphql",
-  );
+  static HttpLink httpLink = HttpLink("${orgURI}graphql",);
 
   static AuthLink authLink = AuthLink(
     getToken: () async => 'Bearer $token',
@@ -40,7 +35,7 @@ class GraphQLConfiguration with ChangeNotifier {
 
   GraphQLClient clientToQuery() {
     return GraphQLClient(
-      cache: InMemoryCache(),
+      cache: GraphQLCache(),
       link: httpLink,
     );
   }
@@ -48,7 +43,7 @@ class GraphQLConfiguration with ChangeNotifier {
   GraphQLClient authClient() {
     getToken();
     return GraphQLClient(
-      cache: InMemoryCache(),
+      cache: GraphQLCache(),
       link: finalAuthLink,
     );
   }

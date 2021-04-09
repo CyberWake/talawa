@@ -278,6 +278,7 @@ class _EditEventState extends State<EditEvent> {
   //widget to add the event
   Widget addEventFab() {
     return FloatingActionButton(
+      heroTag: 'addEventFAB',
         backgroundColor: UIData.secondaryColor,
         child: Icon(
           Icons.check,

@@ -5,8 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pw_validator/flutter_pw_validator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:graphql/utilities.dart' show multipartFileFrom;
 import 'package:graphql_flutter/graphql_flutter.dart';
+import "package:http/http.dart";
+import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 // pages are called here
 import 'package:provider/provider.dart';
@@ -34,8 +35,8 @@ class RegisterFormState extends State<RegisterForm> {
   TextEditingController _firstNameController = new TextEditingController();
   TextEditingController _lastNameController = new TextEditingController();
   TextEditingController _emailController = new TextEditingController();
-  TextEditingController _originalPasswordController = new TextEditingController();
-  TextEditingController _confirmPasswordController = new TextEditingController();
+  TextEditingController _originalPasswordController =
+      new TextEditingController();
   FocusNode confirmPassField = FocusNode();
   RegisterViewModel model = new RegisterViewModel();
   bool _progressBarState = false;
@@ -61,11 +62,16 @@ class RegisterFormState extends State<RegisterForm> {
 
   //function for registering user which gets called when sign up is press
   registerUser() async {
+    var byteData = _image.readAsBytesSync();
     GraphQLClient _client = graphQLConfiguration.clientToQuery();
-    final img = await multipartFileFrom(_image);
-    print(_image);
+    var img = MultipartFile.fromBytes(
+      'image',
+      byteData,
+      filename: '${DateTime.now().second}/${_image.path}.jpg',
+      contentType: MediaType("image", "jpg"),
+    );
     QueryResult result = await _client.mutate(MutationOptions(
-      documentNode: gql(_signupQuery.registerUser(
+      document: gql(_signupQuery.registerUser(
           model.firstName, model.lastName, model.email, model.password)),
       variables: {
         'file': img,
@@ -76,8 +82,8 @@ class RegisterFormState extends State<RegisterForm> {
       setState(() {
         _progressBarState = false;
       });
-      _exceptionToast(result.hasException.toString().substring(16, 35));
-    } else if (!result.hasException && !result.loading) {
+      _exceptionToast(result.hasException.toString());
+    } else if (!result.hasException && !result.isLoading) {
       setState(() {
         _progressBarState = true;
       });
@@ -97,7 +103,12 @@ class RegisterFormState extends State<RegisterForm> {
       await _pref.saveUserId(currentUserId);
       Navigator.pop(context);
       //Navigate user to join organization screen
-      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>JoinOrganization(fromProfile: false,)), (route) => false);
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+              builder: (context) => JoinOrganization(
+                    fromProfile: false,
+                  )),
+          (route) => false);
     }
   }
 
@@ -105,7 +116,7 @@ class RegisterFormState extends State<RegisterForm> {
   registerUserWithoutImg() async {
     GraphQLClient _client = graphQLConfiguration.clientToQuery();
     QueryResult result = await _client.mutate(MutationOptions(
-      documentNode: gql(_signupQuery.registerUserWithoutImg(
+      document: gql(_signupQuery.registerUserWithoutImg(
           model.firstName, model.lastName, model.email, model.password)),
     ));
     if (result.hasException) {
@@ -114,7 +125,7 @@ class RegisterFormState extends State<RegisterForm> {
         _progressBarState = false;
       });
       _exceptionToast(result.exception.toString().substring(16, 35));
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       setState(() {
         _progressBarState = true;
       });
@@ -131,13 +142,18 @@ class RegisterFormState extends State<RegisterForm> {
       await _pref.saveRefreshToken(refreshToken);
       final String currentUserId = result.data['signUp']['user']['_id'];
       await _pref.saveUserId(currentUserId);
-      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>JoinOrganization(fromProfile: false,)), (route) => false);
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+              builder: (context) => JoinOrganization(
+                    fromProfile: false,
+                  )),
+          (route) => false);
     }
   }
 
   //get image using camera
   _imgFromCamera() async {
-    final pickImage = await ImagePicker().getImage(source: ImageSource.camera);
+    final pickImage = await ImagePicker.pickImage(source: ImageSource.camera);
     File image = File(pickImage.path);
     setState(() {
       _image = image;
@@ -146,7 +162,7 @@ class RegisterFormState extends State<RegisterForm> {
 
   //get image using gallery
   _imgFromGallery() async {
-    final pickImage = await ImagePicker().getImage(source: ImageSource.gallery);
+    final pickImage = await ImagePicker.pickImage(source: ImageSource.gallery);
     File image = File(pickImage.path);
     setState(() {
       _image = image;
@@ -285,7 +301,7 @@ class RegisterFormState extends State<RegisterForm> {
                             borderRadius: BorderRadius.circular(20.0),
                           ),
                           prefixIcon: Icon(Icons.lock, color: Colors.white),
-                          suffixIcon: FlatButton(
+                          suffixIcon: TextButton(
                             onPressed: _toggle,
                             child: Icon(
                               _obscureText
@@ -366,9 +382,12 @@ class RegisterFormState extends State<RegisterForm> {
                   padding:
                       EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
                   width: double.infinity,
-                  child: RaisedButton(
-                    padding: EdgeInsets.all(12.0),
-                    shape: StadiumBorder(),
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).primaryColor),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(StadiumBorder()),
+                        padding: MaterialStateProperty.all(EdgeInsets.all(12.0),)
+                    ),
                     child: _progressBarState
                         ? const SizedBox(
                             width: 20,
@@ -380,9 +399,8 @@ class RegisterFormState extends State<RegisterForm> {
                               backgroundColor: Colors.black,
                             ))
                         : Text(
-                      S.of(context).signUp,
+                            S.of(context).signUp,
                           ),
-                    color: Theme.of(context).primaryColor,
                     onPressed: () async {
                       FocusScope.of(context).unfocus();
                       _validate = AutovalidateMode.always;

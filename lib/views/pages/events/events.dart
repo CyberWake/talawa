@@ -11,7 +11,7 @@ import 'package:talawa/views/pages/events/EventDetailPage.dart';
 import 'package:talawa/views/pages/events/addEventPage.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:talawa/services/Queries.dart';
-import 'package:talawa/utils/apiFuctions.dart';
+import 'package:talawa/utils/apiFunctions.dart';
 import 'package:talawa/views/pages/events/addTaskDialog.dart';
 import 'package:talawa/views/pages/events/editEventDialog.dart';
 import 'package:talawa/views/widgets/loading.dart';
@@ -146,7 +146,7 @@ class _EventsState extends State<Events> {
   //function to called be called for register
   Future<void> _register(context, eventId) async {
     String mutation = Queries().registerForEvent(eventId);
-    Map result = await apiFunctions.gqlmutation(mutation);
+    Map result = await apiFunctions.gqlMutation(mutation);
     print(result);
   }
 
@@ -451,8 +451,11 @@ class _EventsState extends State<Events> {
               //             int.parse(displayedEvents[index]['startTime'])))
               //         .toString()),
               ListTile(
-                trailing: RaisedButton(
-                  color: UIData.secondaryColor,
+                trailing: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(UIData.secondaryColor),
+                    shape: MaterialStateProperty.all<OutlinedBorder>(StadiumBorder())
+                  ),
                   onPressed: () {
                     pushNewScreen(
                       context,
@@ -464,7 +467,6 @@ class _EventsState extends State<Events> {
                     "More",
                     style: TextStyle(color: Colors.white),
                   ),
-                  shape: StadiumBorder(),
                 ),
               ),
             ],
@@ -505,40 +507,40 @@ class _EventsState extends State<Events> {
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-        const PopupMenuItem<int>(
+        PopupMenuItem<int>(
             value: 1,
             child: ListTile(
               leading: Icon(Icons.playlist_add_check, color: Colors.grey),
               title: Text(
                 'Register For Event',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color,),
               ),
             )),
-        const PopupMenuItem<int>(
+        PopupMenuItem<int>(
             value: 2,
             child: ListTile(
               leading: Icon(Icons.note_add, color: Colors.grey),
               title: Text(
                 'Add a Task to this Event',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color,),
               ),
             )),
-        const PopupMenuItem<int>(
+        PopupMenuItem<int>(
             value: 3,
             child: ListTile(
               leading: Icon(Icons.edit, color: Colors.grey),
               title: Text(
                 'Edit this event',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color,),
               ),
             )),
-        const PopupMenuItem<int>(
+        PopupMenuItem<int>(
             value: 4,
             child: ListTile(
               leading: Icon(Icons.delete, color: Colors.grey),
               title: Text(
                 'Delete This Event',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color,),
               ),
             ))
       ],
@@ -547,6 +549,7 @@ class _EventsState extends State<Events> {
 
   Widget eventFab() {
     return FloatingActionButton(
+      heroTag: 'eventFab',
         backgroundColor: UIData.secondaryColor,
         child: Icon(
           Icons.add,

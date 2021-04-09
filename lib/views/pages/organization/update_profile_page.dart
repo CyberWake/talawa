@@ -3,7 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:graphql/utilities.dart' show multipartFileFrom;
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:talawa/controllers/auth_controller.dart';
@@ -56,7 +56,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     if (widget.userDetails[0]['email'] == model.email) {
       result = await _client.mutate(
         MutationOptions(
-          documentNode: gql(_updateProfileQuery.updateUserProfile()),
+          document: gql(_updateProfileQuery.updateUserProfile()),
           variables: {
             "firstName": model.firstName,
             "lastName": model.lastName,
@@ -64,18 +64,22 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
         ),
       );
     } else {
-      result = await _client.mutate(
-        MutationOptions(
-          documentNode: gql(_updateProfileQuery.updateUserProfile()),
-          variables: {
-            "firstName": model.firstName,
-            "lastName": model.lastName,
-            "email": widget.userDetails[0]['email'] == model.email
-                ? null
-                : model.email,
-          },
-        ),
-      );
+      try {
+        result = await _client.mutate(
+          MutationOptions(
+            document: gql(_updateProfileQuery.updateUserProfile()),
+            variables: {
+              "firstName": model.firstName,
+              "lastName": model.lastName,
+              "email": widget.userDetails[0]['email'] == model.email
+                  ? null
+                  : model.email,
+            },
+          ),
+        );
+      } on ClientException catch (e) {
+        _exceptionToast(e.message);
+      }
     }
 
     if (result.hasException &&
@@ -88,12 +92,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
       setState(() {
         _progressBarState = false;
       });
-      if (result.exception.clientException != null) {
-        _exceptionToast(result.exception.clientException.message);
-      } else {
-        _exceptionToast(result.exception.graphqlErrors.first.message);
-      }
-    } else if (!result.hasException && !result.loading) {
+      _exceptionToast(result.exception.graphqlErrors.first.message);
+    } else if (!result.hasException && !result.isLoading) {
       setState(() {
         _progressBarState = false;
       });
@@ -114,12 +114,12 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     });
 
     GraphQLClient _client = graphQLConfiguration.authClient();
-    final img = await multipartFileFrom(_image);
+    final img = await MultipartFile.fromPath("photo",_image.path);
     QueryResult result;
     if (widget.userDetails[0]['email'] == model.email) {
       result = await _client.mutate(
         MutationOptions(
-          documentNode: gql(_updateProfileQuery.updateUserProfile()),
+          document: gql(_updateProfileQuery.updateUserProfile()),
           variables: {
             'file': img,
             "firstName": model.firstName,
@@ -128,19 +128,23 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
         ),
       );
     } else {
-      result = await _client.mutate(
-        MutationOptions(
-          documentNode: gql(_updateProfileQuery.updateUserProfile()),
-          variables: {
-            'file': img,
-            "firstName": model.firstName,
-            "lastName": model.lastName,
-            "email": widget.userDetails[0]['email'] == model.email
-                ? null
-                : model.email,
-          },
-        ),
-      );
+      try {
+        result = await _client.mutate(
+          MutationOptions(
+            document: gql(_updateProfileQuery.updateUserProfile()),
+            variables: {
+              'file': img,
+              "firstName": model.firstName,
+              "lastName": model.lastName,
+              "email": widget.userDetails[0]['email'] == model.email
+                  ? null
+                  : model.email,
+            },
+          ),
+        );
+      } on ClientException catch (e) {
+        _exceptionToast(e.message);
+      }
     }
 
     if (result.hasException &&
@@ -153,12 +157,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
       setState(() {
         _progressBarState = false;
       });
-      if (result.exception.clientException != null) {
-        _exceptionToast(result.exception.clientException.message);
-      } else {
-        _exceptionToast(result.exception.graphqlErrors.first.message);
-      }
-    } else if (!result.hasException && !result.loading) {
+      _exceptionToast(result.exception.graphqlErrors.first.message);
+    } else if (!result.hasException && !result.isLoading) {
       setState(() {
         _progressBarState = false;
       });
@@ -359,7 +359,14 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                 ),
                 Container(
                   margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  child: RaisedButton.icon(
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(UIData.secondaryColor),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),),
+                        padding: MaterialStateProperty.all(EdgeInsets.all(15.0),)
+                    ),
                     onPressed: () {
                       FocusScope.of(context).unfocus();
                       _validate = AutovalidateMode.always;
@@ -371,11 +378,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                             : updateProfileWithImg();
                       }
                     },
-                    padding: EdgeInsets.all(15),
-                    color: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
                     icon: _progressBarState
                         ? SizedBox(
                             height: 14,

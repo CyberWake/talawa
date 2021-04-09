@@ -1,5 +1,4 @@
 //flutter packages are  imported here
-import 'dart:developer';
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +7,6 @@ import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 //pages are imported here
 import 'package:talawa/controllers/auth_controller.dart';
-import 'package:talawa/controllers/localization_controller.dart';
 import 'package:talawa/controllers/org_controller.dart';
 import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
@@ -84,11 +82,10 @@ class _ProfilePageState extends State<ProfilePage> {
     userID = await _preferences.getUserId();
     GraphQLClient _client = graphQLConfiguration.clientToQuery();
     QueryResult result = await _client.query(QueryOptions(
-        documentNode: gql(_query.fetchUserInfo), variables: {'id': userID}));
+        document: gql(_query.fetchUserInfo), variables: {'id': userID}));
     if (result.hasException) {
       print(result.exception);
     } else if (!result.hasException) {
-      log(result.data.toString());
       debugPrint(result.data.toString());
       setState(() {
         userDetails = result.data['users'];
@@ -122,7 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (orgId != null) {
       GraphQLClient _client = graphQLConfiguration.authClient();
       QueryResult result = await _client
-          .query(QueryOptions(documentNode: gql(_query.fetchOrgById(orgId))));
+          .query(QueryOptions(document: gql(_query.fetchOrgById(orgId))));
       if (result.hasException) {
         print(result.exception.toString());
       } else if (!result.hasException) {
@@ -158,7 +155,7 @@ class _ProfilePageState extends State<ProfilePage> {
     GraphQLClient _client = graphQLConfiguration.authClient();
 
     QueryResult result = await _client
-        .mutate(MutationOptions(documentNode: gql(_query.leaveOrg(orgId))));
+        .mutate(MutationOptions(document: gql(_query.leaveOrg(orgId))));
 
     if (result.hasException &&
         result.exception.toString().substring(16) == accessTokenException) {
@@ -169,7 +166,7 @@ class _ProfilePageState extends State<ProfilePage> {
         result.exception.toString().substring(16) != accessTokenException) {
       print('exception: ${result.exception.toString()}');
       //_exceptionToast(result.exception.toString().substring(16));
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       //set org at the top of the list as the new current org
       print('done');
       setState(() {

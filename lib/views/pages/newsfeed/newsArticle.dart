@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
-import 'package:talawa/utils/apiFuctions.dart';
+import 'package:talawa/utils/apiFunctions.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/utils/timer.dart';
 
@@ -59,7 +59,7 @@ class _NewsArticleState extends State<NewsArticle> {
     userID = await preferences.getUserId();
     GraphQLClient _client = graphQLConfiguration.clientToQuery();
     QueryResult result = await _client.query(QueryOptions(
-        documentNode: gql(_query.fetchUserInfo), variables: {'id': userID}));
+        document: gql(_query.fetchUserInfo), variables: {'id': userID}));
     if (result.hasException) {
       print(result.exception);
     } else if (!result.hasException) {
@@ -106,7 +106,7 @@ class _NewsArticleState extends State<NewsArticle> {
   //this method helps us to get the comments of the post
   getPostComments() async {
     String mutation = Queries().getPostsComments(widget.post['_id']);
-    Map result = await apiFunctions.gqlmutation(mutation);
+    Map result = await apiFunctions.gqlMutation(mutation);
     setState(() {
       comments =
           result == null ? [] : result['commentsByPost'].reversed.toList();
@@ -120,7 +120,7 @@ class _NewsArticleState extends State<NewsArticle> {
       Fluttertoast.showToast(msg: "Adding Comment...");
       queryText = commentController.text.replaceAll("\n", newLineKey).trim();
       String mutation = Queries().createComments(widget.post['_id'], queryText);
-      Map result = await apiFunctions.gqlmutation(mutation);
+      Map result = await apiFunctions.gqlMutation(mutation);
       print(result);
       if (result == null) {
         Fluttertoast.showToast(
@@ -285,8 +285,10 @@ class _NewsArticleState extends State<NewsArticle> {
 
   //this loads the comments button
   Widget loadCommentsButton() {
-    return FlatButton(
-        color: Colors.grey[200],
+    return ElevatedButton(
+        style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[200]),
+        ),
         onPressed: () {
           setState(() {
             loadComments = true;

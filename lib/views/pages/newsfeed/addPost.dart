@@ -9,7 +9,7 @@ import 'package:talawa/generated/l10n.dart';
 //pages are called here
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/services/preferences.dart';
-import 'package:talawa/utils/apiFuctions.dart';
+import 'package:talawa/utils/apiFunctions.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/views/widgets/toast_tile.dart';
 
@@ -54,7 +54,7 @@ class _AddPostState extends State<AddPost> {
     String mutation = Queries().addPost(description, organizationId, title);
     ApiFunctions apiFunctions = ApiFunctions();
     try {
-      result = await apiFunctions.gqlmutation(mutation);
+      result = await apiFunctions.gqlMutation(mutation);
       if (result != null) {
         Navigator.pop(context, true);
       } else {

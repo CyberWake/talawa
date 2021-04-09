@@ -16,7 +16,7 @@ class ApiFunctions {
     GraphQLClient _client = graphQLConfiguration.authClient();
 
     final QueryOptions options = QueryOptions(
-      documentNode: gql(query),
+      document: gql(query),
       variables: <String, dynamic>{
       },
     );
@@ -35,16 +35,16 @@ class ApiFunctions {
 
 
   //function to mutate the query
-  Future<dynamic> gqlmutation(String mutation) async {
+  Future<dynamic> gqlMutation(String mutation) async {
     GraphQLClient _client = graphQLConfiguration.authClient();
     QueryResult result = await _client.mutate(MutationOptions(
-      documentNode: gql(mutation),
+      document: gql(mutation),
     ));
 
     if (result.hasException &&
         result.exception.toString().substring(16) == accessTokenException) {
       _authController.getNewToken();
-     return gqlmutation(mutation);
+     return gqlMutation(mutation);
     } else if (result.hasException) {
       print(result.exception);
     } else {

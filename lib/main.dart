@@ -69,12 +69,20 @@ class MyApp extends StatelessWidget {
         supportedLocales: S.delegate.supportedLocales,
         darkTheme: ThemeData.dark().copyWith(
           accentColor: Color(0xFF31bd6a),
-          textSelectionHandleColor: Color(0xFF31bd6a),
+          textSelectionTheme: TextSelectionThemeData(
+            selectionColor: Color(0xFF31bd6a),
+            cursorColor: Color(0xFF31bd6a),
+            selectionHandleColor: Color(0xFF31bd6a),
+          ),
         ),
         locale: locale,
         theme: ThemeData.light().copyWith(
           accentColor: Colors.black,
-          textSelectionHandleColor: Color(0xFF31bd6a),
+          textSelectionTheme: TextSelectionThemeData(
+            selectionColor: Color(0xFF31bd6a),
+            cursorColor: Color(0xFF31bd6a),
+            selectionHandleColor: Color(0xFF31bd6a),
+          ),
           backgroundColor: Colors.white,
           primaryColor: UIData.primaryColor,
         ),

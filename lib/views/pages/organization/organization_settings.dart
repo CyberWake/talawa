@@ -54,7 +54,7 @@ class _OrganizationSettingsState extends State<OrganizationSettings> {
     String newOrgName;
     GraphQLClient _client = graphQLConfiguration.authClient();
     QueryResult result = await _client.mutate(MutationOptions(
-        documentNode: gql(_query.leaveOrg(widget.organization[0]['_id']))));
+        document: gql(_query.leaveOrg(widget.organization[0]['_id']))));
     if (result.hasException &&
         result.exception.toString().substring(16) == accessTokenException) {
       _authController.getNewToken();
@@ -65,7 +65,7 @@ class _OrganizationSettingsState extends State<OrganizationSettings> {
         processing = false;
       });
       _exceptionToast(result.exception.toString().substring(16));
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       //set org at the top of the list as the new current org
       setState(() {
         remaindingOrg = result.data['leaveOrganization']['joinedOrganizations'];
@@ -107,7 +107,7 @@ class _OrganizationSettingsState extends State<OrganizationSettings> {
     GraphQLClient _client = graphQLConfiguration.authClient();
 
     QueryResult result = await _client
-        .mutate(MutationOptions(documentNode: gql(_query.removeOrg(orgId))));
+        .mutate(MutationOptions(document: gql(_query.removeOrg(orgId))));
 
     if (result.hasException &&
         result.exception.toString().substring(16) == accessTokenException) {
@@ -120,7 +120,7 @@ class _OrganizationSettingsState extends State<OrganizationSettings> {
         processing = false;
       });
       //_exceptionToast(result.exception.toString().substring(16));
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       _successToast('Successfully Removed Organization');
       setState(() {
         remaindingOrg =
@@ -153,11 +153,8 @@ class _OrganizationSettingsState extends State<OrganizationSettings> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Hero(
-            tag:'title',
-            child: const Text('Organization Settings',
-                style: TextStyle(color: Colors.white)),
-          ),
+          title: const Text('Organization Settings',
+              style: TextStyle(color: Colors.white)),
         ),
         body: Stack(
           children: [

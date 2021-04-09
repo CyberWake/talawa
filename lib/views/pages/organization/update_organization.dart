@@ -72,7 +72,7 @@ class _UpdateOrganizationState extends State<UpdateOrganization> {
         orgMemberDescController.text.trim().replaceAll('\n', ' ');
     GraphQLClient _client = graphQLConfiguration.authClient();
     QueryResult result = await _client.mutate(MutationOptions(
-        documentNode: gql(_queries.updateOrg(
+        document: gql(_queries.updateOrg(
       currentOrgId,
       orgNameController.text,
       orgDescController.text,
@@ -91,7 +91,7 @@ class _UpdateOrganizationState extends State<UpdateOrganization> {
         _progressBarState = false;
       });
       _exceptionToast(result.exception.toString().substring(16));
-    } else if (!result.hasException && !result.loading) {
+    } else if (!result.hasException && !result.isLoading) {
       setState(() {
         _progressBarState = true;
       });

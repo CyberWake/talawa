@@ -60,7 +60,11 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
     });
 
     try {
-      await http.get('${dropdownValue.toLowerCase()}://${urlController.text}/');
+      if (dropdownValue.toLowerCase().compareTo('http')==0) {
+        await http.get(Uri.http('${urlController.text}','/graphql'));
+      }else if(dropdownValue.toLowerCase().compareTo('https')==0) {
+        await http.get(Uri.https('${urlController.text}','/graphql'));
+      }
 
       setApiUrl();
       _setURL();
@@ -76,9 +80,9 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
   Future setApiUrl() async {
     setState(() {
       orgUrl =
-          "${dropdownValue.toLowerCase()}://${urlController.text}/";
+          "${dropdownValue.toLowerCase()}://${urlController.text}/graphql/";
       orgImgUrl =
-      "${dropdownValue.toLowerCase()}://${urlController.text}/talawa/";
+      "${dropdownValue.toLowerCase()}://${urlController.text}/graphql/talawa/";
     });
     await _pref.saveOrgUrl(orgUrl);
     await _pref.saveOrgImgUrl(orgImgUrl);

@@ -6,7 +6,7 @@ import 'package:talawa/services/Queries.dart';
 
 //pages are called here
 import 'package:talawa/services/preferences.dart';
-import 'package:talawa/utils/apiFuctions.dart';
+import 'package:talawa/utils/apiFunctions.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:intl/intl.dart';
 import 'package:talawa/views/pages/events/events.dart';
@@ -27,14 +27,14 @@ class _AddEventState extends State<AddEvent> {
       _validateLocation = false;
   ApiFunctions apiFunctions = ApiFunctions();
 
-  Map switchVals = {
+  Map switchValues = {
     'Make Public': true,
-    'Make Registerable': true,
+    'Make Registrable': true,
     'Recurring': true,
     'All Day': false
   };
-  var recurranceList = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'];
-  String recurrance = 'DAILY';
+  var recurrenceList = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'];
+  String recurrence = 'DAILY';
   Preferences preferences = Preferences();
   void initState() {
     super.initState();
@@ -102,7 +102,7 @@ class _AddEventState extends State<AddEvent> {
         startEndTimes['End Time'].hour,
         startEndTimes['End Time'].minute);
 
-    if (switchVals['All Day']) {
+    if (switchValues['All Day']) {
       startEndTimes = {
         'Start Time': DateTime(DateTime.now().year, DateTime.now().month,
             DateTime.now().day, 12, 0),
@@ -116,11 +116,11 @@ class _AddEventState extends State<AddEvent> {
       title: titleController.text,
       description: descriptionController.text,
       location: locationController.text,
-      isPublic: switchVals['Make Public'],
-      isRegisterable: switchVals['Make Registerable'],
-      recurring: switchVals['Recurring'],
-      allDay: switchVals['All Day'],
-      recurrance: recurrance,
+      isPublic: switchValues['Make Public'],
+      isRegisterable: switchValues['Make Registerable'],
+      recurring: switchValues['Recurring'],
+      allDay: switchValues['All Day'],
+      recurrance: recurrence,
       startTime: startTime.microsecondsSinceEpoch.toString(),
       endTime: endTime.microsecondsSinceEpoch.toString(),
     );
@@ -178,7 +178,7 @@ class _AddEventState extends State<AddEvent> {
   //widget to get the time button
   Widget timeButton(String name, DateTime time) {
     return AbsorbPointer(
-        absorbing: switchVals['All Day'],
+        absorbing: switchValues['All Day'],
         child: ListTile(
           onTap: () {
             _selectTime(context, name, TimeOfDay.fromDateTime(time));
@@ -190,7 +190,7 @@ class _AddEventState extends State<AddEvent> {
           trailing: Text(
             TimeOfDay.fromDateTime(time).format(context),
             style: TextStyle(
-                color: !switchVals['All Day']
+                color: !switchValues['All Day']
                     ? UIData.secondaryColor
                     : Colors.grey),
           ),
@@ -200,6 +200,7 @@ class _AddEventState extends State<AddEvent> {
   //widget to add the event
   Widget addEventFab() {
     return FloatingActionButton(
+      heroTag: 'addEventFab',
         backgroundColor: UIData.secondaryColor,
         child: Icon(
           Icons.check,
@@ -260,15 +261,15 @@ class _AddEventState extends State<AddEvent> {
   Widget switchTile(String name) {
     return SwitchListTile(
         activeColor: UIData.secondaryColor,
-        value: switchVals[name],
+        value: switchValues[name],
         contentPadding: EdgeInsets.symmetric(horizontal: 20),
         title: Text(
-          name,
+          name??'Make Registrable',
           style: TextStyle(color: Colors.grey[600]),
         ),
         onChanged: (val) {
           setState(() {
-            switchVals[name] = val;
+            switchValues[name] = val;
           });
         });
   }
@@ -281,20 +282,20 @@ class _AddEventState extends State<AddEvent> {
         style: TextStyle(fontSize: 16, color: Colors.grey[600]),
       ),
       trailing: AbsorbPointer(
-        absorbing: !switchVals['Recurring'],
+        absorbing: !switchValues['Recurring'],
         child: DropdownButton<String>(
           style: TextStyle(
-              color: switchVals['Recurring']
+              color: switchValues['Recurring']
                   ? UIData.secondaryColor
                   : Colors.grey),
-          value: recurrance,
+          value: recurrence,
           icon: Icon(Icons.arrow_drop_down),
           onChanged: (String newValue) {
             setState(() {
-              recurrance = newValue;
+              recurrence = newValue;
             });
           },
-          items: recurranceList.map<DropdownMenuItem<String>>((String value) {
+          items: recurrenceList.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,
               child: Text(value),

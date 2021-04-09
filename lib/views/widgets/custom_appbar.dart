@@ -33,7 +33,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
   Preferences preferences = Preferences();
   String _imgSrc;
   String _orgId;
-  String _orgName;
 
   @override
   void initState() {
@@ -55,7 +54,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
     String orgId = await preferences.getCurrentOrgId();
 
     QueryResult result = await _client
-        .query(QueryOptions(documentNode: gql(_query.fetchOrgById(orgId))));
+        .query(QueryOptions(document: gql(_query.fetchOrgById(orgId))));
     if (result.hasException) {
       print(result.exception);
     } else if (!result.hasException) {
