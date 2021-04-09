@@ -182,6 +182,7 @@ class _JoinOrganizationState extends State<JoinOrganization> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(S.of(context).titleJoinOrg,
             style: TextStyle(color: Colors.white)),
@@ -192,14 +193,12 @@ class _JoinOrganizationState extends State<JoinOrganization> {
               key: UniqueKey(),
             ))
           : Container(
-              color: Color(0xffF3F6FF),
               padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
               child: Column(
                 children: <Widget>[
                   Text(
                     S.of(context).textJoinOrgGreeting,
                     style: TextStyle(
-                        color: Colors.black,
                         fontSize: 18,
                         fontStyle: FontStyle.normal),
                   ),
@@ -215,17 +214,17 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                     style: TextStyle(fontSize: 14),
                     decoration: InputDecoration(
                         contentPadding: EdgeInsets.all(5),
-                        fillColor: Colors.white,
+                        fillColor: Theme.of(context).backgroundColor,
                         filled: true,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15.0),
                           borderSide:
-                              BorderSide(color: Colors.white, width: 0.0),
+                              BorderSide(color: Theme.of(context).primaryColor, width: 0.0),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15.0),
                           borderSide:
-                              BorderSide(color: Colors.white, width: 0.0),
+                              BorderSide(color: Theme.of(context).primaryColor, width: 0.0),
                         ),
                         prefixIcon: Padding(
                           padding: EdgeInsets.all(0.0),
@@ -236,13 +235,14 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                   SizedBox(height: 15),
                   Expanded(
                       child: Container(
-                          color: Color(0xffF3F6FF),
+                          color: Theme.of(context).scaffoldBackgroundColor,
                           child: searchController.text.isNotEmpty
                               ? ListView.builder(
                                   itemCount: filteredOrgInfo.length,
                                   itemBuilder: (context, index) {
                                     final organization = filteredOrgInfo[index];
                                     return Card(
+                                      color: Theme.of(context).backgroundColor,
                                       child: ListTile(
                                         leading: organization['image'] != null
                                             ? CircleAvatar(
@@ -472,6 +472,8 @@ class _JoinOrganizationState extends State<JoinOrganization> {
       floatingActionButton: OpenContainer(
         transitionDuration: Duration(milliseconds: 1000),
         closedElevation: 6.0,
+        openColor: Theme.of(context).scaffoldBackgroundColor,
+        closedColor: Theme.of(context).scaffoldBackgroundColor,
         closedShape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(28),

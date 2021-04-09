@@ -23,6 +23,7 @@ class Manage extends StatefulWidget {
 
 class _ManageState extends State<Manage> with TickerProviderStateMixin {
   final FocusNode _searchNode = FocusNode();
+  final FocusNode _messageNode = FocusNode();
   final TextEditingController _filter = new TextEditingController();
   final ScrollController _controllerVertical = ScrollController();
   final ScrollController _controllerHorizontal = ScrollController();
@@ -55,6 +56,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
   bool chatPageOpen = false;
   bool loading = true;
   bool isSearchClicked = false;
+  bool translateActive = false;
   IconData cancelAttachmentIcon = Icons.attach_file;
 
   @override
@@ -139,8 +141,8 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
       print('${userOrg[0]['_id']} | $orgId ');
     } else {
       GraphQLClient _client = graphQLConfiguration.clientToQuery();
-      QueryResult result = await _client.mutate(MutationOptions(
-          document: gql(_query.fetchOrgById(selectedOrgId))));
+      QueryResult result = await _client.mutate(
+          MutationOptions(document: gql(_query.fetchOrgById(selectedOrgId))));
       if (result.hasException) {
         print(result.exception);
         //_exceptionToast(result.exception.toString());
@@ -386,7 +388,8 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                           TextAlignVertical.center,
                                       keyboardType: TextInputType.text,
                                       decoration: InputDecoration.collapsed(
-                                        hintText: S.of(context).hintSearchMember,
+                                        hintText:
+                                            S.of(context).hintSearchMember,
                                         hintStyle: TextStyle(
                                           color: Theme.of(context).accentColor,
                                         ),
@@ -461,7 +464,8 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                                 itemLength: adminsList.length,
                                                 listNumber: 2),
                                             subList(
-                                                listName: S.of(context).eventChats,
+                                                listName:
+                                                    S.of(context).eventChats,
                                                 itemLength: eventsList.length,
                                                 listNumber: 3),
                                             subList(
@@ -559,7 +563,9 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                             padding: EdgeInsets.all(2),
                             width: 25,
                             alignment: Alignment.center,
-                            color: Theme.of(context).textSelectionTheme.selectionColor,
+                            color: Theme.of(context)
+                                .textSelectionTheme
+                                .selectionColor,
                             child: Text(
                               '${member['unread']}',
                               style: TextStyle(fontSize: 12),
@@ -596,232 +602,287 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10), topRight: Radius.circular(10)),
             color: Colors.grey.withOpacity(0.2)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+        child: Stack(
           children: [
-            Container(
-              padding: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10))),
-              child: Row(children: [
-                IconButton(
-                    icon: Icon(
-                      chatPageOpen ? Icons.arrow_back_ios : Icons.menu,
-                      size: 30,
-                      color: Colors.white,
-                    ),
-                    onPressed: scrollListChat),
-                selectedMap == null
-                    ? CircleAvatar(
-                        radius: 25,
-                        backgroundColor:
-                            Theme.of(context).textTheme.subtitle1.color,
-                        backgroundImage: AssetImage('assets/images/team.png'))
-                    : selectedMap['image'] == null
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10))),
+                  child: Row(children: [
+                    IconButton(
+                        icon: Icon(
+                          chatPageOpen ? Icons.arrow_back_ios : Icons.menu,
+                          size: 30,
+                          color: Colors.white,
+                        ),
+                        onPressed: scrollListChat),
+                    selectedMap == null
                         ? CircleAvatar(
-                    backgroundColor:
-                    Theme.of(context).textTheme.subtitle1.color,
                             radius: 25,
-                            child: Text(
-                                selectedMap['firstName']
-                                        .toString()
-                                        .substring(0, 1)
-                                        .toUpperCase() +
-                                    selectedMap['lastName']
-                                        .toString()
-                                        .substring(0, 1)
-                                        .toUpperCase(),
+                            backgroundColor:
+                                Theme.of(context).textTheme.subtitle1.color,
+                            backgroundImage: AssetImage('assets/images/team.png'))
+                        : selectedMap['image'] == null
+                            ? CircleAvatar(
+                                backgroundColor:
+                                    Theme.of(context).textTheme.subtitle1.color,
+                                radius: 25,
+                                child: Text(
+                                    selectedMap['firstName']
+                                            .toString()
+                                            .substring(0, 1)
+                                            .toUpperCase() +
+                                        selectedMap['lastName']
+                                            .toString()
+                                            .substring(0, 1)
+                                            .toUpperCase(),
+                                    style: TextStyle(
+                                      color: UIData.primaryColor,
+                                    )))
+                            : CircleAvatar(
+                                radius: 25,
+                                backgroundColor: Colors.white,
+                                backgroundImage: NetworkImage(
+                                    Provider.of<GraphQLConfiguration>(context)
+                                            .displayImgRoute +
+                                        selectedMap['image'])),
+                    selectedMap == null
+                        ? SizedBox()
+                        : InkWell(
+                            onTap: () {
+                              pushNewScreen(context,
+                                  screen: MemberDetail(
+                                    member: selectedMap,
+                                    color: Colors.blue,
+                                    admins: adminsList,
+                                    creatorId: creator['_id'],
+                                  ),
+                                  withNavBar: false);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: Text(
+                                '${selectedMap['firstName']} ${selectedMap['lastName']}',
                                 style: TextStyle(
-                                  color: UIData.primaryColor,
-                                )))
-                        : CircleAvatar(
-                            radius: 25,
-                            backgroundColor: Colors.white,
-                            backgroundImage: NetworkImage(
-                                Provider.of<GraphQLConfiguration>(context)
-                                        .displayImgRoute +
-                                    selectedMap['image'])),
-                selectedMap == null
-                    ? SizedBox()
-                    : InkWell(
-                        onTap: () {
-                          pushNewScreen(context,
-                              screen: MemberDetail(
-                                member: selectedMap,
-                                color: Colors.blue,
-                                admins: adminsList,
-                                creatorId: creator['_id'],
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w400),
                               ),
-                              withNavBar: false);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 10.0),
-                          child: Text(
-                            '${selectedMap['firstName']} ${selectedMap['lastName']}',
-                            style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w400),
+                            ),
                           ),
+                    Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: InkWell(
+                        child: Icon(
+                          Icons.phone,
+                          size: 30,
+                          color: Colors.white,
+                          semanticLabel: 'Make a voice call',
+                        ),
+                        onTap: () {},
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: InkWell(
+                        child: Icon(
+                          Icons.video_call,
+                          size: 30,
+                          color: Colors.white,
+                          semanticLabel: 'Make a video call',
+                        ),
+                        onTap: () {},
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: PopupMenuButton(
+                        child: Icon(
+                          Icons.more_vert,
+                          size: 30,
+                          color: Colors.white,
+                          semanticLabel: 'More Options',
+                        ),
+                        itemBuilder: (BuildContext context) {
+                          return {'Translate'}.map((String choice) {
+                            return PopupMenuItem(
+                              child: StatefulBuilder(
+                                builder: (BuildContext context, void Function(void Function()) setState) {
+                                  return SwitchListTile(
+                                    title: Text(choice),
+                                    onChanged: (bool value) {
+                                      setState(() {
+                                        translateActive = !translateActive;
+                                      });
+                                      _messageNode.unfocus();
+                                    },
+                                    value: translateActive,
+                                  );
+                                },
+                              ),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    )
+                  ]),
+                ),
+                Flexible(
+                    fit: FlexFit.tight,
+                    child: ListView.builder(
+                      controller: _controllerChat,
+                      shrinkWrap: true,
+                      itemCount: messages.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ChatBubble(
+                          translate: translateActive,
+                          isMe: index % 2 == 0,
+                          message: messages[index],
+                        );
+                      },
+                    )),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.zero,
+                        margin: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          color: Colors.white,
+                        ),
+                        child: Row(
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(
+                                Icons.emoji_emotions,
+                                semanticLabel: 'Send emoji message',
+                                color: Theme.of(context).primaryColor,
+                                size: 25,
+                              ),
+                              onPressed: () {
+                                if (!chatPageOpen) {
+                                  scrollListChat();
+                                }
+                              },
+                            ),
+                            Expanded(
+                              child: TextField(
+                                focusNode: _messageNode,
+                                autofocus: false,
+                                controller: _textController,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
+                                decoration: InputDecoration.collapsed(
+                                  hintText: 'Send a message..',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                textCapitalization: TextCapitalization.sentences,
+                              ),
+                            ),
+                            InkWell(
+                              child: Icon(
+                                cancelAttachmentIcon,
+                                semanticLabel: 'Attach a document',
+                                size: 25,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              onTap: () {
+                                print('running');
+                                if (attachmentHeightAnimation.value ==
+                                    maxAttachmentWidth) {
+                                  setState(() {
+                                    cancelAttachmentIcon = Icons.attach_file;
+                                  });
+                                  _attachmentAnimationController.reverse();
+                                } else {
+                                  setState(() {
+                                    cancelAttachmentIcon = Icons.cancel_outlined;
+                                  });
+                                  _attachmentAnimationController.forward();
+                                }
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.mic,
+                                semanticLabel: 'Record voice message',
+                                color: Theme.of(context).primaryColor,
+                                size: 25,
+                              ),
+                              onPressed: () {},
+                            ),
+                          ],
                         ),
                       ),
-                Spacer(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal:8.0),
-                  child: InkWell(child: Icon(Icons.phone,size: 30,
-                    color: Colors.white,),onTap: (){},),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal:8.0),
-                  child: InkWell(child: Icon(Icons.video_call,size: 30,
-                    color: Colors.white,),onTap: (){},),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left:8.0),
-                  child: InkWell(child: Icon(Icons.more_vert,size: 30,
-                    color: Colors.white,),onTap: (){},),
-                ),
-                SizedBox(width: 10,)
-              ]),
-            ),
-            Flexible(
-                fit: FlexFit.tight,
-                child: ListView.builder(
-                  controller: _controllerChat,
-                  //reverse: true,
-                  itemCount: messages.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ChatBubble(
-                      isMe: index % 2 == 0,
-                      message: messages[index],
-                    );
-                  },
-                )),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.zero,
-                    margin: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      color: Colors.white,
                     ),
-                    child: Row(
-                      children: <Widget>[
-                        IconButton(
-                          icon: Icon(
-                            Icons.emoji_emotions,
-                            semanticLabel: 'Send emoji message',
-                            color: Theme.of(context).primaryColor,
-                            size: 25,
-                          ),
-                          onPressed: () {
-                            if (!chatPageOpen) {
-                              scrollListChat();
-                            }
-                          },
-                        ),
-                        Expanded(
-                          child: TextField(
-                            controller: _textController,
-                            style: TextStyle(
-                              color: Colors.black,
-                            ),
-                            decoration: InputDecoration.collapsed(
-                              hintText: 'Send a message..',
-                              hintStyle: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                            textCapitalization: TextCapitalization.sentences,
-                          ),
-                        ),
-                        InkWell(
-                          child: Icon(
-                            cancelAttachmentIcon,
-                            semanticLabel: 'Attach a document',
-                            size: 25,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          onTap: () {
-                            print('running');
-                            if (attachmentHeightAnimation.value ==
-                                maxAttachmentWidth) {
-                              setState(() {
-                                cancelAttachmentIcon = Icons.attach_file;
-                              });
-                              _attachmentAnimationController.reverse();
-                            } else {
-                              setState(() {
-                                cancelAttachmentIcon = Icons.cancel_outlined;
-                              });
-                              _attachmentAnimationController.forward();
-                            }
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.mic,
-                            semanticLabel: 'Record voice message',
-                            color: Theme.of(context).primaryColor,
-                            size: 25,
-                          ),
-                          onPressed: () {},
-                        ),
-                      ],
+                    FloatingActionButton(
+                      backgroundColor: Theme.of(context).backgroundColor,
+                      onPressed: () {
+                        if (_textController.text.length > 0) {
+                          setState(() {
+                            messages.add(_textController.text);
+                          });
+                          Future.delayed(Duration(milliseconds: 2000));
+                          _controllerChat.animateTo(
+                              _controllerChat.position.maxScrollExtent+200,
+                              duration: Duration(milliseconds: 100),
+                              curve: Curves.linear);
+                          _textController.clear();
+                        }
+                      },
+                      child: Icon(
+                        Icons.send,
+                        semanticLabel: 'Send Text Message',
+                        size: 25,
+                        color: Theme.of(context).accentColor,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                FloatingActionButton(
-                  backgroundColor: Theme.of(context).backgroundColor,
-                  onPressed: () {
-                    if (_textController.text.length > 0) {
-                      setState(() {
-                        messages.add(_textController.text);
-                      });
-                      _controllerChat.animateTo(
-                          _controllerChat.position.maxScrollExtent,
-                          duration: Duration(milliseconds: 100),
-                          curve: Curves.linear);
-                      _textController.clear();
-                    }
-                  },
-                  child: Icon(
-                    Icons.send,
-                    semanticLabel: 'Send Text Message',
-                    size: 25,
-                    color: Theme.of(context).accentColor,
-                  ),
-                ),
+                AnimatedBuilder(
+                    animation: _attachmentAnimationController,
+                    builder: (context, widget) {
+                      return Container(
+                          height: attachmentHeightAnimation.value,
+                          child: GridView.count(
+                            crossAxisCount: 3,
+                            padding:
+                                EdgeInsets.symmetric(horizontal: 35, vertical: 20),
+                            crossAxisSpacing: 40,
+                            mainAxisSpacing: 20,
+                            children: List.generate(
+                                6,
+                                (index) => SizedBox(
+                                    height: 30,
+                                    width: 30,
+                                    child: FloatingActionButton(
+                                      backgroundColor:
+                                          Theme.of(context).backgroundColor,
+                                      onPressed: () {},
+                                      child: Icon(
+                                        icons[index],
+                                        size: 30,
+                                        color: Theme.of(context).accentColor,
+                                      ),
+                                    ))),
+                          ));
+                    })
               ],
             ),
-            AnimatedBuilder(
-                animation: _attachmentAnimationController,
-                builder: (context, widget) {
-                  return Container(
-                      height: attachmentHeightAnimation.value,
-                      child: GridView.count(
-                        crossAxisCount: 3,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 35, vertical: 20),
-                        crossAxisSpacing: 40,
-                        mainAxisSpacing: 20,
-                        children: List.generate(
-                            6,
-                            (index) => SizedBox(
-                                height: 30,
-                                width: 30,
-                                child: FloatingActionButton(
-                                  backgroundColor: Theme.of(context).backgroundColor,
-                                  onPressed: () {},
-                                  child: Icon(icons[index],size: 30,color: Theme.of(context).accentColor,),
-                                ))),
-                      ));
-                })
           ],
         ),
       ),

@@ -106,7 +106,7 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(builder: (ctx) => builder(ctx));
         },
         home: SplashScreen(
-          navigateAfter: userID == null ? UrlPage() : HomePage(),
+          navigateAfter: userID == null ? UrlPage() : HomePage(openPageIndex: 3,),
         ), //checking weather the user is logged in or not
       ),
     );

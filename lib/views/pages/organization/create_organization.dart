@@ -197,6 +197,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -207,7 +208,6 @@ class _CreateOrganizationState extends State<CreateOrganization> {
         title: Text(S.of(context).titleCreateOrg),
       ),
       body: Container(
-        color: Colors.white,
         child: SingleChildScrollView(
           padding: EdgeInsets.only(bottom: 10.0),
           scrollDirection: Axis.vertical,
@@ -215,7 +215,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
             children: <Widget>[
               addImage(),
               Text(S.of(context).labelAddOrganizationImage,
-                  style: TextStyle(fontSize: 16, color: Colors.black)),
+                  style: TextStyle(fontSize: 16,)),
               Form(
                 key: _formKey,
                 autovalidateMode: _validate,
@@ -253,7 +253,6 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                                 color: UIData.secondaryColor,
                               ),
                               labelText: S.of(context).labelOrgName,
-                              labelStyle: TextStyle(color: Colors.black),
                               alignLabelWithHint: true,
                               hintText: S.of(context).hintOrgName,
                               hintStyle: TextStyle(color: Colors.grey),
@@ -283,7 +282,6 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                               prefixIcon: Icon(Icons.note,
                                   color: UIData.secondaryColor),
                               labelText: S.of(context).labelOrgDescription,
-                              labelStyle: TextStyle(color: Colors.black),
                               alignLabelWithHint: true,
                               hintText: S.of(context).hintOrgDescription,
                               hintStyle: TextStyle(color: Colors.grey),
@@ -313,7 +311,6 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                               prefixIcon: Icon(Icons.note,
                                   color: UIData.secondaryColor),
                               labelText: S.of(context).labelOrgMemDescription,
-                              labelStyle: TextStyle(color: Colors.black),
                               alignLabelWithHint: true,
                               hintText: S.of(context).hintOrgMemDescription,
                               hintStyle: TextStyle(color: Colors.grey),
@@ -326,7 +323,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                         ],
                       )),
                       Text(S.of(context).textOrgPublic,
-                          style: TextStyle(fontSize: 16, color: Colors.black)),
+                          style: TextStyle(fontSize: 16)),
                       RadioListTile(
                         groupValue: radioValue,
                         title: Text(S.of(context).yes),
@@ -360,7 +357,7 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                       ),
                       Text(
                           S.of(context).textOrgInSearch,
-                          style: TextStyle(fontSize: 16, color: Colors.black)),
+                          style: TextStyle(fontSize: 16)),
                       RadioListTile(
                         activeColor: UIData.secondaryColor,
                         groupValue: radioValue1,

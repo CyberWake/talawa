@@ -248,7 +248,7 @@ class _EventsState extends State<Events> {
                       getEvents();
                     },
                     child: Container(
-                    color: Colors.white,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     child: Stack(
                       children: [
                         Positioned.fill(
@@ -264,7 +264,7 @@ class _EventsState extends State<Events> {
                           expand: true,
                           builder: (BuildContext context, myscrollController) {
                             return Container(
-                              color: Colors.white,
+                              color: Theme.of(context).scaffoldBackgroundColor,
                               child: Column(
                                 children: [
                                   ListView(
@@ -290,8 +290,6 @@ class _EventsState extends State<Events> {
                                                       vertical: 5),
                                                   child: Text(
                                                     '${displayedEvents.length} Events',
-                                                    style: TextStyle(
-                                                        color: Colors.black45),
                                                   ),
                                                 ),
                                                 eventCard(index)
@@ -473,13 +471,11 @@ class _EventsState extends State<Events> {
             title: Text(
               displayedEvents[index]['title'],
               style: TextStyle(
-                color: Colors.black87,
                 fontSize: 16,
               ),
             ),
             subtitle: Text(
               displayedEvents[index]['description'],
-              style: TextStyle(color: Colors.black54),
             ),
             trailing: popUpMenue(displayedEvents[index]),
           ),

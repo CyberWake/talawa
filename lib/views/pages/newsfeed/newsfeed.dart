@@ -242,7 +242,7 @@ class _NewsFeedState extends State<NewsFeed>
                                         );
                                       },
                                       child: Card(
-                                        color: Colors.white,
+                                        color: Theme.of(context).backgroundColor,
                                         child: Column(
                                           children: <Widget>[
                                             Container(

@@ -52,7 +52,7 @@ dependencies:
   data_connection_checker: ^0.3.4
   animations: ^2.0.0
   clippy_flutter: ^1.1.1
-
+  translator: ^0.1.6+1
 
 
 
