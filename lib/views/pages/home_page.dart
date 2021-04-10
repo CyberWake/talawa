@@ -15,8 +15,9 @@ import 'package:talawa/views/pages/newsfeed/newsfeed.dart';
 import 'organization/profile_page.dart';
 
 class HomePage extends StatefulWidget {
+  final bool autoLogin;
   final int openPageIndex;
-  HomePage({this.openPageIndex = 0});
+  HomePage({this.openPageIndex = 0,this.autoLogin = false});
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -57,10 +58,10 @@ class _HomePageState extends State<HomePage> {
   List<Widget> _buildScreens() {
     //here we are building the screens that are mention in the app bar
     return [
-      Manage(),
+      Manage(autoLogin: widget.autoLogin),
       NewsFeed(), //first page of the news feed
       Events(), //Third page of creating the events and viewing it
-      ShowCaseWidget(autoPlay:true,autoPlayDelay:Duration(seconds: 2),builder: Builder(builder: (BuildContext context)=>ProfilePage(),)), //last page of the profile
+      ShowCaseWidget(autoPlay:true,autoPlayDelay:Duration(seconds: 1),builder: Builder(builder: (BuildContext context)=>ProfilePage(autoLogin: widget.autoLogin),)), //last page of the profile
     ];
   }
 

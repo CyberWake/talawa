@@ -46,9 +46,9 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
 
 
   listenToUrl() {
-    if (saveMsg == "URL SAVED!" && urlController.text != urlInput) {
+    if (saveMsg == S.of(context).urlSaved && urlController.text != urlInput) {
       setState(() {
-        saveMsg = "Set URL";
+        saveMsg = S.of(context).setUrl;
       });
     }
     urlInput = urlController.text;
@@ -58,12 +58,32 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
     setState(() {
       isUrlCalled = true;
     });
+    String protocol;
+    String domain;
+    String endPoint;
+    int endPointSlashIndex;
+    if(urlController.text.contains('https')){
+      protocol = 'https';
+      domain = urlController.text.substring(8);
+      endPointSlashIndex = domain.indexOf('/');
+      endPoint = domain.substring(endPointSlashIndex);
+      domain = domain.substring(0,endPointSlashIndex);
+    }else if(urlController.text.contains('http')){
+      protocol = 'http';
+      domain = urlController.text.substring(7);
+      endPointSlashIndex = domain.indexOf('/');
+      endPoint = domain.substring(endPointSlashIndex) + '/';
+      domain = domain.substring(0,endPointSlashIndex);
+    }
+    print(protocol);
+    print(domain);
+    print(endPoint);
 
     try {
-      if (dropdownValue.toLowerCase().compareTo('http')==0) {
-        await http.get(Uri.http('${urlController.text}','/graphql'));
-      }else if(dropdownValue.toLowerCase().compareTo('https')==0) {
-        await http.get(Uri.https('${urlController.text}','/graphql'));
+      if (protocol.compareTo('https')==0) {
+        await http.get(Uri.https('$domain','$endPoint'));
+      }else if(protocol.compareTo('http')==0) {
+        await http.get(Uri.http('$domain','$endPoint'));
       }
 
       setApiUrl();
@@ -79,10 +99,8 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
 
   Future setApiUrl() async {
     setState(() {
-      orgUrl =
-          "${dropdownValue.toLowerCase()}://${urlController.text}/graphql/";
-      orgImgUrl =
-      "${dropdownValue.toLowerCase()}://${urlController.text}/graphql/talawa/";
+      orgUrl = urlController.text;
+      orgImgUrl = urlController.text + "/talawa/";
     });
     await _pref.saveOrgUrl(orgUrl);
     await _pref.saveOrgImgUrl(orgImgUrl);
@@ -90,7 +108,7 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
 
   void _setURL() {
     setState(() {
-      saveMsg = "URL SAVED!";
+      saveMsg = S.of(context).urlSaved;
     });
   }
 
@@ -254,42 +272,12 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
                           ? _media.size.width
                           : MediaQuery.of(context).size.width,
                       margin: const EdgeInsets.only(
-                          left: 20.0, right: 30.0, top: 10.0),
+                          left: 20.0, right: 20.0, top: 10.0),
                       alignment: Alignment.center,
                       child: Column(
                         children: [
                           Row(
                             children: <Widget>[
-                              DropdownButton<String>(
-                                value: dropdownValue,
-                                icon: Icon(Icons.arrow_downward,
-                                    color: Colors.orange),
-                                iconSize: 24,
-                                elevation: 16,
-                                style: TextStyle(color: UIData.primaryColor),
-                                underline: Container(
-                                  height: 2,
-                                  color: UIData.primaryColor,
-                                ),
-                                onChanged: (String newValue) {
-                                  setState(() {
-                                    dropdownValue = newValue;
-                                    saveMsg = 'Set URL';
-                                  });
-                                },
-                                items: <String>[
-                                  'HTTP',
-                                  'HTTPS'
-                                ].map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
                               Expanded(
                                 child: Form(
                                     key: _formKey,
@@ -319,7 +307,7 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
                                         labelStyle:
                                             TextStyle(color: Colors.white),
                                         alignLabelWithHint: true,
-                                        hintText: 'calico.palisadoes.org',
+                                        hintText: 'talawa-graphql-api.herokuapp.com',
                                         hintStyle:
                                             TextStyle(color: Colors.grey),
                                       ),
@@ -391,7 +379,7 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
                                   borderRadius: BorderRadius.circular(30.0),
                                 ),
                               ),
-                              onPressed: saveMsg != "URL SAVED!"
+                              onPressed: saveMsg != S.of(context).urlSaved
                                   ? null
                                   : () async {
                                       if (_formKey.currentState.validate()) {
@@ -459,7 +447,7 @@ class _UrlPageState extends State<UrlPage> with TickerProviderStateMixin<UrlPage
                                   borderRadius: BorderRadius.circular(30.0),
                                 ),
                               ),
-                              onPressed: saveMsg != "URL SAVED!"
+                              onPressed: saveMsg != S.of(context).urlSaved
                                   ? null
                                   : () async {
                                       if (_formKey.currentState.validate()) {

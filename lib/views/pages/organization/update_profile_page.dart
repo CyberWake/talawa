@@ -249,7 +249,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                   },
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.all(0),
-                    labelText: 'First Name',
+                    labelText: S.of(context).labelFirstName,
                     counterText: '',
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -287,7 +287,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                   },
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.all(0),
-                    labelText: 'Last Name',
+                    labelText: S.of(context).labelLastName,
                     counterText: '',
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -325,7 +325,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                   },
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.all(0),
-                    labelText: 'Email',
+                    labelText: S.of(context).labelEmail,
                     counterText: '',
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -374,7 +374,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                           color: Colors.white,
                         ),
                   label: Text(
-                    'Update Profile',
+                    S.of(context).updateProfile,
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white,

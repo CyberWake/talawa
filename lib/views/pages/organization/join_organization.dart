@@ -33,10 +33,9 @@ class JoinOrganization extends StatefulWidget {
 class _JoinOrganizationState extends State<JoinOrganization> {
   GlobalKey _search = GlobalKey();
   GlobalKey _select = GlobalKey();
-  GlobalKey _join = GlobalKey();
-  GlobalKey _create = GlobalKey();
   bool show = true;
-
+  int count = 0;
+  int selectedIndex = -1;
   Queries _query = Queries();
   String token;
   static String itemIndex;
@@ -86,6 +85,11 @@ class _JoinOrganizationState extends State<JoinOrganization> {
   }
 
   Future fetchOrg() async {
+    if (widget.fromProfile) {
+      setState(() {
+        show = false;
+      });
+    }
     //function to fetch the org from the server
     GraphQLClient _client = graphQLConfiguration.authClient();
 
@@ -127,12 +131,13 @@ class _JoinOrganizationState extends State<JoinOrganization> {
           pageBuilder: (context, animation, _) => ShowCaseWidget(
               autoPlayDelay: Duration(seconds: 2),
               autoPlay: true,
-              builder:Builder(builder: (BuildContext context) {
-                return HomePage(
-                  openPageIndex: 3,
-                );
-              },)
-          ),
+              builder: Builder(
+                builder: (BuildContext context) {
+                  return HomePage(
+                    openPageIndex: 3,
+                  );
+                },
+              )),
         ));
       }
     }
@@ -187,12 +192,13 @@ class _JoinOrganizationState extends State<JoinOrganization> {
           pageBuilder: (context, animation, _) => ShowCaseWidget(
               autoPlayDelay: Duration(seconds: 2),
               autoPlay: true,
-              builder:Builder(builder: (BuildContext context) {
-                return HomePage(
-                  openPageIndex: 3,
-                );
-              },)
-          ),
+              builder: Builder(
+                builder: (BuildContext context) {
+                  return HomePage(
+                    openPageIndex: 3,
+                  );
+                },
+              )),
         ));
       }
     }
@@ -201,10 +207,11 @@ class _JoinOrganizationState extends State<JoinOrganization> {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (organizationInfo.isNotEmpty) {
+      if (organizationInfo.isNotEmpty && !widget.fromProfile && count < 3) {
         ShowCaseWidget.of(context).startShowCase([_search, _select]);
       }
     });
+    count++;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -214,7 +221,8 @@ class _JoinOrganizationState extends State<JoinOrganization> {
       body: organizationInfo.isEmpty
           ? Center(
               child: Loading(
-              key: UniqueKey(),
+              key: Key('new'),
+                refresh: (){fetchOrg();},
             ))
           : Container(
               padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
@@ -227,315 +235,95 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                   SizedBox(
                     height: 15,
                   ),
-                  Showcase(
-                    description: 'Search for a organization',
-                    key: _search,
-                    child: TextFormField(
-                      onChanged: (value) {
-                        searchOrgName(value);
-                      },
-                      controller: searchController,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.all(5),
-                          fillColor: Theme.of(context).backgroundColor,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                            borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor,
-                                width: 0.0),
+                  !widget.fromProfile
+                      ? Showcase(
+                          description: 'Search for a organization',
+                          key: _search,
+                          child: TextFormField(
+                            onChanged: (value) {
+                              searchOrgName(value);
+                            },
+                            controller: searchController,
+                            textAlign: TextAlign.left,
+                            style: TextStyle(fontSize: 14),
+                            decoration: InputDecoration(
+                                contentPadding: EdgeInsets.all(5),
+                                fillColor: Theme.of(context).backgroundColor,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context).primaryColor,
+                                      width: 0.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context).primaryColor,
+                                      width: 0.0),
+                                ),
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.all(0.0),
+                                  child:
+                                      Icon(Icons.search, color: Colors.black),
+                                ),
+                                hintText: S.of(context).hintSearchOrg),
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                            borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor,
-                                width: 0.0),
-                          ),
-                          prefixIcon: Padding(
-                            padding: EdgeInsets.all(0.0),
-                            child: Icon(Icons.search, color: Colors.black),
-                          ),
-                          hintText: S.of(context).hintSearchOrg),
-                    ),
-                  ),
+                        )
+                      : TextFormField(
+                          onChanged: (value) {
+                            searchOrgName(value);
+                          },
+                          controller: searchController,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontSize: 14),
+                          decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5),
+                              fillColor: Theme.of(context).backgroundColor,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor,
+                                    width: 0.0),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor,
+                                    width: 0.0),
+                              ),
+                              prefixIcon: Padding(
+                                padding: EdgeInsets.all(0.0),
+                                child: Icon(Icons.search, color: Colors.black),
+                              ),
+                              hintText: S.of(context).hintSearchOrg),
+                        ),
                   SizedBox(height: 15),
                   Expanded(
-                    child: Showcase(
-                      onTargetClick: () {
-                        setState(() {
-                          show = false;
-                        });
-                      },
-                      onToolTipClick: () {
-                        setState(() {
-                          show = false;
-                        });
-                      },
-                      disposeOnTap: true,
-                      key: _select,
-                      description: 'Select an organization from the list',
-                      child: Container(
-                          color: Theme.of(context).scaffoldBackgroundColor,
-                          child: searchController.text.isNotEmpty
-                              ? ListView.builder(
-                                  itemCount: filteredOrgInfo.length,
-                                  shrinkWrap: true,
-                                  itemBuilder: (context, index) {
-                                    final organization = filteredOrgInfo[index];
-                                    return Card(
-                                      color: Theme.of(context).backgroundColor,
-                                      child: ListTile(
-                                        leading: organization['image'] != null
-                                            ? CircleAvatar(
-                                                radius: 30,
-                                                backgroundImage: NetworkImage(
-                                                    Provider.of<GraphQLConfiguration>(
-                                                                context)
-                                                            .displayImgRoute +
-                                                        organization['image']))
-                                            : CircleAvatar(
-                                                radius: 30,
-                                                backgroundImage: AssetImage(
-                                                    "assets/images/team.png")),
-                                        title: organization['isPublic']
-                                                    .toString() !=
-                                                'false'
-                                            ? Row(
-                                                children: [
-                                                  Flexible(
-                                                    child: Text(
-                                                      organization['name']
-                                                          .toString(),
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  Icon(Icons.lock_open,
-                                                      color: Colors.green,
-                                                      size: 16)
-                                                ],
-                                              )
-                                            : Row(
-                                                children: [
-                                                  Flexible(
-                                                    child: Text(
-                                                      organization['name']
-                                                          .toString(),
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  Icon(Icons.lock,
-                                                      color: Colors.red,
-                                                      size: 16)
-                                                ],
-                                              ),
-                                        subtitle: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Text(
-                                                organization['description']
-                                                    .toString(),
-                                                maxLines: 2,
-                                                overflow:
-                                                    TextOverflow.ellipsis),
-                                            Text(
-                                                'Created by: ' +
-                                                    organization['creator']
-                                                            ['firstName']
-                                                        .toString() +
-                                                    ' ' +
-                                                    organization['creator']
-                                                            ['lastName']
-                                                        .toString(),
-                                                maxLines: 2,
-                                                overflow:
-                                                    TextOverflow.ellipsis),
-                                          ],
-                                        ),
-                                        trailing: Showcase.withWidget(
-                                          height: 50,
-                                          width: 150,
-                                          container: Container(
-                                            color: Colors.red,
-                                          ),
-                                          key: index == 0
-                                              ? _join
-                                              : Key('new$index'),
-                                          description:
-                                              'Click to join the selected organization',
-                                          showcaseBackgroundColor: Colors.white,
-                                          child: ElevatedButton(
-                                            style: ButtonStyle(
-                                              backgroundColor:
-                                                  MaterialStateProperty.all<
-                                                          Color>(
-                                                      Theme.of(context)
-                                                          .primaryColor),
-                                              shape: MaterialStateProperty.all(
-                                                  RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12.0),
-                                              )),
-                                            ),
-                                            onPressed: () {
-                                              itemIndex = organization['_id']
-                                                  .toString();
-                                              if (organization['isPublic']
-                                                      .toString() ==
-                                                  'false') {
-                                                setState(() {
-                                                  isPublic = 'false';
-                                                });
-                                              } else {
-                                                setState(() {
-                                                  isPublic = 'true';
-                                                });
-                                              }
-                                              confirmOrgDialog();
-                                            },
-                                            child: _isLoaderActive
-                                                ? CircularProgressIndicator(
-                                                    valueColor:
-                                                        AlwaysStoppedAnimation(
-                                                            Colors.white),
-                                                    strokeWidth: 2,
-                                                  )
-                                                : Text(S.of(context).join),
-                                          ),
-                                        ),
-                                        isThreeLine: true,
-                                      ),
-                                    );
-                                  })
-                              : ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: organizationInfo.length,
-                                  itemBuilder: (context, index) {
-                                    final organization =
-                                        organizationInfo[index];
-                                    return Card(
-                                      child: ListTile(
-                                        leading: organization['image'] != null
-                                            ? CircleAvatar(
-                                                radius: 30,
-                                                backgroundImage: NetworkImage(
-                                                    Provider.of<GraphQLConfiguration>(
-                                                                context)
-                                                            .displayImgRoute +
-                                                        organization['image']))
-                                            : CircleAvatar(
-                                                radius: 30,
-                                                backgroundImage: AssetImage(
-                                                    "assets/images/team.png")),
-                                        title: organization['isPublic']
-                                                    .toString() !=
-                                                'false'
-                                            ? Row(
-                                                children: [
-                                                  Flexible(
-                                                    child: Text(
-                                                      organization['name']
-                                                          .toString(),
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  Icon(Icons.lock_open,
-                                                      color: Colors.green,
-                                                      size: 16)
-                                                ],
-                                              )
-                                            : Row(
-                                                children: [
-                                                  Flexible(
-                                                    child: Text(
-                                                      organization['name']
-                                                          .toString(),
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  Icon(Icons.lock,
-                                                      color: Colors.red,
-                                                      size: 16)
-                                                ],
-                                              ),
-                                        subtitle: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Text(
-                                                organization['description']
-                                                    .toString(),
-                                                maxLines: 2,
-                                                overflow:
-                                                    TextOverflow.ellipsis),
-                                            Text(
-                                                'Created by: ' +
-                                                    organization['creator']
-                                                            ['firstName']
-                                                        .toString() +
-                                                    ' ' +
-                                                    organization['creator']
-                                                            ['lastName']
-                                                        .toString(),
-                                                maxLines: 2,
-                                                overflow:
-                                                    TextOverflow.ellipsis),
-                                          ],
-                                        ),
-                                        trailing: ElevatedButton(
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStateProperty.all<
-                                                        Color>(
-                                                    Theme.of(context)
-                                                        .primaryColor),
-                                            shape: MaterialStateProperty.all(
-                                                RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12.0),
-                                            )),
-                                          ),
-                                          onPressed: () {
-                                            itemIndex =
-                                                organization['_id'].toString();
-                                            if (organization['isPublic']
-                                                    .toString() ==
-                                                'false') {
-                                              setState(() {
-                                                isPublic = 'false';
-                                              });
-                                            } else {
-                                              setState(() {
-                                                isPublic = 'true';
-                                              });
-                                            }
-                                            confirmOrgDialog();
-                                          },
-                                          child: _isLoaderActive
-                                              ? CircularProgressIndicator(
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation(
-                                                          Colors.white),
-                                                  strokeWidth: 2,
-                                                )
-                                              : new Text(S.of(context).join),
-                                        ),
-                                        isThreeLine: true,
-                                      ),
-                                    );
-                                  })),
-                    ),
-                  ),
+                      child: !widget.fromProfile
+                          ? Showcase(
+                              onTargetClick: () {
+                                setState(() {
+                                  show = false;
+                                });
+                              },
+                              onToolTipClick: () {
+                                setState(() {
+                                  show = false;
+                                });
+                              },
+                              disposeOnTap: true,
+                              key: _select,
+                              description:
+                                  'Select an organization from the list',
+                              child: getList(searchController.text.isNotEmpty
+                                  ? filteredOrgInfo
+                                  : organizationInfo),
+                            )
+                          : getList(searchController.text.isNotEmpty
+                              ? filteredOrgInfo
+                              : organizationInfo)),
                   SizedBox(
                     height: show ? 80 : 0,
                   )
@@ -567,6 +355,101 @@ class _JoinOrganizationState extends State<JoinOrganization> {
               isFromProfile: widget.fromProfile,
             ),
           )),
+    );
+  }
+
+  Widget getList(List organizations) {
+    return Container(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: ListView.builder(
+            itemCount: organizations.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              final organization = organizations[index];
+              return generateTile(organization,index);
+            }));
+  }
+
+  Widget generateTile(Map organization,int index) {
+    return Card(
+      child: ListTile(
+        leading: organization['image'] != null
+            ? CircleAvatar(
+                radius: 30,
+                backgroundImage: NetworkImage(
+                    Provider.of<GraphQLConfiguration>(context).displayImgRoute +
+                        organization['image']))
+            : CircleAvatar(
+                radius: 30,
+                backgroundImage: AssetImage("assets/images/team.png")),
+        title: organization['isPublic'].toString() != 'false'
+            ? Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      organization['name'].toString(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Icon(Icons.lock_open, color: Colors.green, size: 16)
+                ],
+              )
+            : Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      organization['name'].toString(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Icon(Icons.lock, color: Colors.red, size: 16)
+                ],
+              ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(organization['description'].toString(),
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(
+                'Created by: ' +
+                    organization['creator']['firstName'].toString() +
+                    ' ' +
+                    organization['creator']['lastName'].toString(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis),
+          ],
+        ),
+        trailing: ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(
+                Theme.of(context).primaryColor),
+            shape: MaterialStateProperty.all(RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            )),
+          ),
+          onPressed: () {
+            itemIndex = organization['_id'].toString();
+            if (organization['isPublic'].toString() == 'false') {
+                isPublic = 'false';
+                selectedIndex = index;
+            } else {
+                isPublic = 'true';
+                selectedIndex = index;
+            }
+            setState(() {});
+            confirmOrgDialog();
+          },
+          child: _isLoaderActive && (selectedIndex == index)
+              ? CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                  strokeWidth: 2,
+                )
+              : new Text(S.of(context).join),
+        ),
+        isThreeLine: true,
+      ),
     );
   }
 

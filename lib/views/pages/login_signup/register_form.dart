@@ -151,9 +151,13 @@ class RegisterFormState extends State<RegisterForm> {
       await _pref.saveUserId(currentUserId);
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-              builder: (context) => JoinOrganization(
+              builder: (context) => ShowCaseWidget(
+                  autoPlayDelay: Duration(seconds: 2),
+                  builder: Builder(builder: (context) => JoinOrganization(
                     fromProfile: false,
                   )),
+                  autoPlay: true //userID == null,
+              )),
           (route) => false);
     }
   }

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
-import 'package:showcaseview/showcase_widget.dart';
 import 'package:talawa/commons/collapsing_list_tile_widget.dart';
 import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
@@ -16,7 +15,8 @@ import 'package:talawa/views/pages/organization/join_organization.dart';
 import 'package:talawa/views/widgets/chat_bubble.dart';
 
 class Manage extends StatefulWidget {
-  Manage({Key key}) : super(key: key);
+  final bool autoLogin;
+  Manage({this.autoLogin});
 
   @override
   _ManageState createState() => _ManageState();
@@ -95,7 +95,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     orgId = Provider.of<Preferences>(context, listen: true).orgId;
-    getMembers();
+    fetchUserDetails();
     super.didChangeDependencies();
   }
 
@@ -123,11 +123,8 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
       });
     } else if (!result.hasException && !result.isLoading) {
       setState(() {
-        print('\n\n\n');
         _progressBarState = false;
         userOrg = result.data['users'][0]['joinedOrganizations'];
-        isSelected = 0;
-        print('length: ${userOrg.length}');
         if (userOrg.isEmpty) {
           showError("You are not registered to any organization");
         } else {
@@ -148,7 +145,6 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
         print(result.exception);
         //_exceptionToast(result.exception.toString());
       } else if (!result.hasException) {
-        print('here1');
         //save new current org in preference
         setState(() {
           orgId = result.data['organizations'][0]['_id'];
@@ -178,6 +174,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
         creator = result['organizations'][0]['creator'];
         adminsList = result['organizations'][0]['admins'];
         membersList = result['organizations'][0]['members'];
+        selectedMap = membersList[0];
         participantsList = membersList;
         for (int i = 0; i < adminsList.length; i++) {
           for (int j = 0; j < membersList.length; j++) {
@@ -290,7 +287,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                     switchOrg(userOrg[index]['_id'].toString(),
                                         index);
                                   },
-                                  isSelected: index == isSelected,
+                                  isSelected: orgId == userOrg[index]['_id'],
                                   title: userOrg[index]['name'],
                                   image: ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
@@ -321,7 +318,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                             onTap: () {
                               pushNewScreen(context,
                                   screen: JoinOrganization(
-                                    fromProfile: true,
+                                    fromProfile: true//widget.autoLogin,
                                   ),
                                   withNavBar: false);
                             },
@@ -668,12 +665,16 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                             },
                             child: Padding(
                               padding: const EdgeInsets.only(left: 10.0),
-                              child: Text(
-                                '${selectedMap['firstName']} ${selectedMap['lastName']}',
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w400),
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width*0.25,
+                                child: Text(
+                                  '${selectedMap['firstName']} ${selectedMap['lastName']}',
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w400),
+                                  overflow: TextOverflow.fade,
+                                ),
                               ),
                             ),
                           ),
@@ -839,7 +840,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                           });
                           Future.delayed(Duration(milliseconds: 2000));
                           _controllerChat.animateTo(
-                              _controllerChat.position.maxScrollExtent+200,
+                              _controllerChat.position.maxScrollExtent+(translateActive?100:50),
                               duration: Duration(milliseconds: 100),
                               curve: Curves.linear);
                           _textController.clear();

@@ -3,7 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
 
 class Loading extends StatefulWidget {
-  Loading({Key key}) : super(key: key);
+  final Function refresh;
+  Loading({Key key,this.refresh}) : super(key: key);
   @override
   _LoadingState createState() => _LoadingState();
 }
@@ -61,6 +62,8 @@ class _LoadingState extends State<Loading> {
                 'No data or something went wrong',
                 style: TextStyle(color: Colors.red),
               ),
+              SizedBox(height: 30),
+              TextButton.icon(onPressed: widget.refresh, icon: Icon(Icons.autorenew), label: Text('Re-Try'))
             ],
           );
   }

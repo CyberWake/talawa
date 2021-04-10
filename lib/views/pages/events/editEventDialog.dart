@@ -1,6 +1,7 @@
 
 //flutter packages are called here
 import 'package:flutter/material.dart';
+import 'package:talawa/generated/l10n.dart';
 
 //pages are called here
 import 'package:talawa/services/preferences.dart';
@@ -36,10 +37,10 @@ class _EditEventState extends State<EditEvent> {
 
   Map event;
   Map switchVals = {
-    'Make Public': true,
-    'Make Registerable': true,
-    'Recurring': true,
-    'All Day': false
+    "0": true,
+    '1': true,
+    '2': true,
+    '3': false
   };
 
   var recurranceList = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'];
@@ -59,10 +60,10 @@ class _EditEventState extends State<EditEvent> {
       titleController.text = widget.event['title'];
       descriptionController.text = widget.event['description'];
       switchVals = {
-        'Make Public': widget.event['isPublic'],
-        'Make Registerable': widget.event['isRegisterable'],
-        'Recurring': widget.event['recurring'],
-        'All Day': widget.event['allDay']
+        '0': widget.event['isPublic'],
+        '1': widget.event['isRegisterable'],
+        '2': widget.event['recurring'],
+        '3': widget.event['allDay']
       };
       recurrance = widget.event['recurrance'];
     });
@@ -130,7 +131,7 @@ class _EditEventState extends State<EditEvent> {
         startEndTimes['Start Time'].hour,
         startEndTimes['Start Time'].minute);
 
-    if (switchVals['All Day']) {
+    if (switchVals['3']) {
       startEndTimes = {
         'Start Time': DateTime(DateTime.now().year, DateTime.now().month,
             DateTime.now().day, 12, 0),
@@ -145,24 +146,24 @@ class _EditEventState extends State<EditEvent> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Edit Event',
+          S.of(context).textEditEvent,
           style: TextStyle(color: Colors.white),
         ),
       ),
       body: ListView(
         padding: EdgeInsets.only(bottom: 100),
         children: <Widget>[
-          inputField('Title', titleController),
-          inputField('Description', descriptionController),
-          inputField('Location', locationController),
-          switchTile('Make Public'),
-          switchTile('Make Registerable'),
-          switchTile('Recurring'),
-          switchTile('All Day'),
+          inputField(S.of(context).labelTitle, titleController),
+          inputField(S.of(context).labelDescription, descriptionController),
+          inputField(S.of(context).labelLocation, locationController),
+          switchTile(S.of(context).labelMakePublic,"0"),
+          switchTile(S.of(context).labelMakeRegistrable,"1"),
+          switchTile(S.of(context).labelRecurring,"2"),
+          switchTile(S.of(context).labelAllDay,"3"),
           recurrencedropdown(),
           dateButton(),
-          timeButton('Start Time', startEndTimes['Start Time']),
-          timeButton('End Time', startEndTimes['End Time']),
+          timeButton(S.of(context).labelStartTime, startEndTimes['Start Time']),
+          timeButton(S.of(context).labelEndTime, startEndTimes['End Time']),
         ],
       ),
       floatingActionButton: addEventFab(),
@@ -177,7 +178,7 @@ class _EditEventState extends State<EditEvent> {
         _selectDate(context);
       },
       leading: Text(
-        'Date',
+        S.of(context).labelDate,
         style: TextStyle(fontSize: 16, color: Colors.grey[600]),
       ),
       trailing: Text(
@@ -191,7 +192,7 @@ class _EditEventState extends State<EditEvent> {
   //widget for time buttons
   Widget timeButton(String name, DateTime time) {
     return AbsorbPointer(
-        absorbing: switchVals['All Day'],
+        absorbing: switchVals['3'],
         child: ListTile(
           onTap: () {
             _selectTime(context, name, TimeOfDay.fromDateTime(time));
@@ -203,7 +204,7 @@ class _EditEventState extends State<EditEvent> {
           trailing: Text(
             TimeOfDay.fromDateTime(time).format(context),
             style: TextStyle(
-                color: !switchVals['All Day']
+                color: !switchVals['3']
                     ? UIData.secondaryColor
                     : Colors.grey),
           ),
@@ -216,7 +217,7 @@ class _EditEventState extends State<EditEvent> {
     return Padding(
         padding: EdgeInsets.all(10),
         child: TextField(
-          maxLines: name == 'Description' ? null : 1,
+          maxLines: name == S.of(context).labelDescription ? null : 1,
           controller: controller,
           decoration: InputDecoration(
               border: OutlineInputBorder(
@@ -226,10 +227,10 @@ class _EditEventState extends State<EditEvent> {
         ));
   }
 
-  Widget switchTile(String name) {
+  Widget switchTile(String name,String index) {
     return SwitchListTile(
         activeColor: UIData.secondaryColor,
-        value: switchVals[name],
+        value: switchVals[index],
         contentPadding: EdgeInsets.symmetric(horizontal: 20),
         title: Text(
           name,
@@ -237,7 +238,7 @@ class _EditEventState extends State<EditEvent> {
         ),
         onChanged: (val) {
           setState(() {
-            switchVals[name] = val;
+            switchVals[index] = val;
           });
         });
   }
@@ -246,14 +247,14 @@ class _EditEventState extends State<EditEvent> {
     return ListTile(
       contentPadding: EdgeInsets.symmetric(horizontal: 20),
       leading: Text(
-        'Recurrence',
+        S.of(context).labelRecurrence,
         style: TextStyle(fontSize: 16, color: Colors.grey[600]),
       ),
       trailing: AbsorbPointer(
-        absorbing: !switchVals['Recurring'],
+        absorbing: !switchVals['2'],
         child: DropdownButton<String>(
           style: TextStyle(
-              color: switchVals['Recurring']
+              color: switchVals['2']
                   ? UIData.secondaryColor
                   : Colors.grey),
           value: recurrance,

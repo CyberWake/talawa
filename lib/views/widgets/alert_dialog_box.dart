@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:talawa/generated/l10n.dart';
 
 class AlertBox extends StatefulWidget {
   final String message;
@@ -12,20 +13,19 @@ class _AlertBoxState extends State<AlertBox> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Confirmation"),
+      title: Text(S.of(context).confirmation),
       content: Text(
           widget.message),
       actions: [
         ElevatedButton(
-          child: Text("Close"),
+          child: Text(S.of(context).no),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         ElevatedButton(
-          child: Text("Yes"),
+          child: Text(S.of(context).yes),
           onPressed: () async {
-            print('here');
             widget.function();
             Navigator.pop(context);
           },

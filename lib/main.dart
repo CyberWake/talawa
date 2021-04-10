@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 //Pages are imported here
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcase_widget.dart';
+import 'package:talawa/controllers/theme_controller.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/splash_screen.dart';
 import 'package:talawa/utils/GQLClient.dart';
@@ -25,20 +26,22 @@ String userID;
 Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); //ensuring weather the app is being initialized or not
-  userID = await preferences.getUserId().whenComplete((){
+  userID = await preferences.getUserId().whenComplete(() {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp
     ]) //setting the orientation according to the screen it is running on
         .then((_) {
       runApp(MultiProvider(
         providers: [
+          ChangeNotifierProvider<MyTheme>(create: (_) => MyTheme()),
           ChangeNotifierProvider<Localization>(
             create: (_) => Localization(),
           ),
           ChangeNotifierProvider<GraphQLConfiguration>(
               create: (_) => GraphQLConfiguration()),
           ChangeNotifierProvider<OrgController>(create: (_) => OrgController()),
-          ChangeNotifierProvider<AuthController>(create: (_) => AuthController()),
+          ChangeNotifierProvider<AuthController>(
+              create: (_) => AuthController()),
           ChangeNotifierProvider<Preferences>(create: (_) => Preferences()),
         ],
         child: MyApp(),
@@ -50,8 +53,14 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    ThemeMode themeMode = Provider.of<MyTheme>(context, listen: true).isDark
+        ? ThemeMode.dark
+        : ThemeMode.light;
     Locale locale =
         Provider.of<Localization>(context, listen: true).currentLocale;
+    if(themeMode==null||locale==null){
+      return Container();
+    }
     return GestureDetector(
       onTap: () {
         FocusScopeNode currentFocus = FocusScope.of(context);
@@ -109,19 +118,19 @@ class MyApp extends StatelessWidget {
           WidgetBuilder builder = routes[settings.name];
           return MaterialPageRoute(builder: (ctx) => builder(ctx));
         },
+        themeMode: themeMode,
         home: SplashScreen(
-          navigateAfter: ShowCaseWidget(
-              autoPlayDelay: Duration(seconds: 8),
-              builder: Builder(
-                builder: (context) => SplashScreen(
-                  navigateAfter: userID == null
-                      ? UrlPage()
-                      : HomePage(
+          navigateAfter: SplashScreen(
+            navigateAfter: userID == null
+                ? ShowCaseWidget(
+                    autoPlayDelay: Duration(seconds: 2),
+                    builder: Builder(builder: (context) => UrlPage()),
+                    autoPlay: true //userID == null,
+                    )
+                : HomePage(
                     openPageIndex: 3,
+              autoLogin: true,
                   ),
-                ),
-              ),
-              autoPlay: true//userID == null,
           ),
         ),
       ), //checking weather the user is logged in or not

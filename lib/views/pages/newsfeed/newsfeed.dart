@@ -59,6 +59,7 @@ class _NewsFeedState extends State<NewsFeed>
   void didChangeDependencies() {
     orgId = Provider.of<Preferences>(context, listen: true).orgId;
     fetchUserDetails();
+    getPosts();
     super.didChangeDependencies();
   }
 
@@ -114,7 +115,6 @@ class _NewsFeedState extends State<NewsFeed>
       setState(() {
         _progressBarState = false;
         userOrg = result.data['users'][0]['joinedOrganizations'];
-        orgId = userOrg[0]['_id'];
         if (userOrg.isEmpty) {
           showError("You are not registered to any organization");
         }
@@ -186,7 +186,6 @@ class _NewsFeedState extends State<NewsFeed>
         print(result.exception);
         //_exceptionToast(result.exception.toString());
       } else if (!result.hasException) {
-        print('here1');
         //save new current org in preference
         setState(() {
           orgId = result.data['organizations'][0]['_id'];
@@ -215,7 +214,7 @@ class _NewsFeedState extends State<NewsFeed>
         body: postList.isEmpty
             ? Center(
                 child: Loading(
-                key: UniqueKey(),
+                key: UniqueKey(),refresh: (){getPosts();}
               ))
             : RefreshIndicator(
                 onRefresh: () async {
@@ -436,7 +435,7 @@ class _NewsFeedState extends State<NewsFeed>
                               switchOrg(
                                   userOrg[counter]['_id'].toString(), counter);
                             },
-                            isSelected: isSelected == counter,
+                            isSelected: orgId == userOrg[counter]['_id'],
                             title: userOrg[counter]['name'],
                             image: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
@@ -498,9 +497,6 @@ class _NewsFeedState extends State<NewsFeed>
                         color: Colors.white,
                         size: 50.0,
                       ),
-                    ),
-                    SizedBox(
-                      height: 50.0,
                     ),
                   ],
                 ),

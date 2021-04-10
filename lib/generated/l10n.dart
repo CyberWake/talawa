@@ -35,6 +35,16 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
+  /// `Add`
+  String get add {
+    return Intl.message(
+      'Add',
+      name: 'add',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Admins`
   String get admins {
     return Intl.message(
@@ -55,6 +65,16 @@ class S {
     );
   }
 
+  /// `Change Theme`
+  String get changeTheme {
+    return Intl.message(
+      'Change Theme',
+      name: 'changeTheme',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `中国人`
   String get chinese {
     return Intl.message(
@@ -70,6 +90,16 @@ class S {
     return Intl.message(
       'Close',
       name: 'close',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirmation`
+  String get confirmation {
+    return Intl.message(
+      'Confirmation',
+      name: 'confirmation',
       desc: '',
       args: [],
     );
@@ -535,10 +565,10 @@ class S {
     );
   }
 
-  /// `Password`
+  /// `Add title to post`
   String get labelTitleToPost {
     return Intl.message(
-      'Password',
+      'Add title to post',
       name: 'labelTitleToPost',
       desc: '',
       args: [],
@@ -630,6 +660,16 @@ class S {
     return Intl.message(
       'Settings',
       name: 'settings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Set Url`
+  String get setUrl {
+    return Intl.message(
+      'Set Url',
+      name: 'setUrl',
       desc: '',
       args: [],
     );
@@ -765,6 +805,46 @@ class S {
     );
   }
 
+  /// `Register For Event`
+  String get textRegisterForEvent {
+    return Intl.message(
+      'Register For Event',
+      name: 'textRegisterForEvent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add a Task to this Event`
+  String get textAddTaskToEvent {
+    return Intl.message(
+      'Add a Task to this Event',
+      name: 'textAddTaskToEvent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit this event`
+  String get textEditEvent {
+    return Intl.message(
+      'Edit this event',
+      name: 'textEditEvent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete This Event`
+  String get textDeleteEvent {
+    return Intl.message(
+      'Delete This Event',
+      name: 'textDeleteEvent',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Create Organization`
   String get titleCreateOrg {
     return Intl.message(
@@ -840,6 +920,16 @@ class S {
     return Intl.message(
       'Update Profile',
       name: 'updateProfile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `URL SAVED!`
+  String get urlSaved {
+    return Intl.message(
+      'URL SAVED!',
+      name: 'urlSaved',
       desc: '',
       args: [],
     );

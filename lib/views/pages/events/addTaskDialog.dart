@@ -1,6 +1,7 @@
 
 //flutter packages are called here
 import 'package:flutter/material.dart';
+import 'package:talawa/generated/l10n.dart';
 
 //pages are called here
 import 'package:talawa/services/Queries.dart';
@@ -54,25 +55,25 @@ class _AddEventTaskState extends State<AddEventTask> {
   Widget build(BuildContext context) {
     return AlertDialog(
       insetPadding: EdgeInsets.all(0),
-      title: Text("Add A Task To This Event"),
+      title: Text(S.of(context).textAddTaskToEvent),
       content: Container(
           height: 250,
           child: Column(
             children: <Widget>[
-              inputField('title', titleController),
-              inputField('description', descriptionController),
+              inputField(S.of(context).labelTitle, titleController),
+              inputField(S.of(context).labelDescription, descriptionController),
               dateButton()
             ],
           )),
       actions: <Widget>[
         TextButton(
-          child: Text("Cancel"),
+          child: Text(S.of(context).close),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         TextButton(
-          child: Text("Add"),
+          child: Text(S.of(context).add),
           onPressed: () {
             addTask();
             Navigator.of(context).pop();
@@ -90,7 +91,7 @@ class _AddEventTaskState extends State<AddEventTask> {
         _selectDate(context);
       },
       leading: Text(
-        'Date',
+        S.of(context).add,
         style: TextStyle(fontSize: 16, color: Colors.grey[600]),
       ),
       trailing: Text(
@@ -106,7 +107,7 @@ class _AddEventTaskState extends State<AddEventTask> {
     return Padding(
         padding: EdgeInsets.all(10),
         child: TextField(
-          maxLines: name == 'Description' ? null : 1,
+          maxLines: name == S.of(context).labelDescription ? null : 1,
           controller: controller,
           decoration: InputDecoration(
               border: OutlineInputBorder(

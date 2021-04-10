@@ -1,6 +1,9 @@
 //flutter packages are called here
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:talawa/generated/l10n.dart';
 
 //pages are imported here
@@ -41,6 +44,7 @@ class _EventsState extends State<Events> {
   CalendarController _calendarController = CalendarController();
   CarouselController carouselController = CarouselController();
   String notFetched = 'No Events Created';
+  String orgId;
   bool fetched = true;
   var events;
   Timer timer = Timer();
@@ -50,6 +54,17 @@ class _EventsState extends State<Events> {
     setState(() {
       events = getEvents();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    orgId = Provider.of<Preferences>(context, listen: true).orgId;
+    events = [];
+    displayedEvents = [];
+    currentFilterEvents = [];
+    eventsToDate = [];
+    events = getEvents();
+    super.didChangeDependencies();
   }
 
   //get all events for a given day
@@ -318,7 +333,7 @@ class _EventsState extends State<Events> {
               }
             } else if (state == ConnectionState.waiting) {
               print(snapshot.data);
-              return Center(child: Loading(key: UniqueKey(),));
+              return Center(child: Loading(key: UniqueKey(),refresh: (){getEvents();},));
             } else if (state == ConnectionState.none) {
               return Text('Could Not Fetch Data.');
             }
@@ -508,7 +523,7 @@ class _EventsState extends State<Events> {
             child: ListTile(
               leading: Icon(Icons.playlist_add_check, color: Colors.grey),
               title: Text(
-                'Register For Event',
+                S.of(context).textRegisterForEvent,
                 style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color,),
               ),
             )),
@@ -517,7 +532,7 @@ class _EventsState extends State<Events> {
             child: ListTile(
               leading: Icon(Icons.note_add, color: Colors.grey),
               title: Text(
-                'Add a Task to this Event',
+                S.of(context).textAddTaskToEvent,
                 style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color,),
               ),
             )),
@@ -526,7 +541,7 @@ class _EventsState extends State<Events> {
             child: ListTile(
               leading: Icon(Icons.edit, color: Colors.grey),
               title: Text(
-                'Edit this event',
+                S.of(context).textEditEvent,
                 style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color,),
               ),
             )),
@@ -535,7 +550,7 @@ class _EventsState extends State<Events> {
             child: ListTile(
               leading: Icon(Icons.delete, color: Colors.grey),
               title: Text(
-                'Delete This Event',
+                S.of(context).textDeleteEvent,
                 style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color,),
               ),
             ))
@@ -544,19 +559,24 @@ class _EventsState extends State<Events> {
   }
 
   Widget eventFab() {
-    return FloatingActionButton(
-      heroTag: 'eventFab',
-        backgroundColor: UIData.secondaryColor,
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
+    return OpenContainer(
+      transitionDuration: Duration(milliseconds: 1000),
+      closedElevation: 6.0,
+      closedShape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(28),
         ),
-        onPressed: () {
-          pushNewScreen(
-            context,
-            withNavBar: true,
-            screen: AddEvent(),
-          );
-        });
+      ),
+      closedBuilder: (BuildContext c, VoidCallback action) =>
+          FloatingActionButton(
+            heroTag: 'addPostFab',
+            child: Icon(Icons.add),
+            backgroundColor: UIData.secondaryColor,
+            foregroundColor: Colors.white,
+            elevation: 5.0,
+            onPressed: () => action(),
+          ),
+      openBuilder: (BuildContext c, VoidCallback action) => AddEvent(),
+    );
   }
 }

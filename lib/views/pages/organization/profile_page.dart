@@ -23,9 +23,10 @@ import 'package:talawa/views/widgets/alert_dialog_box.dart';
 import 'package:talawa/views/pages/organization/update_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
+  final bool autoLogin;
   final bool isCreator;
   final List test;
-  ProfilePage({this.isCreator, this.test});
+  ProfilePage({this.isCreator, this.test,this.autoLogin});
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -55,6 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String creator;
   String userID;
   String orgName;
+  int count=0;
   OrgController _orgController = OrgController();
   String orgId;
   GraphQLConfiguration graphQLConfiguration = GraphQLConfiguration();
@@ -93,11 +95,8 @@ class _ProfilePageState extends State<ProfilePage> {
     if (result.hasException) {
       print(result.exception);
     } else if (!result.hasException) {
-      debugPrint(result.data.toString());
-      setState(() {
         userDetails = result.data['users'];
         org = userDetails[0]['joinedOrganizations'];
-      });
       //print(userDetails);
       int notFound = 0;
       for (int i = 0; i < org.length; i++) {
@@ -130,14 +129,12 @@ class _ProfilePageState extends State<ProfilePage> {
       if (result.hasException) {
         print(result.exception.toString());
       } else if (!result.hasException) {
-        print('here');
         curOrganization = result.data['organizations'];
         creator = result.data['organizations'][0]['creator']['_id'];
         isPublic = result.data['organizations'][0]['isPublic'];
         result.data['organizations'][0]['admins']
             .forEach((userId) => admins.add(userId));
         for (int i = 0; i < admins.length; i++) {
-          print(admins[i]['_id']);
           if (admins[i]['_id'] == userID) {
             isCreator = true;
             break;
@@ -202,12 +199,14 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!(userDetails.isEmpty || isCreator == null)){
+      if (userDetails.isNotEmpty && isCreator != null && !widget.autoLogin && count<3){
+        print('here');
         if (!isCreator) {
           ShowCaseWidget.of(context).startShowCase([_updateProfile,_leaveOrg,_appSettings,_logout,]);
         }else{
           ShowCaseWidget.of(context).startShowCase([_updateProfile,_orgSettings,_appSettings,_logout,]);
         }
+        count++;
       }
     });
     return Scaffold(

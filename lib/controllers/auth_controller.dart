@@ -42,8 +42,7 @@ class AuthController with ChangeNotifier {
   //clears user and org details and pages stack
   void logout(BuildContext context) async {
     await Preferences.clearUser();
-    super.dispose();
-    Navigator.pushNamedAndRemoveUntil(
-        context, UIData.loginPageRoute, (r) => false);
+    Navigator.pushReplacementNamed(
+        context, UIData.loginPageRoute);
   }
 }

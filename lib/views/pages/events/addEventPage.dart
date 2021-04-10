@@ -28,10 +28,10 @@ class _AddEventState extends State<AddEvent> {
   ApiFunctions apiFunctions = ApiFunctions();
 
   Map switchValues = {
-    'Make Public': true,
-    'Make Registrable': true,
-    'Recurring': true,
-    'All Day': false
+    "0": true,
+    '1': true,
+    '2': true,
+    '3': false
   };
   var recurrenceList = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'];
   String recurrence = 'DAILY';
@@ -144,10 +144,10 @@ class _AddEventState extends State<AddEvent> {
           inputField(S.of(context).labelTitle, titleController),
           inputField(S.of(context).labelDescription, descriptionController),
           inputField(S.of(context).labelLocation, locationController),
-          switchTile(S.of(context).labelMakePublic),
-          switchTile(S.of(context).labelMakeRegistrable),
-          switchTile(S.of(context).labelRecurring),
-          switchTile(S.of(context).labelAllDay),
+          switchTile(S.of(context).labelMakePublic,"0"),
+          switchTile(S.of(context).labelMakeRegistrable,"1"),
+          switchTile(S.of(context).labelRecurring,"2"),
+          switchTile(S.of(context).labelAllDay,"3"),
           recurrencedropdown(),
           dateButton(),
           timeButton(S.of(context).labelStartTime, startEndTimes['Start Time']),
@@ -178,7 +178,7 @@ class _AddEventState extends State<AddEvent> {
   //widget to get the time button
   Widget timeButton(String name, DateTime time) {
     return AbsorbPointer(
-        absorbing: switchValues['All Day'],
+        absorbing: switchValues['3'],
         child: ListTile(
           onTap: () {
             _selectTime(context, name, TimeOfDay.fromDateTime(time));
@@ -190,7 +190,7 @@ class _AddEventState extends State<AddEvent> {
           trailing: Text(
             TimeOfDay.fromDateTime(time).format(context),
             style: TextStyle(
-                color: !switchValues['All Day']
+                color: !switchValues['3']
                     ? UIData.secondaryColor
                     : Colors.grey),
           ),
@@ -258,18 +258,18 @@ class _AddEventState extends State<AddEvent> {
         ));
   }
 
-  Widget switchTile(String name) {
+  Widget switchTile(String name,String index) {
     return SwitchListTile(
         activeColor: UIData.secondaryColor,
-        value: switchValues[name],
+        value: switchValues[index],
         contentPadding: EdgeInsets.symmetric(horizontal: 20),
         title: Text(
-          name??'Make Registrable',
+          name,
           style: TextStyle(color: Colors.grey[600]),
         ),
         onChanged: (val) {
           setState(() {
-            switchValues[name] = val;
+            switchValues[index] = val;
           });
         });
   }
@@ -282,10 +282,10 @@ class _AddEventState extends State<AddEvent> {
         style: TextStyle(fontSize: 16, color: Colors.grey[600]),
       ),
       trailing: AbsorbPointer(
-        absorbing: !switchValues['Recurring'],
+        absorbing: !switchValues['2'],
         child: DropdownButton<String>(
           style: TextStyle(
-              color: switchValues['Recurring']
+              color: switchValues['2']
                   ? UIData.secondaryColor
                   : Colors.grey),
           value: recurrence,
