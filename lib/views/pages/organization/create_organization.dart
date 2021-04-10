@@ -10,6 +10,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcase_widget.dart';
 import 'package:talawa/controllers/auth_controller.dart';
 import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
@@ -109,9 +110,15 @@ class _CreateOrganizationState extends State<CreateOrganization> {
         Navigator.pop(context);
       } else {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => HomePage(
-                  openPageIndex: 2,
-                )));
+            builder: (context) => ShowCaseWidget(
+                autoPlayDelay: Duration(seconds: 2),
+                autoPlay: true,
+                builder:Builder(builder: (BuildContext context) {
+                  return HomePage(
+                    openPageIndex: 3,
+                  );
+                },)
+            ),));
       }
     }
   }
@@ -165,9 +172,15 @@ class _CreateOrganizationState extends State<CreateOrganization> {
         Navigator.pop(context);
       } else {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => HomePage(
-                  openPageIndex: 2,
-                )));
+            builder: (context) => ShowCaseWidget(
+                autoPlayDelay: Duration(seconds: 2),
+                autoPlay: true,
+                builder:Builder(builder: (BuildContext context) {
+                  return HomePage(
+                    openPageIndex: 3,
+                  );
+                },)
+            )));
       }
     }
   }

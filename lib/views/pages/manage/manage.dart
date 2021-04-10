@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcase_widget.dart';
 import 'package:talawa/commons/collapsing_list_tile_widget.dart';
 import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';

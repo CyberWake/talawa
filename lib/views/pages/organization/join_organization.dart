@@ -20,6 +20,7 @@ import 'package:talawa/views/widgets/toast_tile.dart';
 import 'package:talawa/views/widgets/loading.dart';
 
 import 'create_organization.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class JoinOrganization extends StatefulWidget {
   JoinOrganization({Key key, this.msg, this.fromProfile = false});
@@ -30,6 +31,12 @@ class JoinOrganization extends StatefulWidget {
 }
 
 class _JoinOrganizationState extends State<JoinOrganization> {
+  GlobalKey _search = GlobalKey();
+  GlobalKey _select = GlobalKey();
+  GlobalKey _join = GlobalKey();
+  GlobalKey _create = GlobalKey();
+  bool show = true;
+
   Queries _query = Queries();
   String token;
   static String itemIndex;
@@ -117,8 +124,14 @@ class _JoinOrganizationState extends State<JoinOrganization> {
       } else {
         Navigator.of(context).pushReplacement(PageRouteBuilder(
           opaque: false,
-          pageBuilder: (context, animation, _) => HomePage(
-            openPageIndex: 3,
+          pageBuilder: (context, animation, _) => ShowCaseWidget(
+              autoPlayDelay: Duration(seconds: 2),
+              autoPlay: true,
+              builder:Builder(builder: (BuildContext context) {
+                return HomePage(
+                  openPageIndex: 3,
+                );
+              },)
           ),
         ));
       }
@@ -171,8 +184,14 @@ class _JoinOrganizationState extends State<JoinOrganization> {
       } else {
         Navigator.of(context).pushReplacement(PageRouteBuilder(
           opaque: false,
-          pageBuilder: (context, animation, _) => HomePage(
-            openPageIndex: 3,
+          pageBuilder: (context, animation, _) => ShowCaseWidget(
+              autoPlayDelay: Duration(seconds: 2),
+              autoPlay: true,
+              builder:Builder(builder: (BuildContext context) {
+                return HomePage(
+                  openPageIndex: 3,
+                );
+              },)
           ),
         ));
       }
@@ -181,6 +200,11 @@ class _JoinOrganizationState extends State<JoinOrganization> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (organizationInfo.isNotEmpty) {
+        ShowCaseWidget.of(context).startShowCase([_search, _select]);
+      }
+    });
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -198,47 +222,66 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                 children: <Widget>[
                   Text(
                     S.of(context).textJoinOrgGreeting,
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontStyle: FontStyle.normal),
+                    style: TextStyle(fontSize: 18, fontStyle: FontStyle.normal),
                   ),
                   SizedBox(
                     height: 15,
                   ),
-                  TextFormField(
-                    onChanged: (value) {
-                      searchOrgName(value);
-                    },
-                    controller: searchController,
-                    textAlign: TextAlign.left,
-                    style: TextStyle(fontSize: 14),
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(5),
-                        fillColor: Theme.of(context).backgroundColor,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                          borderSide:
-                              BorderSide(color: Theme.of(context).primaryColor, width: 0.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                          borderSide:
-                              BorderSide(color: Theme.of(context).primaryColor, width: 0.0),
-                        ),
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.all(0.0),
-                          child: Icon(Icons.search, color: Colors.black),
-                        ),
-                        hintText: S.of(context).hintSearchOrg),
+                  Showcase(
+                    description: 'Search for a organization',
+                    key: _search,
+                    child: TextFormField(
+                      onChanged: (value) {
+                        searchOrgName(value);
+                      },
+                      controller: searchController,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(fontSize: 14),
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(5),
+                          fillColor: Theme.of(context).backgroundColor,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                            borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                                width: 0.0),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                            borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                                width: 0.0),
+                          ),
+                          prefixIcon: Padding(
+                            padding: EdgeInsets.all(0.0),
+                            child: Icon(Icons.search, color: Colors.black),
+                          ),
+                          hintText: S.of(context).hintSearchOrg),
+                    ),
                   ),
                   SizedBox(height: 15),
                   Expanded(
+                    child: Showcase(
+                      onTargetClick: () {
+                        setState(() {
+                          show = false;
+                        });
+                      },
+                      onToolTipClick: () {
+                        setState(() {
+                          show = false;
+                        });
+                      },
+                      disposeOnTap: true,
+                      key: _select,
+                      description: 'Select an organization from the list',
                       child: Container(
                           color: Theme.of(context).scaffoldBackgroundColor,
                           child: searchController.text.isNotEmpty
                               ? ListView.builder(
                                   itemCount: filteredOrgInfo.length,
+                                  shrinkWrap: true,
                                   itemBuilder: (context, index) {
                                     final organization = filteredOrgInfo[index];
                                     return Card(
@@ -315,13 +358,30 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                                                     TextOverflow.ellipsis),
                                           ],
                                         ),
-                                        trailing: ElevatedButton(
+                                        trailing: Showcase.withWidget(
+                                          height: 50,
+                                          width: 150,
+                                          container: Container(
+                                            color: Colors.red,
+                                          ),
+                                          key: index == 0
+                                              ? _join
+                                              : Key('new$index'),
+                                          description:
+                                              'Click to join the selected organization',
+                                          showcaseBackgroundColor: Colors.white,
+                                          child: ElevatedButton(
                                             style: ButtonStyle(
-                                                backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).primaryColor),
-                                                shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(
-                                                      12.0),
-                                                )),
+                                              backgroundColor:
+                                                  MaterialStateProperty.all<
+                                                          Color>(
+                                                      Theme.of(context)
+                                                          .primaryColor),
+                                              shape: MaterialStateProperty.all(
+                                                  RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              )),
                                             ),
                                             onPressed: () {
                                               itemIndex = organization['_id']
@@ -347,12 +407,14 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                                                     strokeWidth: 2,
                                                   )
                                                 : Text(S.of(context).join),
-                                            ),
+                                          ),
+                                        ),
                                         isThreeLine: true,
                                       ),
                                     );
                                   })
                               : ListView.builder(
+                                  shrinkWrap: true,
                                   itemCount: organizationInfo.length,
                                   itemBuilder: (context, index) {
                                     final organization =
@@ -431,68 +493,80 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                                           ],
                                         ),
                                         trailing: ElevatedButton(
-                                            style: ButtonStyle(
-                                              backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).primaryColor),
-                                              shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(
-                                                    12.0),
-                                              )),
-                                            ),
-                                            onPressed: () {
-                                              itemIndex = organization['_id']
-                                                  .toString();
-                                              if (organization['isPublic']
-                                                      .toString() ==
-                                                  'false') {
-                                                setState(() {
-                                                  isPublic = 'false';
-                                                });
-                                              } else {
-                                                setState(() {
-                                                  isPublic = 'true';
-                                                });
-                                              }
-                                              confirmOrgDialog();
-                                            },
-                                            child: _isLoaderActive
-                                                ? CircularProgressIndicator(
-                                                    valueColor:
-                                                        AlwaysStoppedAnimation(
-                                                            Colors.white),
-                                                    strokeWidth: 2,
-                                                  )
-                                                : new Text(S.of(context).join),
-                                            ),
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all<
+                                                        Color>(
+                                                    Theme.of(context)
+                                                        .primaryColor),
+                                            shape: MaterialStateProperty.all(
+                                                RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12.0),
+                                            )),
+                                          ),
+                                          onPressed: () {
+                                            itemIndex =
+                                                organization['_id'].toString();
+                                            if (organization['isPublic']
+                                                    .toString() ==
+                                                'false') {
+                                              setState(() {
+                                                isPublic = 'false';
+                                              });
+                                            } else {
+                                              setState(() {
+                                                isPublic = 'true';
+                                              });
+                                            }
+                                            confirmOrgDialog();
+                                          },
+                                          child: _isLoaderActive
+                                              ? CircularProgressIndicator(
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation(
+                                                          Colors.white),
+                                                  strokeWidth: 2,
+                                                )
+                                              : new Text(S.of(context).join),
+                                        ),
                                         isThreeLine: true,
                                       ),
                                     );
-                                  })))
+                                  })),
+                    ),
+                  ),
+                  SizedBox(
+                    height: show ? 80 : 0,
+                  )
                 ],
               )),
-      floatingActionButton: OpenContainer(
-        transitionDuration: Duration(milliseconds: 1000),
-        closedElevation: 6.0,
-        openColor: Theme.of(context).scaffoldBackgroundColor,
-        closedColor: Theme.of(context).scaffoldBackgroundColor,
-        closedShape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(28),
-          ),
-        ),
-        closedBuilder: (BuildContext c, VoidCallback action) =>
-            FloatingActionButton(
+      floatingActionButton: Tooltip(
+          message: 'Create new organization',
+          child: OpenContainer(
+            transitionDuration: Duration(milliseconds: 1000),
+            closedElevation: 6.0,
+            openColor: Theme.of(context).scaffoldBackgroundColor,
+            closedColor: Theme.of(context).scaffoldBackgroundColor,
+            closedShape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(28),
+              ),
+            ),
+            closedBuilder: (BuildContext c, VoidCallback action) =>
+                FloatingActionButton(
               heroTag: 'joinFab',
-          child: Icon(Icons.add),
-          backgroundColor: UIData.secondaryColor,
-          foregroundColor: Colors.white,
-          elevation: 5.0,
-          onPressed: () => action(),
-        ),
-        openBuilder: (BuildContext c, VoidCallback action) =>
-            CreateOrganization(
-          isFromProfile: widget.fromProfile,
-        ),
-      ),
+              child: Icon(Icons.add),
+              backgroundColor: UIData.secondaryColor,
+              foregroundColor: Colors.white,
+              elevation: 5.0,
+              onPressed: () => action(),
+            ),
+            openBuilder: (BuildContext c, VoidCallback action) =>
+                CreateOrganization(
+              isFromProfile: widget.fromProfile,
+            ),
+          )),
     );
   }
 

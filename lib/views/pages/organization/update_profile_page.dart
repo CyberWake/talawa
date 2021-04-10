@@ -7,6 +7,7 @@ import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:talawa/controllers/auth_controller.dart';
+import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
 import 'package:talawa/utils/GQLClient.dart';
 import 'package:talawa/utils/globals.dart';
@@ -196,211 +197,192 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          body: Form(
-            key: _formKey,
-            autovalidateMode: _validate,
-            child: ListView(
-              children: <Widget>[
-                Container(
-                  color: Colors.white,
-                  alignment: Alignment.bottomCenter,
-                  child: Row(
-                    children: <Widget>[
-                      IconButton(
-                        icon: Icon(
-                          Icons.arrow_back,
-                        ),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: ListTile(
-                          contentPadding: EdgeInsets.all(0),
-                          title: Text(
-                            'Update Profile',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          subtitle: Text(
-                            'Keep your profile upto date',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: 'OpenSans',
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                addImage(),
-                SizedBox(
-                  height: 30,
-                ),
-                //First Name
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
-                  child: TextFormField(
-                    style: TextStyle(fontSize: 20),
-                    keyboardType: TextInputType.name,
-                    validator: (value) => Validator.validateLastName(value),
-                    enableSuggestions: true,
-                    cursorRadius: Radius.circular(10),
-                    cursorColor: Colors.blue[800],
-                    textCapitalization: TextCapitalization.words,
-                    initialValue: widget.userDetails[0]['firstName'].toString(),
-                    onSaved: (firstName) {
-                      model.firstName = firstName;
-                    },
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(0),
-                      labelText: 'First Name',
-                      counterText: '',
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(4),
-                        borderSide: BorderSide(color: Colors.red),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                //Last Name
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
-                  child: TextFormField(
-                    style: TextStyle(fontSize: 20),
-                    keyboardType: TextInputType.name,
-                    validator: (value) => Validator.validateLastName(value),
-                    enableSuggestions: true,
-                    cursorRadius: Radius.circular(10),
-                    cursorColor: Colors.blue[800],
-                    textCapitalization: TextCapitalization.words,
-                    initialValue: widget.userDetails[0]['lastName'].toString(),
-                    onSaved: (lastName) {
-                      model.lastName = lastName;
-                    },
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(0),
-                      labelText: 'Last Name',
-                      counterText: '',
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(4),
-                        borderSide: BorderSide(color: Colors.red),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                //Email
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
-                  child: TextFormField(
-                    style: TextStyle(fontSize: 20),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) => Validator.validateEmail(value),
-                    enableSuggestions: true,
-                    cursorRadius: Radius.circular(10),
-                    cursorColor: Colors.blue[800],
-                    initialValue: widget.userDetails[0]['email'].toString(),
-                    textCapitalization: TextCapitalization.words,
-                    onSaved: (email) {
-                      model.email = email;
-                    },
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(0),
-                      labelText: 'Email',
-                      counterText: '',
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(4),
-                        borderSide: BorderSide(color: Colors.red),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  child: ElevatedButton.icon(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(UIData.secondaryColor),
-                        shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),),
-                        padding: MaterialStateProperty.all(EdgeInsets.all(15.0),)
-                    ),
-                    onPressed: () {
-                      FocusScope.of(context).unfocus();
-                      _validate = AutovalidateMode.always;
-
-                      if (_formKey.currentState.validate()) {
-                        _formKey.currentState.save();
-                        _image == null
-                            ? updateProfileWithoutImg()
-                            : updateProfileWithImg();
-                      }
-                    },
-                    icon: _progressBarState
-                        ? SizedBox(
-                            height: 14,
-                            width: 14,
-                            child: CircularProgressIndicator(
-                              backgroundColor: Colors.white,
-                            ),
-                          )
-                        : Icon(
-                            Icons.update,
-                            color: Colors.white,
-                          ),
-                    label: Text(
-                      'Update Profile',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                )
-              ],
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
             ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          title: Text(
+            S.of(context).updateProfile,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        body: Form(
+          key: _formKey,
+          autovalidateMode: _validate,
+          child: ListView(
+            children: <Widget>[
+              addImage(),
+              SizedBox(
+                height: 30,
+              ),
+              //First Name
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).backgroundColor,
+                  border: Border.all(color: Theme.of(context).accentColor),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
+                child: TextFormField(
+                  style: TextStyle(fontSize: 20),
+                  keyboardType: TextInputType.name,
+                  validator: (value) => Validator.validateLastName(value),
+                  enableSuggestions: true,
+                  cursorRadius: Radius.circular(10),
+                  cursorColor: Colors.blue[800],
+                  textCapitalization: TextCapitalization.words,
+                  initialValue: widget.userDetails[0]['firstName'].toString(),
+                  onSaved: (firstName) {
+                    model.firstName = firstName;
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.all(0),
+                    labelText: 'First Name',
+                    counterText: '',
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              //Last Name
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).backgroundColor,
+                  border: Border.all(color: Theme.of(context).accentColor),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
+                child: TextFormField(
+                  style: TextStyle(fontSize: 20),
+                  keyboardType: TextInputType.name,
+                  validator: (value) => Validator.validateLastName(value),
+                  enableSuggestions: true,
+                  cursorRadius: Radius.circular(10),
+                  cursorColor: Colors.blue[800],
+                  textCapitalization: TextCapitalization.words,
+                  initialValue: widget.userDetails[0]['lastName'].toString(),
+                  onSaved: (lastName) {
+                    model.lastName = lastName;
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.all(0),
+                    labelText: 'Last Name',
+                    counterText: '',
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              //Email
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).backgroundColor,
+                  border: Border.all(color: Theme.of(context).accentColor),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
+                child: TextFormField(
+                  style: TextStyle(fontSize: 20),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) => Validator.validateEmail(value),
+                  enableSuggestions: true,
+                  cursorRadius: Radius.circular(10),
+                  cursorColor: Colors.blue[800],
+                  initialValue: widget.userDetails[0]['email'].toString(),
+                  textCapitalization: TextCapitalization.words,
+                  onSaved: (email) {
+                    model.email = email;
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.all(0),
+                    labelText: 'Email',
+                    counterText: '',
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                child: ElevatedButton.icon(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(UIData.secondaryColor),
+                      shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),),
+                      padding: MaterialStateProperty.all(EdgeInsets.all(15.0),)
+                  ),
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    _validate = AutovalidateMode.always;
+
+                    if (_formKey.currentState.validate()) {
+                      _formKey.currentState.save();
+                      _image == null
+                          ? updateProfileWithoutImg()
+                          : updateProfileWithImg();
+                    }
+                  },
+                  icon: _progressBarState
+                      ? SizedBox(
+                          height: 14,
+                          width: 14,
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.white,
+                          ),
+                        )
+                      : Icon(
+                          Icons.update,
+                          color: Colors.white,
+                        ),
+                  label: Text(
+                    'Update Profile',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              )
+            ],
           ),
         ),
       ),

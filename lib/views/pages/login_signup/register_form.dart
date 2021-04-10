@@ -11,6 +11,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 // pages are called here
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcase_widget.dart';
 import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/model/token.dart';
 import 'package:talawa/services/Queries.dart';
@@ -105,9 +106,15 @@ class RegisterFormState extends State<RegisterForm> {
       //Navigate user to join organization screen
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-              builder: (context) => JoinOrganization(
-                    fromProfile: false,
-                  )),
+              builder: (context) => ShowCaseWidget(
+                  autoPlayDelay: Duration(seconds: 2),
+                  autoPlay: true,
+                  builder:Builder(builder: (BuildContext context) {
+                    return JoinOrganization(
+                      fromProfile: false,
+                    );
+                  },)
+              )),
           (route) => false);
     }
   }

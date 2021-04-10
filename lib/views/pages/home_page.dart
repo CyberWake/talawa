@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 //importing the pages here
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcase_widget.dart';
 import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/utils/GQLClient.dart';
@@ -59,7 +60,7 @@ class _HomePageState extends State<HomePage> {
       Manage(),
       NewsFeed(), //first page of the news feed
       Events(), //Third page of creating the events and viewing it
-      ProfilePage(), //last page of the profile
+      ShowCaseWidget(autoPlay:true,autoPlayDelay:Duration(seconds: 2),builder: Builder(builder: (BuildContext context)=>ProfilePage(),)), //last page of the profile
     ];
   }
 

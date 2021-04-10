@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcase.dart';
+import 'package:showcaseview/showcase_widget.dart';
 //pages are imported here
 import 'package:talawa/controllers/auth_controller.dart';
 import 'package:talawa/controllers/org_controller.dart';
@@ -29,6 +31,11 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  GlobalKey _updateProfile = GlobalKey();
+  GlobalKey _leaveOrg = GlobalKey();
+  GlobalKey _appSettings = GlobalKey();
+  GlobalKey _orgSettings = GlobalKey();
+  GlobalKey _logout = GlobalKey();
   void setState(fn) {
     if (mounted) {
       super.setState(fn);
@@ -188,17 +195,21 @@ class _ProfilePageState extends State<ProfilePage> {
           .saveCurrentOrgName(newOrgName);
       Provider.of<Preferences>(context, listen: false)
           .saveCurrentOrgId(newOrgId);
-      //  _successToast('You are no longer apart of this organization');
-      /*pushNewScreen(
-        context,
-        screen: ProfilePage(),
-      );*/
     }
   }
 
   //main build starts from here
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!(userDetails.isEmpty || isCreator == null)){
+        if (!isCreator) {
+          ShowCaseWidget.of(context).startShowCase([_updateProfile,_leaveOrg,_appSettings,_logout,]);
+        }else{
+          ShowCaseWidget.of(context).startShowCase([_updateProfile,_orgSettings,_appSettings,_logout,]);
+        }
+      }
+    });
     return Scaffold(
         key: Key('PROFILE_PAGE_SCAFFOLD'),
         backgroundColor: Theme.of(context).backgroundColor,
@@ -223,53 +234,65 @@ class _ProfilePageState extends State<ProfilePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         ListTile(
-                            title: Text(S.of(context).titleProfile,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20.0,
-                                    color: Colors.white)),
-                            trailing: userDetails[0]['image'] != null
-                                ? CircleAvatar(
-                                    radius: 30,
-                                    backgroundImage: NetworkImage(
-                                        Provider.of<GraphQLConfiguration>(
-                                                    context)
-                                                .displayImgRoute +
-                                            userDetails[0]['image']))
-                                : CircleAvatar(
-                                    radius: 45.0,
-                                    backgroundColor: Colors.white,
-                                    child: Text(
-                                        userDetails[0]['firstName']
-                                                .toString()
-                                                .substring(0, 1)
-                                                .toUpperCase() +
-                                            userDetails[0]['lastName']
-                                                .toString()
-                                                .substring(0, 1)
-                                                .toUpperCase(),
-                                        style: TextStyle(
-                                          color: UIData.primaryColor,
-                                        )),
-                                  )),
+                            title: Tooltip(
+                              message: 'Profile Page',
+                              child: Text(S.of(context).titleProfile,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20.0,
+                                      color: Colors.white)),
+                            ),
+                            trailing: Tooltip(
+                              message:'Profile Picture',
+                              child: userDetails[0]['image'] != null
+                                  ? CircleAvatar(
+                                      radius: 30,
+                                      backgroundImage: NetworkImage(
+                                          Provider.of<GraphQLConfiguration>(
+                                                      context)
+                                                  .displayImgRoute +
+                                              userDetails[0]['image']))
+                                  : CircleAvatar(
+                                      radius: 45.0,
+                                      backgroundColor: Colors.white,
+                                      child: Text(
+                                          userDetails[0]['firstName']
+                                                  .toString()
+                                                  .substring(0, 1)
+                                                  .toUpperCase() +
+                                              userDetails[0]['lastName']
+                                                  .toString()
+                                                  .substring(0, 1)
+                                                  .toUpperCase(),
+                                          style: TextStyle(
+                                            color: UIData.primaryColor,
+                                          )),
+                                    ),
+                            )),
                         const SizedBox(height: 10.0),
                         Padding(
                           padding: const EdgeInsets.only(left: 16.0),
-                          child: Text(
-                              userDetails[0]['firstName'].toString() +
-                                  " " +
-                                  userDetails[0]['lastName'].toString(),
-                              style: TextStyle(
-                                  fontSize: 20.0, color: Colors.white)),
+                          child: Tooltip(
+                            message: 'Logged in as ${userDetails[0]['firstName'].toString()} ${userDetails[0]['lastName'].toString()}',
+                            child: Text(
+                                userDetails[0]['firstName'].toString() +
+                                    " " +
+                                    userDetails[0]['lastName'].toString(),
+                                style: TextStyle(
+                                    fontSize: 20.0, color: Colors.white)),
+                          ),
                         ),
                         const SizedBox(height: 5.0),
                         Padding(
                           padding: const EdgeInsets.only(left: 16.0),
-                          child: Text(
-                              "${S.of(context).textCurrentOrganization} " +
-                                  (orgName ?? 'No Organization Joined'),
-                              style: TextStyle(
-                                  fontSize: 16.0, color: Colors.white)),
+                          child: Tooltip(
+                            message: orgName==null?'No Organization joined':'Current organization is $orgName',
+                            child: Text(
+                                "${S.of(context).textCurrentOrganization} " +
+                                    (orgName ?? 'No Organization Joined'),
+                                style: TextStyle(
+                                    fontSize: 16.0, color: Colors.white)),
+                          ),
                         ),
                       ],
                     ),
@@ -280,25 +303,33 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: ListTile.divideTiles(
                         context: context,
                         tiles: [
-                          ListTile(
-                            tileColor: Theme.of(context).backgroundColor,
-                            key: Key('Update Profile'),
-                            title: Text(
-                              S.of(context).updateProfile,
-                              style: TextStyle(fontSize: 18.0),
-                            ),
-                            leading: Icon(
-                              Icons.edit,
-                              color:Theme.of(context).primaryColor
-                            ),
-                            onTap: () {
-                              pushNewScreen(
-                                context,
-                                screen: UpdateProfilePage(
-                                  userDetails: userDetails,
+                          Showcase(
+                            description: 'Update your profile from here',
+                            key: _updateProfile,
+                            child: Tooltip(
+                              message: 'Update Profile',
+                              child: ListTile(
+                                tileColor: Theme.of(context).backgroundColor,
+                                key: Key('Update Profile'),
+                                title: Text(
+                                  S.of(context).updateProfile,
+                                  style: TextStyle(fontSize: 18.0),
                                 ),
-                              );
-                            },
+                                leading: Icon(
+                                  Icons.edit,
+                                  color:Theme.of(context).primaryColor
+                                ),
+                                onTap: () {
+                                  pushNewScreen(
+                                    context,
+                                    screen: UpdateProfilePage(
+                                      userDetails: userDetails,
+                                    ),
+                                    withNavBar: false,
+                                  );
+                                },
+                              ),
+                            ),
                           ),
                           isCreator == null
                               ? SizedBox()
@@ -308,21 +339,28 @@ class _ProfilePageState extends State<ProfilePage> {
                                       openElevation: 0.0,
                                       closedBuilder: (BuildContext c,
                                           VoidCallback action) {
-                                        return ListTile(
-                                            tileColor: Theme.of(context)
-                                                .backgroundColor,
-                                            key: Key('Organization Settings'),
-                                            title: Text(
-                                              S.of(context).orgSetting,
-                                              style:
-                                                  TextStyle(fontSize: 18.0),
-                                            ),
-                                            leading: Icon(
-                                              Icons.settings,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            ),
-                                            onTap: () => action());
+                                        return Showcase(
+                                          key: _orgSettings,
+                                          description: 'Open Organization Settings',
+                                          child: Tooltip(
+                                            message: 'Open Organization Settings',
+                                            child: ListTile(
+                                                tileColor: Theme.of(context)
+                                                    .backgroundColor,
+                                                key: Key('Organization Settings'),
+                                                title: Text(
+                                                  S.of(context).orgSetting,
+                                                  style:
+                                                      TextStyle(fontSize: 18.0),
+                                                ),
+                                                leading: Icon(
+                                                  Icons.settings,
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                ),
+                                                onTap: () => action()),
+                                          ),
+                                        );
                                       },
                                       openBuilder: (BuildContext c,
                                           VoidCallback action) {
@@ -333,64 +371,83 @@ class _ProfilePageState extends State<ProfilePage> {
                                       })
                                   : org.length == 0
                                       ? SizedBox()
-                                      : ListTile(
-                                          key: Key('Leave This Organization'),
-                                          tileColor:
-                                              Theme.of(context).backgroundColor,
-                                          title: Text(
-                                            S.of(context).leaveOrg,
-                                            style: TextStyle(fontSize: 18.0),
-                                          ),
-                                          leading: Icon(
-                                            Icons.exit_to_app,
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                          ),
-                                          onTap: () async {
-                                            showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return AlertBox(
-                                                      message:
-                                                          "Are you sure you want to leave this organization?",
-                                                      function: leaveOrg);
-                                                });
-                                          }),
-                          ListTile(
-                            tileColor: Theme.of(context).backgroundColor,
-                            leading: Icon(Icons.settings,color: Theme.of(context).primaryColor,),
-                            title: Text(
-                              S.of(context).settings,
-                              style: TextStyle(fontSize: 18.0),
+                                      : Showcase(key: _leaveOrg,description: 'Leave Current Organization',
+                                        child: Tooltip(
+                                          message: 'Leave Current Organization',
+                                          child: ListTile(
+                                              key: Key('Leave This Organization'),
+                                              tileColor:
+                                                  Theme.of(context).backgroundColor,
+                                              title: Text(
+                                                S.of(context).leaveOrg,
+                                                style: TextStyle(fontSize: 18.0),
+                                              ),
+                                              leading: Icon(
+                                                Icons.exit_to_app,
+                                                color:
+                                                    Theme.of(context).primaryColor,
+                                              ),
+                                              onTap: () async {
+                                                showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return AlertBox(
+                                                          message:
+                                                              "Are you sure you want to leave this organization?",
+                                                          function: leaveOrg);
+                                                    });
+                                              }),
+                                        ),
+                                      ),
+                          Showcase(
+                            key: _appSettings,
+                            description: 'Open Application Setting',
+                            child: Tooltip(
+                              message: 'Application Settings',
+                              child: ListTile(
+                                tileColor: Theme.of(context).backgroundColor,
+                                leading: Icon(Icons.settings,color: Theme.of(context).primaryColor,),
+                                title: Text(
+                                  S.of(context).settings,
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                                onTap: () {
+                                  pushNewScreen(context, screen: SettingsPage(),withNavBar: false);
+                                },
+                              ),
                             ),
-                            onTap: () {
-                              pushNewScreen(context, screen: SettingsPage(),withNavBar: false);
-                            },
                           ),
-                          ListTile(
-                            key: Key('Logout'),
-                            tileColor: Theme.of(context).backgroundColor,
-                            title: Text(
-                              S.of(context).logout,
-                              style: TextStyle(fontSize: 18.0),
+                          Showcase(
+                            key: _logout,
+                            description: 'Logout from application',
+                            child: Tooltip(
+                              message: 'Logout from application',
+                              child: ListTile(
+                                key: Key('Logout'),
+                                tileColor: Theme.of(context).backgroundColor,
+                                title: Text(
+                                  S.of(context).logout,
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                                leading: Icon(
+                                  Icons.exit_to_app,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                onTap: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertBox(
+                                          message: S.of(context).textConfirmLogout,
+                                          function: () {
+                                            _authController.logout(context);
+                                          },
+                                        );
+                                      });
+                                },
+                              ),
                             ),
-                            leading: Icon(
-                              Icons.exit_to_app,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            onTap: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertBox(
-                                      message: S.of(context).textConfirmLogout,
-                                      function: () {
-                                        _authController.logout(context);
-                                      },
-                                    );
-                                  });
-                            },
                           ),
                           MyAboutTile(),
                         ],

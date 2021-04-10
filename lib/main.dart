@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 //Pages are imported here
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcase_widget.dart';
 import 'package:talawa/services/preferences.dart';
 import 'package:talawa/splash_screen.dart';
 import 'package:talawa/utils/GQLClient.dart';
@@ -19,35 +20,38 @@ import 'views/pages/organization/switch_org_page.dart';
 import 'package:talawa/generated/l10n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-
 Preferences preferences = Preferences();
 String userID;
 Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); //ensuring weather the app is being initialized or not
-  userID = await preferences.getUserId(); //getting user id
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp
-  ]) //setting the orientation according to the screen it is running on
-      .then((_) {
-    runApp(MultiProvider(
-      providers: [
-        ChangeNotifierProvider<Localization>(create: (_)=>Localization(),),
-        ChangeNotifierProvider<GraphQLConfiguration>(
-            create: (_) => GraphQLConfiguration()),
-        ChangeNotifierProvider<OrgController>(create: (_) => OrgController()),
-        ChangeNotifierProvider<AuthController>(create: (_) => AuthController()),
-        ChangeNotifierProvider<Preferences>(create: (_) => Preferences()),
-      ],
-      child: MyApp(),
-    ));
-  });
+  userID = await preferences.getUserId().whenComplete((){
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp
+    ]) //setting the orientation according to the screen it is running on
+        .then((_) {
+      runApp(MultiProvider(
+        providers: [
+          ChangeNotifierProvider<Localization>(
+            create: (_) => Localization(),
+          ),
+          ChangeNotifierProvider<GraphQLConfiguration>(
+              create: (_) => GraphQLConfiguration()),
+          ChangeNotifierProvider<OrgController>(create: (_) => OrgController()),
+          ChangeNotifierProvider<AuthController>(create: (_) => AuthController()),
+          ChangeNotifierProvider<Preferences>(create: (_) => Preferences()),
+        ],
+        child: MyApp(),
+      ));
+    });
+  }); //getting user id
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Locale locale = Provider.of<Localization>(context,listen: true).currentLocale;
+    Locale locale =
+        Provider.of<Localization>(context, listen: true).currentLocale;
     return GestureDetector(
       onTap: () {
         FocusScopeNode currentFocus = FocusScope.of(context);
@@ -106,9 +110,21 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(builder: (ctx) => builder(ctx));
         },
         home: SplashScreen(
-          navigateAfter: userID == null ? UrlPage() : HomePage(openPageIndex: 3,),
-        ), //checking weather the user is logged in or not
-      ),
+          navigateAfter: ShowCaseWidget(
+              autoPlayDelay: Duration(seconds: 8),
+              builder: Builder(
+                builder: (context) => SplashScreen(
+                  navigateAfter: userID == null
+                      ? UrlPage()
+                      : HomePage(
+                    openPageIndex: 3,
+                  ),
+                ),
+              ),
+              autoPlay: true//userID == null,
+          ),
+        ),
+      ), //checking weather the user is logged in or not
     );
   }
 }
