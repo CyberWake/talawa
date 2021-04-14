@@ -3,10 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MyTheme with ChangeNotifier{
   bool isDark = ThemeMode.system == ThemeMode.dark;
-
-  MyTheme(){
-    currentTheme();
-  }
+  ThemeMode mode = ThemeMode.system;
 
   Future<ThemeMode> currentTheme()async{
     SharedPreferences _prefs = await SharedPreferences.getInstance();
@@ -16,11 +13,13 @@ class MyTheme with ChangeNotifier{
     }else if(isDark == null){
       isDark = ThemeMode.system == ThemeMode.dark;
     }
-    return isDark?ThemeMode.dark:ThemeMode.light;
+    mode = isDark?ThemeMode.dark:ThemeMode.light;
+    return mode;
   }
 
   void switchTheme()async{
     isDark = !isDark;
+    mode = isDark?ThemeMode.dark:ThemeMode.light;
     SharedPreferences _prefs = await SharedPreferences.getInstance();
     _prefs.setBool("myTheme",isDark);
     notifyListeners();

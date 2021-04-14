@@ -80,6 +80,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "logout" : MessageLookupByLibrary.simpleMessage("登出"),
     "manage" : MessageLookupByLibrary.simpleMessage("管理"),
     "members" : MessageLookupByLibrary.simpleMessage("成员们"),
+    "next" : MessageLookupByLibrary.simpleMessage("下一个"),
     "no" : MessageLookupByLibrary.simpleMessage("不"),
     "orgSetting" : MessageLookupByLibrary.simpleMessage("组织设置"),
     "profile" : MessageLookupByLibrary.simpleMessage("轮廓"),
@@ -102,6 +103,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "textOrgInSearch" : MessageLookupByLibrary.simpleMessage("您是否希望其他人能够从搜索页面中找到您的组织？"),
     "textOrgPublic" : MessageLookupByLibrary.simpleMessage("您想让您的组织公开吗？"),
     "textRegisterForEvent" : MessageLookupByLibrary.simpleMessage("注册活动"),
+    "titleChooseLanguage" : MessageLookupByLibrary.simpleMessage("选择你的语言"),
     "titleCreateOrg" : MessageLookupByLibrary.simpleMessage("建立组织"),
     "titleEvents" : MessageLookupByLibrary.simpleMessage("大事记"),
     "titleJoinOrg" : MessageLookupByLibrary.simpleMessage("加入组织"),
@@ -109,6 +111,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "titleNewPost" : MessageLookupByLibrary.simpleMessage("最新帖子"),
     "titleNewsFeeds" : MessageLookupByLibrary.simpleMessage("新闻饲料"),
     "titleProfile" : MessageLookupByLibrary.simpleMessage("轮廓"),
+    "titleSelectedLanguage" : MessageLookupByLibrary.simpleMessage("所选语言"),
     "updateProfile" : MessageLookupByLibrary.simpleMessage("更新个人信息"),
     "urlSaved" : MessageLookupByLibrary.simpleMessage("网址已保存！"),
     "yes" : MessageLookupByLibrary.simpleMessage("是的")

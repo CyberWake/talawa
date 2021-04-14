@@ -10,6 +10,7 @@ import 'package:talawa/splash_screen.dart';
 import 'package:talawa/utils/GQLClient.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/views/pages/_pages.dart';
+import 'package:talawa/views/pages/login_signup/ask_locale.dart';
 import 'package:talawa/views/pages/login_signup/set_url_page.dart';
 import 'package:talawa/views/pages/organization/profile_page.dart';
 
@@ -26,6 +27,7 @@ String userID;
 Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); //ensuring weather the app is being initialized or not
+  Localization().getLocale();
   userID = await preferences.getUserId().whenComplete(() {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp
@@ -53,14 +55,6 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    ThemeMode themeMode = Provider.of<MyTheme>(context, listen: true).isDark
-        ? ThemeMode.dark
-        : ThemeMode.light;
-    Locale locale =
-        Provider.of<Localization>(context, listen: true).currentLocale;
-    if(themeMode==null||locale==null){
-      return Container();
-    }
     return GestureDetector(
       onTap: () {
         FocusScopeNode currentFocus = FocusScope.of(context);
@@ -88,7 +82,7 @@ class MyApp extends StatelessWidget {
             selectionHandleColor: Color(0xFF31bd6a),
           ),
         ),
-        locale: locale,
+        locale: Provider.of<Localization>(context,listen: true).currentLocale,
         theme: ThemeData.light().copyWith(
           accentColor: Colors.black,
           textSelectionTheme: TextSelectionThemeData(
@@ -118,8 +112,8 @@ class MyApp extends StatelessWidget {
           WidgetBuilder builder = routes[settings.name];
           return MaterialPageRoute(builder: (ctx) => builder(ctx));
         },
-        themeMode: themeMode,
-        home: SplashScreen(
+        themeMode: Provider.of<MyTheme>(context,listen: true).mode,
+        home: AskLocale()/*SplashScreen(
           navigateAfter: SplashScreen(
             navigateAfter: userID == null
                 ? ShowCaseWidget(
@@ -132,7 +126,7 @@ class MyApp extends StatelessWidget {
               autoLogin: true,
                   ),
           ),
-        ),
+        ),*/
       ), //checking weather the user is logged in or not
     );
   }

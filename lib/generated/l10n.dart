@@ -635,6 +635,16 @@ class S {
     );
   }
 
+  /// `Next`
+  String get next {
+    return Intl.message(
+      'Next',
+      name: 'next',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Organization Settings`
   String get orgSetting {
     return Intl.message(
@@ -910,6 +920,26 @@ class S {
     return Intl.message(
       'Profile',
       name: 'titleProfile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose your Language`
+  String get titleChooseLanguage {
+    return Intl.message(
+      'Choose your Language',
+      name: 'titleChooseLanguage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selected Language`
+  String get titleSelectedLanguage {
+    return Intl.message(
+      'Selected Language',
+      name: 'titleSelectedLanguage',
       desc: '',
       args: [],
     );

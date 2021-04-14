@@ -80,6 +80,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "logout" : MessageLookupByLibrary.simpleMessage("Logout"),
     "manage" : MessageLookupByLibrary.simpleMessage("Manage"),
     "members" : MessageLookupByLibrary.simpleMessage("Members"),
+    "next" : MessageLookupByLibrary.simpleMessage("Next"),
     "no" : MessageLookupByLibrary.simpleMessage("No"),
     "orgSetting" : MessageLookupByLibrary.simpleMessage("Organization Settings"),
     "profile" : MessageLookupByLibrary.simpleMessage("Profile"),
@@ -102,6 +103,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "textOrgInSearch" : MessageLookupByLibrary.simpleMessage("Do you want others to be able to find your organization from the search page?"),
     "textOrgPublic" : MessageLookupByLibrary.simpleMessage("Do you want your organization to be public?"),
     "textRegisterForEvent" : MessageLookupByLibrary.simpleMessage("Register For Event"),
+    "titleChooseLanguage" : MessageLookupByLibrary.simpleMessage("Choose your Language"),
     "titleCreateOrg" : MessageLookupByLibrary.simpleMessage("Create Organization"),
     "titleEvents" : MessageLookupByLibrary.simpleMessage("Events"),
     "titleJoinOrg" : MessageLookupByLibrary.simpleMessage("Join Organization"),
@@ -109,6 +111,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "titleNewPost" : MessageLookupByLibrary.simpleMessage("New Post"),
     "titleNewsFeeds" : MessageLookupByLibrary.simpleMessage("NewsFeed"),
     "titleProfile" : MessageLookupByLibrary.simpleMessage("Profile"),
+    "titleSelectedLanguage" : MessageLookupByLibrary.simpleMessage("Selected Language"),
     "updateProfile" : MessageLookupByLibrary.simpleMessage("Update Profile"),
     "urlSaved" : MessageLookupByLibrary.simpleMessage("URL SAVED!"),
     "yes" : MessageLookupByLibrary.simpleMessage("Yes")

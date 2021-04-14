@@ -66,12 +66,9 @@ class SettingsPage extends StatelessWidget {
                             itemBuilder: (BuildContext context, int index) {
                               return ListTile(
                                 onTap: () {
-                                  Locale newLocale = Locale(
-                                      languages[index]['languageCode'],
-                                      languages[index]['countryCode']);
                                   Provider.of<Localization>(context,
                                           listen: false)
-                                      .setLocale(newLocale);
+                                      .setLocale(languages[index]);
                                   Navigator.pop(context);
                                 },
                                 title: Text(languages[index]['language']),
