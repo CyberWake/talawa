@@ -3,6 +3,7 @@ import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 //pages are imported here
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
@@ -20,6 +21,9 @@ import 'package:talawa/views/pages/newsfeed/newsArticle.dart';
 import 'package:talawa/views/pages/organization/join_organization.dart';
 import 'package:talawa/views/widgets/custom_appbar.dart';
 import 'package:talawa/views/widgets/loading.dart';
+import 'package:talawa/views/widgets/toast_tile.dart';
+import 'package:talawa/views/widgets/loading_shimmer.dart';
+import 'package:talawa/utils/globals.dart';
 
 class NewsFeed extends StatefulWidget {
   NewsFeed({Key key}) : super(key: key);
@@ -42,7 +46,7 @@ class _NewsFeedState extends State<NewsFeed>
   Timer timer = Timer();
   int isSelected = -1;
   String orgId;
-  String _currentOrgID;
+  FToast fToast;
   Preferences _pref = Preferences();
   bool _progressBarState = false;
   double maxWidth = 210;
@@ -69,6 +73,8 @@ class _NewsFeedState extends State<NewsFeed>
   //setting initial state to the variables
   initState() {
     fetchUserDetails();
+    fToast = FToast();
+    fToast.init(context);
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 300));
     widthAnimation = Tween<double>(begin: minWidth, end: maxWidth)
@@ -113,7 +119,6 @@ class _NewsFeedState extends State<NewsFeed>
       });
     } else if (!result.hasException && !result.isLoading) {
       setState(() {
-        _progressBarState = false;
         userOrg = result.data['users'][0]['joinedOrganizations'];
         if (userOrg.isEmpty) {
           showError("You are not registered to any organization");
@@ -129,13 +134,17 @@ class _NewsFeedState extends State<NewsFeed>
 
   //function to get the current posts
   Future<void> getPosts() async {
+    setState(() {
+      _progressBarState = true;
+    });
     final String currentOrgID = await preferences.getCurrentOrgId();
     final String currentUserID = await preferences.getUserId();
-    _currentOrgID = currentUserID;
+
     String query = Queries().getPostsById(currentOrgID);
     Map result = await apiFunctions.gqlquery(query);
     // print(result);
     setState(() {
+      _progressBarState = false;
       postList =
           result == null ? [] : result['postsByOrganization'].reversed.toList();
       updateLikepostMap(currentUserID);
@@ -179,11 +188,18 @@ class _NewsFeedState extends State<NewsFeed>
       print('${userOrg[0]['_id']} | $orgId ');
       Navigator.pop(context);
     } else {
+      Navigator.pop(context);
+      setState(() {
+        _progressBarState = true;
+      });
       GraphQLClient _client = graphQLConfiguration.clientToQuery();
-      QueryResult result = await _client.mutate(MutationOptions(
-          document: gql(_query.fetchOrgById(selectedOrgId))));
+      QueryResult result = await _client.mutate(
+          MutationOptions(document: gql(_query.fetchOrgById(selectedOrgId))));
       if (result.hasException) {
         print(result.exception);
+        setState(() {
+          _progressBarState = false;
+        });
         //_exceptionToast(result.exception.toString());
       } else if (!result.hasException) {
         //save new current org in preference
@@ -198,7 +214,7 @@ class _NewsFeedState extends State<NewsFeed>
         Provider.of<Preferences>(context, listen: false)
             .saveCurrentOrgName(currentOrgName);
         final String currentOrgImgSrc =
-        result.data['organizations'][0]['image'];
+            result.data['organizations'][0]['image'];
         await _pref.saveCurrentOrgImgSrc(currentOrgImgSrc);
       }
     }
@@ -208,113 +224,162 @@ class _NewsFeedState extends State<NewsFeed>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: CustomAppBar(S.of(context).titleNewsFeeds, key: Key('NEWSFEED_APP_BAR')),
+        appBar: CustomAppBar(S.of(context).titleNewsFeeds,
+            key: Key('NEWSFEED_APP_BAR')),
         floatingActionButton: addPostFab(),
         drawer: drawer(),
-        body: postList.isEmpty
+        body: orgId == null
             ? Center(
-                child: Loading(
-                key: UniqueKey(),refresh: (){getPosts();}
+                child: Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Join/Create an organization first to see feeds',
+                      textAlign: TextAlign.center,
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    OpenContainer(
+                      transitionDuration: Duration(milliseconds: 1000),
+                      closedElevation: 6.0,
+                      tappable: true,
+                      closedBuilder: (BuildContext c, VoidCallback action) =>
+                          Container(
+                        color: Theme.of(context).primaryColor,
+                        padding: EdgeInsets.all(10),
+                        child: Text(
+                          S.of(context).joinCreateOrg,
+                          style: TextStyle(fontSize: 22),
+                        ),
+                      ),
+                      openBuilder: (BuildContext c, VoidCallback action) =>
+                          JoinOrganization(
+                        fromProfile: true,
+                      ),
+                    )
+                  ],
+                ),
               ))
-            : RefreshIndicator(
-                onRefresh: () async {
-                  getPosts();
-                },
-                child: Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                            itemCount: postList.length,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                padding: EdgeInsets.only(top: 20),
-                                child: Column(
-                                  children: <Widget>[
-                                    InkWell(
-                                      onTap: () {
-                                        pushNewScreen(
-                                          context,
-                                          screen: NewsArticle(
-                                              post: postList[index]),
-                                        );
-                                      },
-                                      child: Card(
-                                        color: Theme.of(context).backgroundColor,
-                                        child: Column(
-                                          children: <Widget>[
-                                            Container(
-                                                padding: EdgeInsets.all(5.0),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.0),
-                                                  child: Image.asset(
-                                                      UIData.shoppingImage),
-                                                )),
-                                            Row(children: <Widget>[
-                                              SizedBox(
-                                                width: 30,
-                                              ),
-                                              Container(
-                                                  child: Text(
-                                                postList[index]['title']
-                                                    .toString(),
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 20.0,
-                                                ),
-                                              )),
-                                            ]),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            Row(children: <Widget>[
-                                              SizedBox(
-                                                width: 30,
-                                              ),
-                                              Container(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width -
-                                                      50,
-                                                  child: Text(
-                                                    postList[index]["text"]
+            : _progressBarState
+                ? Center(
+                    child: LoadingShimmer(
+                    itemCount: 2,
+                      ofPage: page.feeds,
+                  ))
+                : postList.length==0
+            ?Center(
+          child: Loading(
+            refresh: getPosts,
+            withTimer: false,
+          ),
+        ) :RefreshIndicator(
+                    onRefresh: () async {
+                      getPosts();
+                    },
+                    child: Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                                itemCount: postList.length,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    padding: EdgeInsets.only(top: 20),
+                                    child: Column(
+                                      children: <Widget>[
+                                        InkWell(
+                                          onTap: () {
+                                            pushNewScreen(
+                                              context,
+                                              screen: NewsArticle(
+                                                  post: postList[index]),
+                                            );
+                                          },
+                                          child: Card(
+                                            color: Theme.of(context)
+                                                .backgroundColor,
+                                            child: Column(
+                                              children: <Widget>[
+                                                Container(
+                                                    padding:
+                                                        EdgeInsets.all(5.0),
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20.0),
+                                                      child: Image.asset(
+                                                          UIData.shoppingImage),
+                                                    )),
+                                                Row(children: <Widget>[
+                                                  SizedBox(
+                                                    width: 30,
+                                                  ),
+                                                  Container(
+                                                      child: Text(
+                                                    postList[index]['title']
                                                         .toString(),
-                                                    textAlign:
-                                                        TextAlign.justify,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 10,
                                                     style: TextStyle(
-                                                      fontSize: 16.0,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 20.0,
                                                     ),
                                                   )),
-                                            ]),
-                                            Padding(
-                                                padding: EdgeInsets.all(10),
-                                                child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceAround,
-                                                    children: <Widget>[
-                                                      likeButton(index),
-                                                      commentCounter(index),
-                                                      Container(width: 80)
-                                                    ])),
-                                          ],
+                                                ]),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Row(children: <Widget>[
+                                                  SizedBox(
+                                                    width: 30,
+                                                  ),
+                                                  Container(
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width -
+                                                              50,
+                                                      child: Text(
+                                                        postList[index]["text"]
+                                                            .toString(),
+                                                        textAlign:
+                                                            TextAlign.justify,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 10,
+                                                        style: TextStyle(
+                                                          fontSize: 16.0,
+                                                        ),
+                                                      )),
+                                                ]),
+                                                Padding(
+                                                    padding: EdgeInsets.all(10),
+                                                    child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceAround,
+                                                        children: <Widget>[
+                                                          likeButton(index),
+                                                          commentCounter(index),
+                                                          Container(width: 80)
+                                                        ])),
+                                              ],
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              );
-                            }),
+                                  );
+                                }),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )));
+                    )));
   }
 
   //function to add the post on the news feed
@@ -329,12 +394,18 @@ class _NewsFeedState extends State<NewsFeed>
       ),
       closedBuilder: (BuildContext c, VoidCallback action) =>
           FloatingActionButton(
-            heroTag: 'addPostFab',
+        heroTag: 'addPostFab',
         child: Icon(Icons.add),
         backgroundColor: UIData.secondaryColor,
         foregroundColor: Colors.white,
         elevation: 5.0,
-        onPressed: () => action(),
+        onPressed: () {
+          if (orgId != null) {
+            action();
+          } else {
+            _exceptionToast('Join An organization first to add new post');
+          }
+        },
       ),
       openBuilder: (BuildContext c, VoidCallback action) => AddPost(),
     );
@@ -505,6 +576,17 @@ class _NewsFeedState extends State<NewsFeed>
           ],
         ),
       ),
+    );
+  }
+
+  _exceptionToast(String msg) {
+    fToast.showToast(
+      child: ToastTile(
+        msg: msg,
+        success: false,
+      ),
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 3),
     );
   }
 

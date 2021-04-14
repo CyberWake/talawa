@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:talawa/commons/collapsing_list_tile_widget.dart';
 import 'package:talawa/generated/l10n.dart';
 import 'package:talawa/services/Queries.dart';
@@ -13,6 +15,7 @@ import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/views/pages/members/memberDetails.dart';
 import 'package:talawa/views/pages/organization/join_organization.dart';
 import 'package:talawa/views/widgets/chat_bubble.dart';
+import 'package:talawa/views/widgets/toast_tile.dart';
 
 class Manage extends StatefulWidget {
   final bool autoLogin;
@@ -35,34 +38,40 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
   Queries _query = Queries();
   GraphQLConfiguration graphQLConfiguration = GraphQLConfiguration();
   Preferences _pref = Preferences();
+  FToast fToast;
   List userOrg = [];
   List adminsList = [];
   List membersList = [];
   List participantsList = [];
   List searchList = [];
   List messages = [];
-  Map creator;
+  Map creator, selectedMap;
   int isSelected = -1;
   String orgId;
-  Map selectedMap;
   double maxWidth = 185;
   double minWidth = 70;
   double maxAttachmentWidth = 200;
   double minAttachmentWidth = 0;
   bool isCollapsed = true;
-  Animation<double> drawerWidthAnimation;
-  Animation<double> attachmentHeightAnimation;
+  Animation<double> drawerWidthAnimation, attachmentHeightAnimation;
   int currentSelectedIndex = 0;
-  bool _progressBarState = false;
+  bool _progressBarState = true;
   bool chatPageOpen = false;
-  bool loading = true;
   bool isSearchClicked = false;
   bool translateActive = false;
   IconData cancelAttachmentIcon = Icons.attach_file;
 
+  /*void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }*/
+
   @override
   void initState() {
     fetchUserDetails();
+    fToast = FToast();
+    fToast.init(context);
     _drawerAnimationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 600));
     drawerWidthAnimation = Tween<double>(begin: minWidth, end: maxWidth)
@@ -96,6 +105,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
   void didChangeDependencies() {
     orgId = Provider.of<Preferences>(context, listen: true).orgId;
     fetchUserDetails();
+    print('called');
     super.didChangeDependencies();
   }
 
@@ -104,33 +114,31 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
   }
 
   Future fetchUserDetails() async {
-    final String userID = await _pref.getUserId();
-    userOrg = [];
-    GraphQLClient _client = graphQLConfiguration.clientToQuery();
+    if (orgId != null) {
+      final String userID = await _pref.getUserId();
+      userOrg = [];
+      GraphQLClient _client = graphQLConfiguration.clientToQuery();
 
-    QueryResult result = await _client.query(QueryOptions(
-        document: gql(_query.fetchUserInfo), variables: {'id': userID}));
-    if (result.isLoading) {
-      setState(() {
-        _progressBarState = true;
-      });
-    } else if (result.hasException) {
-      print(result.exception);
-      print('error');
-      setState(() {
-        _progressBarState = false;
-        showError(result.exception.toString());
-      });
-    } else if (!result.hasException && !result.isLoading) {
-      setState(() {
-        _progressBarState = false;
-        userOrg = result.data['users'][0]['joinedOrganizations'];
-        if (userOrg.isEmpty) {
-          showError("You are not registered to any organization");
-        } else {
-          getMembers();
-        }
-      });
+      QueryResult result = await _client.query(QueryOptions(
+          document: gql(_query.fetchUserInfo), variables: {'id': userID}));
+      if (result.isLoading) {
+        setState(() {
+          _progressBarState = true;
+        });
+      } else if (result.hasException) {
+        print(result.exception);
+        setState(() {
+          _progressBarState = false;
+        });
+        _exceptionToast(result.exception.toString());
+      } else if (!result.hasException && !result.isLoading) {
+        setState(() {
+          userOrg = result.data['users'][0]['joinedOrganizations'];
+          if (orgId != null) {
+            getMembers();
+          }
+        });
+      }
     }
   }
 
@@ -138,6 +146,9 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
     if (selectedOrgId.compareTo(orgId) == 0) {
       print('${userOrg[0]['_id']} | $orgId ');
     } else {
+      setState(() {
+        _progressBarState = true;
+      });
       GraphQLClient _client = graphQLConfiguration.clientToQuery();
       QueryResult result = await _client.mutate(
           MutationOptions(document: gql(_query.fetchOrgById(selectedOrgId))));
@@ -164,9 +175,6 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
   }
 
   getMembers() async {
-    setState(() {
-      loading = true;
-    });
     if (orgId != null) {
       ApiFunctions apiFunctions = ApiFunctions();
       var result = await apiFunctions.gqlquery(Queries().fetchOrgById(orgId));
@@ -187,13 +195,15 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
           }
         }
       }
-      setState(() {
-        loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _progressBarState = false;
+        });
+      }
     } else {
       setState(() {
         membersList = [];
-        loading = false;
+        _progressBarState = false;
       });
     }
   }
@@ -276,50 +286,66 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                       child: Column(
                         children: <Widget>[
                           Expanded(
-                            child: ListView.separated(
-                              itemCount: userOrg.length,
-                              separatorBuilder: (context, index) {
-                                return Divider(height: 12.0);
-                              },
-                              itemBuilder: (context, index) {
-                                return CollapsingListTile(
-                                  onTap: () {
-                                    switchOrg(userOrg[index]['_id'].toString(),
-                                        index);
-                                  },
-                                  isSelected: orgId == userOrg[index]['_id'],
-                                  title: userOrg[index]['name'],
-                                  image: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: SizedBox(
-                                      width: 50,
-                                      height: 50,
-                                      child: userOrg[index]['image'] == null
-                                          ? Image.asset(
-                                              "assets/images/team.png",
-                                              fit: BoxFit.fill,
-                                            )
-                                          : Image.network(
-                                              Provider.of<GraphQLConfiguration>(
-                                                          context)
-                                                      .displayImgRoute +
-                                                  userOrg[index]['image'],
-                                              fit: BoxFit.fill,
-                                            ),
-                                    ),
-                                  ),
-                                  animationController:
-                                      _drawerAnimationController,
-                                );
-                              },
-                            ),
-                          ),
+                              child: ListView.separated(
+                            itemCount: !_progressBarState ? userOrg.length : 2,
+                            separatorBuilder: (context, index) {
+                              return Divider(height: 12.0);
+                            },
+                            itemBuilder: (context, index) {
+                              return !_progressBarState
+                                  ? CollapsingListTile(
+                                      onTap: () {
+                                        switchOrg(
+                                            userOrg[index]['_id'].toString(),
+                                            index);
+                                      },
+                                      isSelected:
+                                          orgId == userOrg[index]['_id'],
+                                      title: userOrg[index]['name'],
+                                      image: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: SizedBox(
+                                          width: 50,
+                                          height: 50,
+                                          child: userOrg[index]['image'] == null
+                                              ? Image.asset(
+                                                  "assets/images/team.png",
+                                                  fit: BoxFit.fill,
+                                                )
+                                              : Image.network(
+                                                  Provider.of<GraphQLConfiguration>(
+                                                              context)
+                                                          .displayImgRoute +
+                                                      userOrg[index]['image'],
+                                                  fit: BoxFit.fill,
+                                                ),
+                                        ),
+                                      ),
+                                      animationController:
+                                          _drawerAnimationController,
+                                    )
+                                  : Shimmer.fromColors(
+                                      baseColor: Colors.grey[700],
+                                      highlightColor: Colors.transparent,
+                                      child: CollapsingListTile(
+                                        onTap: () {},
+                                        title: ' ',
+                                        image: SizedBox(
+                                          width: 50,
+                                          height: 50,
+                                        ),
+                                        animationController:
+                                            _drawerAnimationController,
+                                      ),
+                                    );
+                            },
+                          )),
                           CollapsingListTile(
                             onTap: () {
                               pushNewScreen(context,
                                   screen: JoinOrganization(
-                                    fromProfile: true//widget.autoLogin,
-                                  ),
+                                      fromProfile: true //widget.autoLogin,
+                                      ),
                                   withNavBar: false);
                             },
                             title: S.of(context).joinCreateOrg,
@@ -394,7 +420,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                       ),
                                       onTap: () {
                                         setState(() {
-                                          loading = false;
+                                          _progressBarState = false;
                                           isSearchClicked = true;
                                         });
                                       },
@@ -408,7 +434,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                 IconButton(
                                   onPressed: () {
                                     setState(() {
-                                      loading = false;
+                                      _progressBarState = false;
                                       isSearchClicked = !isSearchClicked;
                                     });
                                     print(isSearchClicked);
@@ -444,10 +470,45 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                             member: searchList[index]);
                                       }),
                                     )
-                                  : loading
-                                      ? Center(
-                                          child: CircularProgressIndicator(),
-                                        )
+                                  : _progressBarState
+                                      ? ListView(
+                                          children: List.generate(
+                                              5,
+                                              (index) => Shimmer.fromColors(
+                                                    baseColor: Theme
+                                                        .of(context)
+                                                        .backgroundColor,
+                                                    highlightColor:
+                                                        Colors.transparent,
+                                                    child: Container(
+                                                      margin:
+                                                          EdgeInsets.fromLTRB(
+                                                              5, 5, 10, 5),
+                                                      decoration: BoxDecoration(
+                                                          color: Theme
+                                                                  .of(context)
+                                                              .backgroundColor,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                                  topLeft: Radius
+                                                                      .circular(
+                                                                          10),
+                                                                  bottomLeft: Radius
+                                                                      .circular(
+                                                                          10))),
+                                                      child: Theme(
+                                                          data: Theme.of(
+                                                                  context)
+                                                              .copyWith(
+                                                                  dividerColor:
+                                                                      Colors
+                                                                          .transparent),
+                                                          child: Container(
+                                                            height: 100,
+                                                            width: 100,
+                                                          )),
+                                                    ),
+                                                  )))
                                       : ListView(
                                           shrinkWrap: true,
                                           controller: _controllerVertical,
@@ -464,11 +525,15 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                             subList(
                                                 listName:
                                                     S.of(context).eventChats,
-                                                itemLength: eventsList.length,
+                                                itemLength: !_progressBarState
+                                                    ? eventsList.length
+                                                    : 0,
                                                 listNumber: 3),
                                             subList(
                                                 listName: S.of(context).groups,
-                                                itemLength: groupLists.length,
+                                                itemLength: !_progressBarState
+                                                    ? groupLists.length
+                                                    : 0,
                                                 listNumber: 4),
                                             subList(
                                                 listName: S.of(context).members,
@@ -480,7 +545,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                           ),
                         ],
                       )),
-                  chatPage(),
+                  orgId == null ? SizedBox() : chatPage(),
                 ],
               ),
             ],
@@ -504,7 +569,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
           maintainState: true,
           title: Text('$listName',
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 22)),
-          children: List.generate(itemLength, (index) {
+          children: List.generate(orgId == null ? 0 : itemLength, (index) {
             if (listNumber == 1) {
               return memberTile(member: creator);
             } else if (listNumber == 2) {
@@ -625,7 +690,8 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                             radius: 25,
                             backgroundColor:
                                 Theme.of(context).textTheme.subtitle1.color,
-                            backgroundImage: AssetImage('assets/images/team.png'))
+                            backgroundImage:
+                                AssetImage('assets/images/team.png'))
                         : selectedMap['image'] == null
                             ? CircleAvatar(
                                 backgroundColor:
@@ -666,7 +732,7 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                             child: Padding(
                               padding: const EdgeInsets.only(left: 10.0),
                               child: SizedBox(
-                                width: MediaQuery.of(context).size.width*0.25,
+                                width: MediaQuery.of(context).size.width * 0.25,
                                 child: Text(
                                   '${selectedMap['firstName']} ${selectedMap['lastName']}',
                                   style: TextStyle(
@@ -716,7 +782,8 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                           return {'Translate'}.map((String choice) {
                             return PopupMenuItem(
                               child: StatefulBuilder(
-                                builder: (BuildContext context, void Function(void Function()) setState) {
+                                builder: (BuildContext context,
+                                    void Function(void Function()) setState) {
                                   return SwitchListTile(
                                     title: Text(choice),
                                     onChanged: (bool value) {
@@ -792,7 +859,8 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                     color: Colors.grey,
                                   ),
                                 ),
-                                textCapitalization: TextCapitalization.sentences,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
                               ),
                             ),
                             InkWell(
@@ -812,7 +880,8 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                                   _attachmentAnimationController.reverse();
                                 } else {
                                   setState(() {
-                                    cancelAttachmentIcon = Icons.cancel_outlined;
+                                    cancelAttachmentIcon =
+                                        Icons.cancel_outlined;
                                   });
                                   _attachmentAnimationController.forward();
                                 }
@@ -840,7 +909,8 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                           });
                           Future.delayed(Duration(milliseconds: 2000));
                           _controllerChat.animateTo(
-                              _controllerChat.position.maxScrollExtent+(translateActive?100:50),
+                              _controllerChat.position.maxScrollExtent +
+                                  (translateActive ? 100 : 50),
                               duration: Duration(milliseconds: 100),
                               curve: Curves.linear);
                           _textController.clear();
@@ -862,8 +932,8 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
                           height: attachmentHeightAnimation.value,
                           child: GridView.count(
                             crossAxisCount: 3,
-                            padding:
-                                EdgeInsets.symmetric(horizontal: 35, vertical: 20),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 35, vertical: 20),
                             crossAxisSpacing: 40,
                             mainAxisSpacing: 20,
                             children: List.generate(
@@ -888,6 +958,17 @@ class _ManageState extends State<Manage> with TickerProviderStateMixin {
           ],
         ),
       ),
+    );
+  }
+
+  _exceptionToast(String msg) {
+    fToast.showToast(
+      child: ToastTile(
+        msg: msg,
+        success: false,
+      ),
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 3),
     );
   }
 

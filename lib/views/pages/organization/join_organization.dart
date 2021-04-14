@@ -23,7 +23,9 @@ import 'create_organization.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 class JoinOrganization extends StatefulWidget {
-  JoinOrganization({Key key, this.msg, this.fromProfile = false});
+  JoinOrganization(
+      {Key key, this.msg, this.fromProfile = false, this.autoLogin = false});
+  final bool autoLogin;
   final bool fromProfile;
   final String msg;
   @override
@@ -212,65 +214,55 @@ class _JoinOrganizationState extends State<JoinOrganization> {
       }
     });
     count++;
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(S.of(context).titleJoinOrg,
-            style: TextStyle(color: Colors.white)),
-      ),
-      body: organizationInfo.isEmpty
-          ? Center(
-              child: Loading(
-              key: Key('new'),
-                refresh: (){fetchOrg();},
-            ))
-          : Container(
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    S.of(context).textJoinOrgGreeting,
-                    style: TextStyle(fontSize: 18, fontStyle: FontStyle.normal),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  !widget.fromProfile
-                      ? Showcase(
-                          description: 'Search for a organization',
-                          key: _search,
-                          child: TextFormField(
-                            onChanged: (value) {
-                              searchOrgName(value);
-                            },
-                            controller: searchController,
-                            textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: 14),
-                            decoration: InputDecoration(
-                                contentPadding: EdgeInsets.all(5),
-                                fillColor: Theme.of(context).backgroundColor,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context).primaryColor,
-                                      width: 0.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context).primaryColor,
-                                      width: 0.0),
-                                ),
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.all(0.0),
-                                  child:
-                                      Icon(Icons.search, color: Colors.black),
-                                ),
-                                hintText: S.of(context).hintSearchOrg),
-                          ),
-                        )
-                      : TextFormField(
+    return TweenAnimationBuilder(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: Duration(milliseconds: 1500),
+        builder: (context, value, child) {
+          return ShaderMask(
+              shaderCallback: (Rect bounds) {
+            return RadialGradient(
+                radius: value * 5,
+                colors: [
+                  Colors.white,
+                  Colors.white,
+                  Colors.transparent,
+                  Colors.transparent
+                ],
+                stops: [0.0, 0.55, 0.6, 1.0],
+                center: FractionalOffset(0.5, 0.5))
+                .createShader(bounds);
+          },
+            child: Scaffold(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              appBar: AppBar(
+                title: Text(S.of(context).titleJoinOrg,
+                    style: TextStyle(color: Colors.white)),
+              ),
+              body: organizationInfo.isEmpty
+                  ? Center(
+                  child: Loading(
+                    key: Key('new'),
+                    refresh: () {
+                      AuthController().getNewToken();
+                      fetchOrg();
+                    },
+                  ))
+                  : Container(
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        S.of(context).textJoinOrgGreeting,
+                        style: TextStyle(fontSize: 18, fontStyle: FontStyle.normal),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      !widget.fromProfile
+                          ? Showcase(
+                        description: 'Search for a organization',
+                        key: _search,
+                        child: TextFormField(
                           onChanged: (value) {
                             searchOrgName(value);
                           },
@@ -295,66 +287,130 @@ class _JoinOrganizationState extends State<JoinOrganization> {
                               ),
                               prefixIcon: Padding(
                                 padding: EdgeInsets.all(0.0),
-                                child: Icon(Icons.search, color: Colors.black),
+                                child:
+                                Icon(Icons.search, color: Colors.black),
                               ),
                               hintText: S.of(context).hintSearchOrg),
                         ),
-                  SizedBox(height: 15),
-                  Expanded(
-                      child: !widget.fromProfile
-                          ? Showcase(
-                              onTargetClick: () {
-                                setState(() {
-                                  show = false;
-                                });
-                              },
-                              onToolTipClick: () {
-                                setState(() {
-                                  show = false;
-                                });
-                              },
-                              disposeOnTap: true,
-                              key: _select,
-                              description:
-                                  'Select an organization from the list',
-                              child: getList(searchController.text.isNotEmpty
-                                  ? filteredOrgInfo
-                                  : organizationInfo),
-                            )
-                          : getList(searchController.text.isNotEmpty
+                      )
+                          : TextFormField(
+                        onChanged: (value) {
+                          searchOrgName(value);
+                        },
+                        controller: searchController,
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontSize: 14),
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(5),
+                            fillColor: Theme.of(context).backgroundColor,
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).primaryColor,
+                                  width: 0.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).primaryColor,
+                                  width: 0.0),
+                            ),
+                            prefixIcon: Padding(
+                              padding: EdgeInsets.all(0.0),
+                              child: Icon(Icons.search, color: Colors.black),
+                            ),
+                            hintText: S.of(context).hintSearchOrg),
+                      ),
+                      SizedBox(height: 15),
+                      Expanded(
+                          child: !widget.fromProfile
+                              ? Showcase(
+                            onTargetClick: () {
+                              setState(() {
+                                show = false;
+                              });
+                            },
+                            onToolTipClick: () {
+                              setState(() {
+                                show = false;
+                              });
+                            },
+                            disposeOnTap: true,
+                            key: _select,
+                            description:
+                            'Select an organization from the list',
+                            child: getList(searchController.text.isNotEmpty
+                                ? filteredOrgInfo
+                                : organizationInfo),
+                          )
+                              : getList(searchController.text.isNotEmpty
                               ? filteredOrgInfo
                               : organizationInfo)),
-                  SizedBox(
-                    height: show ? 80 : 0,
-                  )
-                ],
-              )),
-      floatingActionButton: Tooltip(
-          message: 'Create new organization',
-          child: OpenContainer(
-            transitionDuration: Duration(milliseconds: 1000),
-            closedElevation: 6.0,
-            openColor: Theme.of(context).scaffoldBackgroundColor,
-            closedColor: Theme.of(context).scaffoldBackgroundColor,
-            closedShape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(28),
-              ),
+                      !widget.fromProfile
+                          ? SizedBox(
+                        height: 80,
+                        child: widget.autoLogin
+                            ? Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20.0),
+                          child: ElevatedButton(
+                            child: Text(S.of(context).home),
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pushReplacement(PageRouteBuilder(
+                                opaque: false,
+                                pageBuilder: (context, animation, _) =>
+                                    ShowCaseWidget(
+                                        autoPlayDelay:
+                                        Duration(seconds: 2),
+                                        autoPlay: true,
+                                        builder: Builder(
+                                          builder:
+                                              (BuildContext context) {
+                                            return HomePage(
+                                              openPageIndex: 3,
+                                            );
+                                          },
+                                        )),
+                              ));
+                            },
+                          ),
+                        )
+                            : SizedBox(),
+                      )
+                          : SizedBox(),
+                    ],
+                  )),
+              floatingActionButton: Tooltip(
+                  message: 'Create new organization',
+                  child: OpenContainer(
+                    transitionDuration: Duration(milliseconds: 1000),
+                    closedElevation: 6.0,
+                    openColor: Theme.of(context).scaffoldBackgroundColor,
+                    closedColor: Theme.of(context).scaffoldBackgroundColor,
+                    closedShape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(28),
+                      ),
+                    ),
+                    closedBuilder: (BuildContext c, VoidCallback action) =>
+                        FloatingActionButton(
+                          heroTag: 'joinFab',
+                          child: Icon(Icons.add),
+                          backgroundColor: UIData.secondaryColor,
+                          foregroundColor: Colors.white,
+                          elevation: 5.0,
+                          onPressed: () => action(),
+                        ),
+                    openBuilder: (BuildContext c, VoidCallback action) =>
+                        CreateOrganization(
+                          isFromProfile: widget.fromProfile,
+                        ),
+                  )),
             ),
-            closedBuilder: (BuildContext c, VoidCallback action) =>
-                FloatingActionButton(
-              heroTag: 'joinFab',
-              child: Icon(Icons.add),
-              backgroundColor: UIData.secondaryColor,
-              foregroundColor: Colors.white,
-              elevation: 5.0,
-              onPressed: () => action(),
-            ),
-            openBuilder: (BuildContext c, VoidCallback action) =>
-                CreateOrganization(
-              isFromProfile: widget.fromProfile,
-            ),
-          )),
+          );
+      }
     );
   }
 
@@ -366,11 +422,11 @@ class _JoinOrganizationState extends State<JoinOrganization> {
             shrinkWrap: true,
             itemBuilder: (context, index) {
               final organization = organizations[index];
-              return generateTile(organization,index);
+              return generateTile(organization, index);
             }));
   }
 
-  Widget generateTile(Map organization,int index) {
+  Widget generateTile(Map organization, int index) {
     return Card(
       child: ListTile(
         leading: organization['image'] != null
@@ -432,11 +488,11 @@ class _JoinOrganizationState extends State<JoinOrganization> {
           onPressed: () {
             itemIndex = organization['_id'].toString();
             if (organization['isPublic'].toString() == 'false') {
-                isPublic = 'false';
-                selectedIndex = index;
+              isPublic = 'false';
+              selectedIndex = index;
             } else {
-                isPublic = 'true';
-                selectedIndex = index;
+              isPublic = 'true';
+              selectedIndex = index;
             }
             setState(() {});
             confirmOrgDialog();

@@ -15,7 +15,7 @@ class ToastTile extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(msg),
+          Expanded(flex:1,child: Text(msg)),
         ],
       ),
     );

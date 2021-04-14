@@ -105,6 +105,16 @@ class S {
     );
   }
 
+  /// `Sad to see you going!`
+  String get contentExit {
+    return Intl.message(
+      'Sad to see you going!',
+      name: 'contentExit',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Create an Account`
   String get createAccount {
     return Intl.message(
@@ -130,6 +140,16 @@ class S {
     return Intl.message(
       'Creator',
       name: 'creator',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Donate`
+  String get donate {
+    return Intl.message(
+      'Donate',
+      name: 'donate',
       desc: '',
       args: [],
     );
@@ -180,6 +200,16 @@ class S {
     return Intl.message(
       'Groups',
       name: 'groups',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Help and Support`
+  String get help {
+    return Intl.message(
+      'Help and Support',
+      name: 'help',
       desc: '',
       args: [],
     );
@@ -310,6 +340,16 @@ class S {
     return Intl.message(
       'Home',
       name: 'home',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invite`
+  String get invite {
+    return Intl.message(
+      'Invite',
+      name: 'invite',
       desc: '',
       args: [],
     );
@@ -695,20 +735,20 @@ class S {
     );
   }
 
-  /// `SIGN IN`
+  /// `Sign In`
   String get signIn {
     return Intl.message(
-      'SIGN IN',
+      'Sign In',
       name: 'signIn',
       desc: '',
       args: [],
     );
   }
 
-  /// `SIGN UP`
+  /// `Sign Up`
   String get signUp {
     return Intl.message(
-      'SIGN UP',
+      'Sign Up',
       name: 'signUp',
       desc: '',
       args: [],
@@ -775,10 +815,10 @@ class S {
     );
   }
 
-  /// `Don't have and account`
+  /// `Forget Password`
   String get textDontHaveAccount {
     return Intl.message(
-      'Don\'t have and account',
+      'Forget Password',
       name: 'textDontHaveAccount',
       desc: '',
       args: [],
@@ -940,6 +980,16 @@ class S {
     return Intl.message(
       'Selected Language',
       name: 'titleSelectedLanguage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Welcome Back`
+  String get titleWelcomeBack {
+    return Intl.message(
+      'Welcome Back',
+      name: 'titleWelcomeBack',
       desc: '',
       args: [],
     );

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:talawa/controllers/auth_controller.dart';
+import 'package:talawa/services/preferences.dart';
+import 'package:talawa/utils/GQLClient.dart';
 
 class SplashScreen extends StatefulWidget {
   final Widget navigateAfter;
@@ -10,7 +13,11 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin{
   AnimationController _controller;
-
+  AuthController _authController = AuthController();
+  Future getNewToken()async{
+    _authController.getNewToken();
+    GraphQLConfiguration().getToken();
+  }
   @override
   void initState() {
     _controller = AnimationController(
@@ -21,26 +28,27 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       lowerBound: 0.00001,
       upperBound: 1.0,
     )..forward()..repeat(reverse: true);
-    Future.delayed(Duration(milliseconds: 1600))
-        .then((value){
-          _controller.dispose();
-          Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                opaque: false,
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    widget.navigateAfter,
-                transitionDuration: Duration(seconds: 2),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  return SizeTransition(
-                    sizeFactor: animation,
-                    axisAlignment: 0.0,
-                    child: child,
-                  );
-                },
-              ));
-        });
+    getNewToken().whenComplete((){
+      Future.delayed(Duration(milliseconds: 1500)).whenComplete((){
+        _controller.dispose();
+        Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, animation, secondaryAnimation) =>
+              widget.navigateAfter,
+              transitionDuration: Duration(seconds: 2),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return SizeTransition(
+                  sizeFactor: animation,
+                  axisAlignment: 0.0,
+                  child: child,
+                );
+              },
+            ));
+      });
+    });
     super.initState();
   }
 

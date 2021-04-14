@@ -2,9 +2,11 @@
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 import 'package:showcaseview/showcase.dart';
 import 'package:showcaseview/showcase_widget.dart';
 //pages are imported here
@@ -21,6 +23,8 @@ import 'package:talawa/views/pages/organization/organization_settings.dart';
 import 'package:talawa/views/widgets/about_tile.dart';
 import 'package:talawa/views/widgets/alert_dialog_box.dart';
 import 'package:talawa/views/pages/organization/update_profile_page.dart';
+import 'package:talawa/views/widgets/toast_tile.dart';
+import 'package:talawa/views/widgets/loading_shimmer.dart';
 
 class ProfilePage extends StatefulWidget {
   final bool autoLogin;
@@ -36,7 +40,11 @@ class _ProfilePageState extends State<ProfilePage> {
   GlobalKey _leaveOrg = GlobalKey();
   GlobalKey _appSettings = GlobalKey();
   GlobalKey _orgSettings = GlobalKey();
+  GlobalKey _help = GlobalKey();
+  GlobalKey _invite = GlobalKey();
+  GlobalKey _donate = GlobalKey();
   GlobalKey _logout = GlobalKey();
+
   void setState(fn) {
     if (mounted) {
       super.setState(fn);
@@ -60,6 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
   OrgController _orgController = OrgController();
   String orgId;
   GraphQLConfiguration graphQLConfiguration = GraphQLConfiguration();
+  FToast fToast;
 
   @override
   void didChangeDependencies() {
@@ -74,6 +83,8 @@ class _ProfilePageState extends State<ProfilePage> {
   //providing initial states to the variables
   @override
   void initState() {
+    fToast = FToast();
+    fToast.init(context);
     super.initState();
     if (widget.isCreator != null && widget.test != null) {
       userDetails = widget.test;
@@ -123,7 +134,7 @@ class _ProfilePageState extends State<ProfilePage> {
     orgName = await _preferences.getCurrentOrgName();
     orgId = await _preferences.getCurrentOrgId();
     if (orgId != null) {
-      GraphQLClient _client = graphQLConfiguration.authClient();
+      GraphQLClient _client = graphQLConfiguration.clientToQuery();
       QueryResult result = await _client
           .query(QueryOptions(document: gql(_query.fetchOrgById(orgId))));
       if (result.hasException) {
@@ -166,9 +177,12 @@ class _ProfilePageState extends State<ProfilePage> {
       _authController.getNewToken();
       print('loop');
       return leaveOrg();
-    } else if (result.hasException &&
-        result.exception.toString().substring(16) != accessTokenException) {
-      print('exception: ${result.exception.toString()}');
+    } else if (result.hasException) {
+      if(result.exception.graphqlErrors.length>0){
+        _exceptionToast('${result.exception.graphqlErrors[0].message}');
+      }else if(result.exception.linkException.originalException!=null){
+        _exceptionToast('Organization URL not valid');
+      }
       //_exceptionToast(result.exception.toString().substring(16));
     } else if (!result.hasException && !result.isLoading) {
       //set org at the top of the list as the new current org
@@ -201,10 +215,12 @@ class _ProfilePageState extends State<ProfilePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (userDetails.isNotEmpty && isCreator != null && !widget.autoLogin && count<3){
         print('here');
-        if (!isCreator) {
-          ShowCaseWidget.of(context).startShowCase([_updateProfile,_leaveOrg,_appSettings,_logout,]);
+        if (!isCreator && curOrganization.length>0) {
+          ShowCaseWidget.of(context).startShowCase([_updateProfile,_leaveOrg,_appSettings,_invite,_help,_donate,_logout]);
+        }else if(curOrganization.length>0){
+          ShowCaseWidget.of(context).startShowCase([_updateProfile,_orgSettings,_appSettings,_invite,_help,_donate,_logout]);
         }else{
-          ShowCaseWidget.of(context).startShowCase([_updateProfile,_orgSettings,_appSettings,_logout,]);
+          ShowCaseWidget.of(context).startShowCase([_updateProfile,_appSettings,_help,_donate,_logout]);
         }
         count++;
       }
@@ -214,9 +230,7 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: Theme.of(context).backgroundColor,
         body: userDetails.isEmpty || isCreator == null
             ? Center(
-                child: CircularProgressIndicator(
-                key: Key('loading'),
-              ))
+                child: LoadingShimmer(ofPage: page.profile,itemCount: 7,))
             : Column(
                 key: Key('body'),
                 children: <Widget>[
@@ -296,7 +310,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20.0),
                   Expanded(
                     child: ListView(
                       children: ListTile.divideTiles(
@@ -382,7 +395,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 style: TextStyle(fontSize: 18.0),
                                               ),
                                               leading: Icon(
-                                                Icons.exit_to_app,
+                                                Icons.person_remove_alt_1,
                                                 color:
                                                     Theme.of(context).primaryColor,
                                               ),
@@ -414,6 +427,69 @@ class _ProfilePageState extends State<ProfilePage> {
                                 onTap: () {
                                   pushNewScreen(context, screen: SettingsPage(),withNavBar: false);
                                 },
+                              ),
+                            ),
+                          ),
+                          orgId!=null?Showcase(
+                            key: _invite,
+                            description: 'Invite colleagues to the organization',
+                            child: Tooltip(
+                              message: 'Invite colleagues to the organization',
+                              child: ListTile(
+                                key: Key('Invite'),
+                                tileColor: Theme.of(context).backgroundColor,
+                                title: Text(
+                                  S.of(context).invite,
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                                leading: Icon(
+                                  Icons.share,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                onTap: ()async{
+                                  String orgUrl = await _preferences.getOrgUrl();
+                                  Share.share('Join us and become the part of our journey \n$orgUrl', subject: 'Send invitation link');
+                                },
+                              ),
+                            ),
+                          ):SizedBox(),
+                          Showcase(
+                            key: _help,
+                            description: 'Help center',
+                            child: Tooltip(
+                              message: 'Need some help',
+                              child: ListTile(
+                                key: Key('Help and Support'),
+                                tileColor: Theme.of(context).backgroundColor,
+                                title: Text(
+                                  S.of(context).help,
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                                leading: Icon(
+                                  Icons.help_center,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                onTap: workInProgress,
+                              ),
+                            ),
+                          ),
+                          Showcase(
+                            key: _donate,
+                            description: 'Help us grow more',
+                            child: Tooltip(
+                              message: 'Help us grow more and provide you free services',
+                              child: ListTile(
+                                key: Key('Donate'),
+                                tileColor: Theme.of(context).backgroundColor,
+                                title: Text(
+                                  S.of(context).donate,
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                                leading: Icon(
+                                  Icons.payments,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                onTap: workInProgress,
                               ),
                             ),
                           ),
@@ -455,5 +531,27 @@ class _ProfilePageState extends State<ProfilePage> {
                   )
                 ],
               ));
+  }
+
+  _exceptionToast(String msg) {
+    fToast.showToast(
+      child: ToastTile(
+        msg: msg,
+        success: false,
+      ),
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 5),
+    );
+  }
+
+  workInProgress() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Work in progress'),
+            content: Text('Hope you like my work'),
+          );
+        });
   }
 }

@@ -11,10 +11,10 @@ class Preferences with ChangeNotifier {
   static const currentOrgImgSrc = "currentOrgImgSrc";
   static const currentOrgName = "currentOrgName";
   static const orgUrl = "orgUrl";
-  static const orgImgUrl = "orgUrl";
+  static const orgImgUrl = "orgImgUrl";
   static const userFName = "userFirstName";
   static const userLName = "userLastName";
-
+  String orgDomain;
   String orgName;
   String orgId;
   String orgImgSrc;
@@ -67,6 +67,7 @@ class Preferences with ChangeNotifier {
   Future saveOrgUrl(String url) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     print('org  : $url');
+    orgDomain = url;
     await preferences.setString(orgUrl, url);
   }
 
@@ -201,14 +202,13 @@ class Preferences with ChangeNotifier {
     var storage=FlutterSecureStorage();
     try {
       await storage.delete(key: tokenKey);
-      //print("Delete token");
-      preferences.remove(currentOrgId);
       await storage.delete(key: refreshTokenKey);
-      //print("Refresh token");
       preferences.remove(userId);
+      preferences.remove(currentOrgId);
       preferences.remove(currentOrgName);
       preferences.remove(currentOrgImgSrc);
       preferences.remove(orgUrl);
+      preferences.remove(orgImgUrl);
       preferences.remove(userFName);
       preferences.remove(userLName);
     } catch (e) {

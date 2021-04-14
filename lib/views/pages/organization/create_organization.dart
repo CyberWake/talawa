@@ -255,7 +255,6 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                             textAlign: TextAlign.left,
                             textCapitalization: TextCapitalization.words,
                             textInputAction: TextInputAction.next,
-                            style: TextStyle(color: Colors.black),
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                   borderSide:
@@ -286,7 +285,6 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                             validator: (value) =>
                                 Validator.validateOrgDesc(value),
                             textAlign: TextAlign.left,
-                            style: TextStyle(color: Colors.black),
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                   borderSide:
@@ -315,7 +313,6 @@ class _CreateOrganizationState extends State<CreateOrganization> {
                             validator: (value) =>
                                 Validator.validateOrgAttendeesDesc(value),
                             textAlign: TextAlign.left,
-                            style: TextStyle(color: Colors.black),
                             decoration: new InputDecoration(
                               border: new OutlineInputBorder(
                                   borderRadius: new BorderRadius.circular(20.0),

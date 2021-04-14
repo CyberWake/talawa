@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyTheme with ChangeNotifier{
-  bool isDark = ThemeMode.system == ThemeMode.dark;
+  bool isDark;
   ThemeMode mode = ThemeMode.system;
 
   Future<ThemeMode> currentTheme()async{

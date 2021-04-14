@@ -55,6 +55,8 @@ dependencies:
   showcaseview: ^0.1.6
   flutter_switch: ^0.3.0
   flag: ^3.2.2
+  share: ^2.0.1
+  shimmer: ^2.0.0
 
 
 

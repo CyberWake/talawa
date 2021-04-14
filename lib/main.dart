@@ -10,9 +10,9 @@ import 'package:talawa/splash_screen.dart';
 import 'package:talawa/utils/GQLClient.dart';
 import 'package:talawa/utils/uidata.dart';
 import 'package:talawa/views/pages/_pages.dart';
-import 'package:talawa/views/pages/login_signup/ask_locale.dart';
-import 'package:talawa/views/pages/login_signup/set_url_page.dart';
+import 'package:talawa/views/pages/login_signup/unauth_screen_holder.dart';
 import 'package:talawa/views/pages/organization/profile_page.dart';
+import 'package:talawa/views/pages/login_signup/ask_url.dart';
 
 import 'controllers/auth_controller.dart';
 import 'controllers/localization_controller.dart';
@@ -24,10 +24,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 Preferences preferences = Preferences();
 String userID;
+String orgID;
 Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); //ensuring weather the app is being initialized or not
   Localization().getLocale();
+  orgID = await preferences.getCurrentOrgId();
   userID = await preferences.getUserId().whenComplete(() {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp
@@ -82,7 +84,7 @@ class MyApp extends StatelessWidget {
             selectionHandleColor: Color(0xFF31bd6a),
           ),
         ),
-        locale: Provider.of<Localization>(context,listen: true).currentLocale,
+        locale: Provider.of<Localization>(context, listen: true).currentLocale,
         theme: ThemeData.light().copyWith(
           accentColor: Colors.black,
           textSelectionTheme: TextSelectionThemeData(
@@ -100,7 +102,7 @@ class MyApp extends StatelessWidget {
               'build route for ${settings.name}'); //here we are building the routes for the app
           var routes = <String, WidgetBuilder>{
             UIData.homeRoute: (BuildContext context) => HomePage(),
-            UIData.loginPageRoute: (BuildContext context) => UrlPage(),
+            UIData.loginPageRoute: (BuildContext context) => AuthScreenHolder(pageIndex:1),
             UIData.createOrgPage: (BuildContext context) =>
                 CreateOrganization(),
             UIData.joinOrganizationPage: (BuildContext context) =>
@@ -112,21 +114,25 @@ class MyApp extends StatelessWidget {
           WidgetBuilder builder = routes[settings.name];
           return MaterialPageRoute(builder: (ctx) => builder(ctx));
         },
-        themeMode: Provider.of<MyTheme>(context,listen: true).mode,
-        home: AskLocale()/*SplashScreen(
-          navigateAfter: SplashScreen(
-            navigateAfter: userID == null
-                ? ShowCaseWidget(
-                    autoPlayDelay: Duration(seconds: 2),
-                    builder: Builder(builder: (context) => UrlPage()),
-                    autoPlay: true //userID == null,
-                    )
-                : HomePage(
-                    openPageIndex: 3,
-              autoLogin: true,
-                  ),
+        themeMode: Provider.of<MyTheme>(context, listen: true).mode,
+        home: SplashScreen(
+          navigateAfter: userID == null
+              ? ShowCaseWidget(
+              autoPlayDelay: Duration(seconds: 2),
+              builder: Builder(builder: (context) => AuthScreenHolder()),
+              autoPlay: true //userID == null,
+          )
+              : orgID == null
+              ? ShowCaseWidget(
+              autoPlayDelay: Duration(seconds: 2),
+              builder: Builder(builder: (context) => JoinOrganization(autoLogin: true,)
+              ),
+              autoPlay: true //userID == null,
+          )        : HomePage(
+            openPageIndex: 3,
+            autoLogin: true,
           ),
-        ),*/
+        ),
       ), //checking weather the user is logged in or not
     );
   }

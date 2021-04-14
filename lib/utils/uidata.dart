@@ -149,7 +149,7 @@ class UIData {
   //   700:Color.fromRGBO(126,25,70, .8),
   //   800:Color.fromRGBO(126,25,70, .9),
   //   900:Color.fromRGBO(126,25,70, 1)});
-  static const Color primaryColor = Colors.orange;
+  static const Color primaryColor = Color(0xffFEBC59);
   static const Color secondaryColor = Colors.blueAccent;
 
 //colors

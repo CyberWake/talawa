@@ -3,8 +3,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
 
 class Loading extends StatefulWidget {
+  final bool withTimer;
   final Function refresh;
-  Loading({Key key,this.refresh}) : super(key: key);
+  Loading({Key key,this.refresh,this.withTimer=true}) : super(key: key);
   @override
   _LoadingState createState() => _LoadingState();
 }
@@ -30,20 +31,30 @@ class _LoadingState extends State<Loading> {
   @override
   void initState() {
     super.initState();
-    loadingFunc();
+    if (widget.withTimer) {
+      loadingFunc();
+    }else{
+      setState(() {
+        loading=false;
+      });
+    }
     print(1);
   }
 
   @override
   void didUpdateWidget(Loading oldWidget) {
     super.didUpdateWidget(oldWidget);
-    loadingFunc();
+    if (widget.withTimer) {
+      loadingFunc();
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    _timer.cancel();
+    if (widget.withTimer) {
+      _timer.cancel();
+    }
   }
 
   @override
@@ -59,7 +70,7 @@ class _LoadingState extends State<Loading> {
               ),
               SizedBox(height: 30),
               Text(
-                'No data or something went wrong',
+                widget.withTimer?'No data or something went wrong':'No data',
                 style: TextStyle(color: Colors.red),
               ),
               SizedBox(height: 30),
