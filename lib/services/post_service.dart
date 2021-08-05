@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:talawa/locator.dart';
 import 'package:talawa/models/organization/org_info.dart';
 import 'package:talawa/models/post/post_model.dart';
@@ -15,6 +14,7 @@ class PostService {
         _updatedPostStreamController.stream.asBroadcastStream();
     _currentOrg = _userConfig.currentOrg;
     setOrgStreamSubscription();
+    getPosts();
   }
   // Stream for entire posts
   final StreamController<List<Post>> _postStreamController =
@@ -40,8 +40,12 @@ class PostService {
   //Setters
   void setOrgStreamSubscription() {
     _userConfig.currentOrfInfoStream.listen((updatedOrganization) {
-      _renderedPostID.clear();
-      _currentOrg = updatedOrganization;
+      if (updatedOrganization != _currentOrg) {
+        print("org changes from post service");
+        _renderedPostID.clear();
+        _currentOrg = updatedOrganization;
+        getPosts();
+      }
     });
   }
 
@@ -49,8 +53,7 @@ class PostService {
   Future<void> getPosts() async {
     final String currentOrgID = _currentOrg.id!;
     final String query = PostQueries().getPostsById(currentOrgID);
-    final QueryResult result =
-        await _dbFunctions.gqlAuthQuery(query) as QueryResult;
+    final result = await _dbFunctions.gqlAuthQuery(query);
 
     //Checking if the dbFunctions return the postJSON, if not return.
     if (result.data!['postsByOrganization'] == null) return;
