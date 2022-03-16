@@ -53,36 +53,70 @@ jobs:
     needs: Flutter-Codebase-Check
     steps:
       - uses: actions/checkout@v2.3.2
+      - uses: jitterbit/get-changed-files@v1
+        id: updatedFiles
+        with:
+          format: space-delimited
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checking doc updated
+        id: DocUpdated
+        run: |
+          echo "${{ steps.abc.outputs.added_modified }}"
+          IFS=' '
+          read -ra ADDR <<<"${{ steps.updatedFiles.outputs.added_modified }}"
+          doc=0
+          for i in "${ADDR[@]}"; #accessing each element of array
+          do
+          echo "$i"
+          if [[ $i == ./lib* ]]
+          then
+            doc=doc+1
+          fi
+          done
+          if [[ $doc -ge 0 ]]
+          then
+            echo '::set-output name=updateDoc::true'
+          else
+            Green='0;32'
+            NoColor='\033[0m'
+            echo -e "${Green}No documentation updated${NoColor}"
+          fi
       - uses: actions/setup-java@v1
+        if: steps.DocUpdated.updateDoc
         with:
           java-version: '12.x'
       - uses: subosito/flutter-action@v1
+        if: steps.DocUpdated.updateDoc
         with:
           channel: 'stable'
-      - run: flutter pub get
-      - run: flutter analyze
       - uses: dart-lang/setup-dart@v1
-      - run: dart analyze
-      - run: flutter pub global activate dartdoc
-      - run: flutter pub global run dartdoc .
+        if: steps.DocUpdated.updateDoc
+      - run: |
+          flutter pub get
+          flutter analyze
+          dart analyze
+          flutter pub global activate dartdoc
+          flutter pub global run dartdoc .
       - uses: actions/upload-artifact@v1
+        if: steps.DocUpdated.updateDoc
         with:
           name: docs
           path: doc/api
-      - name: Set commit_id in env
+      - name: Set env variables
+        if: steps.DocUpdated.updateDoc
         run: |
           echo "commit_id=$(echo $(git rev-parse HEAD))" >> $GITHUB_ENV
-      - name: Set email in env
-        run: |
           echo "email=$(echo $(git log --pretty=format:"%ae" $commit_id))" >> $GITHUB_ENV
-      - name: update commit
+      - name: Update Doc
+        if: steps.DocUpdated.updateDoc
         run: |
-          git config --global user.name "$GITHUB_ACTOR"
+          Green='0;32'
+          NoColor='\033[0m'
+          git config --global user.name "${{github.actor}}"
           git config --global user.email "${{env.email}}"
-
-          git add -A
-          git commit -m "Updated docs"
+          git commit -a -m "Updated docs"
           git push
+          echo -e "🚀${Green} Hurrah! doc updated${NoColor}"
 
   Flutter-Testing:
     name: Testing codebase
